@@ -15,7 +15,7 @@ struct AlarmPayload {
     var hour: Int
     var minute: Int
     var isRepeat: Bool // 알람 반복 여부
-    var repeatDay: Int // 반복 요일
+    var repeatDay: Int = -1 // 반복 요일, 없을 경우 -1. 기본값은 없으므로 -1 부여
 }
 
 // 커스텀 미션 - 뽀모도로
@@ -28,7 +28,7 @@ struct MissionPayload {
 }
 
 // 미션 결과 - 뽀모도로
-struct ResultPayload {
+struct MissionResultPayload {
     var id: UUID
     var title: String // Mission.title과 동일값
     var start: Date
