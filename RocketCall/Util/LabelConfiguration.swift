@@ -24,4 +24,16 @@ extension LabelConfiguration {
         color: .label,
         lines: 0
     )
+    
+    static let title = LabelConfiguration(
+        font: .systemFont(ofSize: 26, weight: .heavy),
+        color: .mainLabel,
+        lines: 1
+    )
+    
+    static let subTitle = LabelConfiguration(
+        font: .systemFont(ofSize: 14, weight: .medium),
+        color: .subLabel,
+        lines: 1
+    )
 }
