@@ -12,6 +12,7 @@ class MainController: UITabBarController {
         super.viewDidLoad()
         configure()
         tabBar.tintColor = .mainPoint
+        self.view.backgroundColor = .background
     }
 }
 

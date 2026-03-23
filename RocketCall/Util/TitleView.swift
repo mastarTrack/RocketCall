@@ -31,7 +31,9 @@ class TitleView: UIView {
 extension TitleView {
     private func setAttributes() {
         backgroundColor = .clear
-        addButton.setImage(UIImage(systemName: "plus"), for: .normal)
+        
+        let symbolConfig = UIImage.SymbolConfiguration(weight: .heavy)
+        addButton.setImage(UIImage(systemName: "plus",withConfiguration: symbolConfig), for: .normal)
         addButton.tintColor = .mainPoint
     }
     
