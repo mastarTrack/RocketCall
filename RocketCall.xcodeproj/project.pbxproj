@@ -13,6 +13,7 @@
 		8A65F74F2F710244000BCE97 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8A65F74E2F710244000BCE97 /* RxSwift */; };
 		8A65F7522F710252000BCE97 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 8A65F7512F710252000BCE97 /* Then */; };
 		8A65F7552F710287000BCE97 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 8A65F7542F710287000BCE97 /* Lottie */; };
+		8A65F7582F7102CF000BCE97 /* ReactorKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8A65F7572F7102CF000BCE97 /* ReactorKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +48,7 @@
 			files = (
 				8A65F7522F710252000BCE97 /* Then in Frameworks */,
 				8A65F74D2F710244000BCE97 /* RxRelay in Frameworks */,
+				8A65F7582F7102CF000BCE97 /* ReactorKit in Frameworks */,
 				8A65F74B2F710244000BCE97 /* RxCocoa in Frameworks */,
 				8A65F74F2F710244000BCE97 /* RxSwift in Frameworks */,
 				8A65F7482F710225000BCE97 /* SnapKit in Frameworks */,
@@ -99,6 +101,7 @@
 				8A65F74E2F710244000BCE97 /* RxSwift */,
 				8A65F7512F710252000BCE97 /* Then */,
 				8A65F7542F710287000BCE97 /* Lottie */,
+				8A65F7572F7102CF000BCE97 /* ReactorKit */,
 			);
 			productName = RocketCall;
 			productReference = 8A65F72B2F710136000BCE97 /* RocketCall.app */;
@@ -133,6 +136,7 @@
 				8A65F7492F710244000BCE97 /* XCRemoteSwiftPackageReference "RxSwift" */,
 				8A65F7502F710252000BCE97 /* XCRemoteSwiftPackageReference "Then" */,
 				8A65F7532F710287000BCE97 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				8A65F7562F7102CF000BCE97 /* XCRemoteSwiftPackageReference "ReactorKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8A65F72C2F710136000BCE97 /* Products */;
@@ -408,6 +412,14 @@
 				minimumVersion = 4.6.0;
 			};
 		};
+		8A65F7562F7102CF000BCE97 /* XCRemoteSwiftPackageReference "ReactorKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactorKit/ReactorKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -440,6 +452,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8A65F7532F710287000BCE97 /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
+		};
+		8A65F7572F7102CF000BCE97 /* ReactorKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A65F7562F7102CF000BCE97 /* XCRemoteSwiftPackageReference "ReactorKit" */;
+			productName = ReactorKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
