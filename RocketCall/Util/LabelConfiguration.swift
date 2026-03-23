@@ -25,8 +25,8 @@ extension LabelConfiguration {
         lines: 0
     )
     
-    static let navTitle = LabelConfiguration(
-        font: .boldSystemFont(ofSize: 24),
+    static let title = LabelConfiguration(
+        font: .systemFont(ofSize: 26, weight: .heavy),
         color: .mainLabel,
         lines: 1
     )

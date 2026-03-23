@@ -27,16 +27,6 @@ extension MainController {
         thirdVC.tabBarItem = UITabBarItem(title: "미션", image: UIImage(systemName: "timer"), tag: 2)
         fourthVC.tabBarItem = UITabBarItem(title: "자유항행", image: UIImage(systemName: "stopwatch"), tag: 3)
         
-        [firstVC, secondVC, thirdVC, fourthVC].forEach {
-            $0.navigationBar.layoutMargins.left = 20
-            
-            let appearance = UINavigationBarAppearance()
-            appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-            
-            $0.navigationBar.prefersLargeTitles = true
-            $0.navigationBar.standardAppearance = appearance
-        }
-        
         viewControllers = [firstVC, secondVC, thirdVC, fourthVC]
     }
 }

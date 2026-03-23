@@ -16,32 +16,14 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
         view.backgroundColor = .background
         
-        // 네비게이션 타이틀 위치 조정
-        if #available(iOS 17.0, *) {
-            navigationItem.largeTitleDisplayMode = .inline
-        } else {
-            navigationItem.largeTitleDisplayMode = .automatic
-        }
-    
-        // 우측 add 버튼 (+ 버튼)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: .add, style: .plain, target: nil, action: nil)
-        navigationItem.rightBarButtonItem?.tintColor = .white
+        navigationController?.isNavigationBarHidden = true
+        let titleView = TitleView(title: "알람", subTitle: "알람을 설정해주세요", hasButton: true)
         
-        title = "알람" // 타이틀 설정
-        let subTitle = UILabel(text: "알람을 설정해주세요.", config: LabelConfiguration.subTitle) // 서브 타이틀 설정
+        view.addSubview(titleView)
         
-        // 서브타이틀 레이아웃
-        view.addSubview(subTitle)
-        subTitle.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(-5)
-            $0.leading.equalTo(view.safeAreaLayoutGuide.snp.leading).offset(20)
-        }
-        
-        let stateLabel = StateLabel(text: "완료", config: StateLabelConfiguration.complete)
-        
-        view.addSubview(stateLabel)
-        stateLabel.snp.makeConstraints {
-            $0.center.equalToSuperview()
+        titleView.snp.makeConstraints {
+            $0.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.height.equalTo(50)
         }
     }
 }
