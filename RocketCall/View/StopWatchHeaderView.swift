@@ -163,18 +163,6 @@ extension StopWatchHeaderView {
             $0.width.equalTo(180)
             $0.height.equalTo(38)
         }
-        
-        startButton.snp.makeConstraints {
-            $0.size.equalTo(64)
-        }
-        
-        recordButton.snp.makeConstraints {
-            $0.size.equalTo(64)
-        }
-        
-        resetButton.snp.makeConstraints {
-            $0.size.equalTo(64)
-        }
     }
 }
 
