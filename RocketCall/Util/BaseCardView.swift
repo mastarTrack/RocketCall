@@ -12,7 +12,7 @@
 
 import UIKit
 
-final class BaseCardView: UIView {
+class BaseCardView: UIView {
     
     var isOn: Bool = false {
         didSet {
