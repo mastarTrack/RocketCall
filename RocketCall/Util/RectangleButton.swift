@@ -1,12 +1,12 @@
 //
-//  CustomButton.swift
+//  rectangleButton.swift
 //  RocketCall
 //
 //  Created by Yeseul Jang on 3/23/26.
 //
 import UIKit
 
-class CustomButton: UIButton {
+class RectangleButton: UIButton {
     init(title: String, color: UIColor) {
         super.init(frame: .zero)
         setAttributes(title: title, color: color)
@@ -17,7 +17,7 @@ class CustomButton: UIButton {
     }
 }
 
-extension CustomButton {
+extension RectangleButton {
     private func setAttributes(title: String, color: UIColor) {
         self.setTitle(title, for: .normal)
         self.setTitleColor(.white, for: .normal)
