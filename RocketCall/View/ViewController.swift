@@ -25,7 +25,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .background
-        
+ 
         view.addSubview(test)
         test.snp.makeConstraints {
             $0.edges.equalTo(view.safeAreaLayoutGuide)

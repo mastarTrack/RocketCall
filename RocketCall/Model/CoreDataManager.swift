@@ -67,7 +67,10 @@ extension CoreDataManager {
         newEntity.hour = Int16(alarm.hour)
         newEntity.minute = Int16(alarm.minute)
         newEntity.isRepeat = alarm.isRepeat
-        newEntity.repeatDay = Int16(alarm.repeatDay)
+        newEntity.repeatDays = alarm.repeatDays.reduce("") {
+            $0.isEmpty ? "\(String($1))"
+            : "\(String($0))" + ",\(String($1))"
+        }
         
         do {
             try context.save()
@@ -127,13 +130,16 @@ extension CoreDataManager {
     func fetchAlarm(of alarmId: UUID) throws -> AlarmPayload {
         let entity = try fetchAlarmEntity(of: alarmId)
         
+        let repeatDays = entity.repeatDays.isEmpty ? []
+        : entity.repeatDays.components(separatedBy: ",").map { Int($0) ?? -1 }
+        
         return AlarmPayload(
             id: entity.id,
             title: entity.title,
             hour: Int(entity.hour),
             minute: Int(entity.minute),
             isRepeat: entity.isRepeat,
-            repeatDay: Int(entity.repeatDay)
+            repeatDays: repeatDays
         )
     }
     
@@ -146,13 +152,16 @@ extension CoreDataManager {
             guard !entities.isEmpty else { return [] }
             
             return entities.map { entity in
-                AlarmPayload(
+                let repeatDays = entity.repeatDays.isEmpty ? []
+                : entity.repeatDays.components(separatedBy: ",").map { Int($0) ?? -1 }
+                
+                return AlarmPayload(
                     id: entity.id,
                     title: entity.title,
                     hour: Int(entity.hour),
                     minute: Int(entity.minute),
                     isRepeat: entity.isRepeat,
-                    repeatDay: Int(entity.repeatDay)
+                    repeatDays: repeatDays
                 )
             }
         } catch {
@@ -247,7 +256,10 @@ extension CoreDataManager {
         entity.hour = Int16(payload.hour)
         entity.minute = Int16(payload.minute)
         entity.isRepeat = payload.isRepeat
-        entity.repeatDay = Int16(payload.repeatDay)
+        entity.repeatDays = payload.repeatDays.reduce("") {
+            $0.isEmpty ? "\(String($1))"
+            : "\(String($0))" + ",\(String($1))"
+        }
         
         do {
             try context.save()
