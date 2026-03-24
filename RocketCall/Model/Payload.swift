@@ -34,5 +34,6 @@ struct MissionResultPayload {
     var title: String // Mission.title과 동일값
     var start: Date
     var end: Date
+    var studyTime: Int // 공부 시간
     var isCompleted: Bool // 달성 여부
 }

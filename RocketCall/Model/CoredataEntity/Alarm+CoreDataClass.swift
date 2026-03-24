@@ -6,13 +6,13 @@
 //
 //
 
-public import Foundation
-public import CoreData
+import Foundation
+import CoreData
 
-public typealias AlarmEntityCoreDataClassSet = NSSet
+typealias AlarmEntityCoreDataClassSet = NSSet
 
 @objc(AlarmEntity)
-public class AlarmEntity: NSManagedObject {
+class AlarmEntity: NSManagedObject {
     static let className = "AlarmEntity"
     enum keys {
         static let id = "id"

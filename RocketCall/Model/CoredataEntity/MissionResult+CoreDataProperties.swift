@@ -6,24 +6,23 @@
 //
 //
 
-public import Foundation
-public import CoreData
+import Foundation
+import CoreData
 
-
-public typealias MissionResultEntityCoreDataPropertiesSet = NSSet
+typealias MissionResultEntityCoreDataPropertiesSet = NSSet
 
 extension MissionResultEntity {
 
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<MissionResultEntity> {
+    @nonobjc class func fetchRequest() -> NSFetchRequest<MissionResultEntity> {
         return NSFetchRequest<MissionResultEntity>(entityName: "MissionResultEntity")
     }
 
-    @NSManaged public var id: UUID
-    @NSManaged public var title: String
-    @NSManaged public var start: Date
-    @NSManaged public var end: Date
-    @NSManaged public var studyTime: Int64
-    @NSManaged public var isCompleted: Bool
+    @NSManaged var id: UUID
+    @NSManaged var title: String
+    @NSManaged var start: Date
+    @NSManaged var end: Date
+    @NSManaged var studyTime: Int64
+    @NSManaged var isCompleted: Bool
 
 }
 

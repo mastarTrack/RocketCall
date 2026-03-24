@@ -6,24 +6,24 @@
 //
 //
 
-public import Foundation
-public import CoreData
+import Foundation
+import CoreData
 
 
-public typealias AlarmEntityCoreDataPropertiesSet = NSSet
+typealias AlarmEntityCoreDataPropertiesSet = NSSet
 
 extension AlarmEntity {
 
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<AlarmEntity> {
+    @nonobjc class func fetchRequest() -> NSFetchRequest<AlarmEntity> {
         return NSFetchRequest<AlarmEntity>(entityName: "AlarmEntity")
     }
 
-    @NSManaged public var id: UUID
-    @NSManaged public var title: String
-    @NSManaged public var hour: Int16
-    @NSManaged public var minute: Int16
-    @NSManaged public var isRepeat: Bool
-    @NSManaged public var repeatDay: Int16
+    @NSManaged var id: UUID
+    @NSManaged var title: String
+    @NSManaged var hour: Int16
+    @NSManaged var minute: Int16
+    @NSManaged var isRepeat: Bool
+    @NSManaged var repeatDay: Int16
 
 }
 

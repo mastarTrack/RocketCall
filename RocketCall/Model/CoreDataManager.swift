@@ -21,7 +21,7 @@ final class CoreDataManager {
             }
         }
     }
-
+    
     // - Core Data Saving support
     // 변경사항 존재 시 코어데이터 context 저장
     func saveContext () {
@@ -37,7 +37,7 @@ final class CoreDataManager {
             }
         }
     }
-
+    
     
     // MARK: Custom 설정
     private var context: NSManagedObjectContext {
@@ -45,6 +45,7 @@ final class CoreDataManager {
     }
     
     enum CoreDataError: Error {
+        case descriptionLoadFailed
         case saveFailed
         case loadFailed
         case empty
@@ -55,16 +56,18 @@ final class CoreDataManager {
 extension CoreDataManager {
     // 알람 생성 메소드
     func createAlarmEntity(alarm: borrowing AlarmPayload) throws {
-        guard let entity = NSEntityDescription.entity(forEntityName: AlarmEntity.className, in: context) else { return }
+        guard let entityDescription = NSEntityDescription.entity(forEntityName: AlarmEntity.className, in: context) else {
+            throw CoreDataError.descriptionLoadFailed
+        }
         
-        let newEntity = NSManagedObject(entity: entity, insertInto: context)
+        let newEntity = AlarmEntity(entity: entityDescription, insertInto: context)
         
-        newEntity.setValue(alarm.id, forKey: AlarmEntity.keys.id)
-        newEntity.setValue(alarm.title, forKey: AlarmEntity.keys.title)
-        newEntity.setValue(alarm.hour, forKey: AlarmEntity.keys.hour)
-        newEntity.setValue(alarm.minute, forKey: AlarmEntity.keys.minute)
-        newEntity.setValue(alarm.isRepeat, forKey: AlarmEntity.keys.isRepeat)
-        newEntity.setValue(alarm.repeatDay, forKey: AlarmEntity.keys.repeatDay)
+        newEntity.id = alarm.id
+        newEntity.title = alarm.title
+        newEntity.hour = Int16(alarm.hour)
+        newEntity.minute = Int16(alarm.minute)
+        newEntity.isRepeat = alarm.isRepeat
+        newEntity.repeatDay = Int16(alarm.repeatDay)
         
         do {
             try context.save()
@@ -75,15 +78,17 @@ extension CoreDataManager {
     
     // 미션 생성 메소드
     func createMissionEntity(mission: borrowing MissionPayload) throws {
-        guard let entity = NSEntityDescription.entity(forEntityName: MissionEntity.className, in: context) else { return }
+        guard let entityDescription = NSEntityDescription.entity(forEntityName: MissionEntity.className, in: context) else {
+            throw CoreDataError.descriptionLoadFailed
+        }
         
-        let newEntity = NSManagedObject(entity: entity, insertInto: context)
+        let newEntity = MissionEntity(entity: entityDescription, insertInto: context)
         
-        newEntity.setValue(mission.id, forKey: MissionEntity.keys.id)
-        newEntity.setValue(mission.title, forKey: MissionEntity.keys.title)
-        newEntity.setValue(mission.concentrateTime, forKey: MissionEntity.keys.concentrateTime)
-        newEntity.setValue(mission.breakTime, forKey: MissionEntity.keys.breakTime)
-        newEntity.setValue(mission.cycle, forKey: MissionEntity.keys.cycle)
+        newEntity.id = mission.id
+        newEntity.title = mission.title
+        newEntity.concentrateTime = Int16(mission.concentrateTime)
+        newEntity.breakTime = Int16(mission.breakTime)
+        newEntity.cycle = Int16(mission.cycle)
         
         do {
             try context.save()
@@ -94,15 +99,18 @@ extension CoreDataManager {
     
     // 미션 결과 생성 메소드
     func createMissionResultEntity(result: borrowing MissionResultPayload) throws {
-        guard let entity = NSEntityDescription.entity(forEntityName: MissionResultEntity.className, in: context) else { return }
+        guard let entityDescription = NSEntityDescription.entity(forEntityName: MissionResultEntity.className, in: context) else {
+            throw CoreDataError.descriptionLoadFailed
+        }
         
-        let newEntity = NSManagedObject(entity: entity, insertInto: context)
+        let newEntity = MissionResultEntity(entity: entityDescription, insertInto: context)
         
-        newEntity.setValue(result.id, forKey: MissionResultEntity.keys.id)
-        newEntity.setValue(result.title, forKey: MissionResultEntity.keys.title)
-        newEntity.setValue(result.start, forKey: MissionResultEntity.keys.start)
-        newEntity.setValue(result.end, forKey: MissionResultEntity.keys.end)
-        newEntity.setValue(result.isCompleted, forKey: MissionResultEntity.keys.isCompleted)
+        newEntity.id = result.id
+        newEntity.title = result.title
+        newEntity.start = result.start
+        newEntity.end = result.end
+        newEntity.studyTime = Int64(result.studyTime)
+        newEntity.isCompleted = result.isCompleted
         
         do {
             try context.save()
@@ -135,17 +143,17 @@ extension CoreDataManager {
         
         do {
             let entities = try context.fetch(request)
-            guard !entities.isEmpty else { throw CoreDataError.empty }
+            guard !entities.isEmpty else { return [] }
             
-            return entities.reduce(into: [AlarmPayload]()) { arr, entity in
-                arr.append(AlarmPayload(
+            return entities.map { entity in
+                AlarmPayload(
                     id: entity.id,
                     title: entity.title,
                     hour: Int(entity.hour),
                     minute: Int(entity.minute),
                     isRepeat: entity.isRepeat,
                     repeatDay: Int(entity.repeatDay)
-                ))
+                )
             }
         } catch {
             throw CoreDataError.loadFailed
@@ -157,31 +165,31 @@ extension CoreDataManager {
     func fetchMission(of missionId: UUID) throws -> MissionPayload {
         let entity = try fetchMissionEntity(of: missionId)
         
-            return MissionPayload(
-                id: entity.id,
-                title: entity.title,
-                concentrateTime: Int(entity.concentrateTime),
-                breakTime: Int(entity.breakTime),
-                cycle: Int(entity.cycle)
-            )
+        return MissionPayload(
+            id: entity.id,
+            title: entity.title,
+            concentrateTime: Int(entity.concentrateTime),
+            breakTime: Int(entity.breakTime),
+            cycle: Int(entity.cycle)
+        )
     }
-  
+    
     // - 모든 미션
     func fetchAllMission() throws -> [MissionPayload] {
         let request: NSFetchRequest<MissionEntity> = MissionEntity.fetchRequest()
         
         do {
             let entities = try context.fetch(request)
-            guard !entities.isEmpty else { throw CoreDataError.empty }
+            guard !entities.isEmpty else { return [] }
             
-            return entities.reduce(into: [MissionPayload]()) { arr, entity in
-                arr.append(MissionPayload(
+            return entities.map { entity in
+                MissionPayload(
                     id: entity.id,
                     title: entity.title,
                     concentrateTime: Int(entity.concentrateTime),
                     breakTime: Int(entity.breakTime),
                     cycle: Int(entity.cycle)
-                ))
+                )
             }
         } catch {
             throw CoreDataError.loadFailed
@@ -198,6 +206,7 @@ extension CoreDataManager {
             title: entity.title,
             start: entity.start,
             end: entity.end,
+            studyTime: Int(entity.studyTime),
             isCompleted: entity.isCompleted
         )
     }
@@ -208,16 +217,17 @@ extension CoreDataManager {
         
         do {
             let entities = try context.fetch(request)
-            guard !entities.isEmpty else { throw CoreDataError.empty }
+            guard !entities.isEmpty else { return [] }
             
-            return entities.reduce(into: [MissionResultPayload]()) { arr, entity in
-                arr.append(MissionResultPayload(
+            return entities.map { entity in
+                MissionResultPayload(
                     id: entity.id,
                     title: entity.title,
                     start: entity.start,
                     end: entity.end,
+                    studyTime: Int(entity.studyTime),
                     isCompleted: entity.isCompleted
-                ))
+                )
             }
         } catch {
             throw CoreDataError.loadFailed
@@ -302,7 +312,6 @@ extension CoreDataManager {
             throw CoreDataError.saveFailed
         }
     }
-
 }
 
 //MARK: Fetch Entity

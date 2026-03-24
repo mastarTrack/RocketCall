@@ -65,7 +65,6 @@ extension TitleView {
         addSubview(addButton)
         
         stackView.snp.makeConstraints {
-            $0.leading.equalToSuperview().inset(20)
             $0.top.bottom.leading.equalToSuperview().inset(20)
             $0.trailing.equalTo(addButton.snp.leading).offset(-10)
         }

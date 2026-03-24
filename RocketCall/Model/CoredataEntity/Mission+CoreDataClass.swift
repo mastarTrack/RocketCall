@@ -6,13 +6,13 @@
 //
 //
 
-public import Foundation
-public import CoreData
+import Foundation
+import CoreData
 
-public typealias MissionEntityCoreDataClassSet = NSSet
+typealias MissionEntityCoreDataClassSet = NSSet
 
 @objc(MissionEntity)
-public class MissionEntity: NSManagedObject {
+class MissionEntity: NSManagedObject {
     static let className = "MissionEntity"
     enum keys {
         static let id = "id"
