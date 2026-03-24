@@ -137,7 +137,7 @@ final class AlarmListViewCell: UICollectionViewCell {
         // 뱃지 너비
         label.snp.makeConstraints {
             if label.text == "매일" {
-                $0.width.equalTo(40)
+                $0.width.equalTo(42)
             } else {
                 $0.width.equalTo(30)
             }
