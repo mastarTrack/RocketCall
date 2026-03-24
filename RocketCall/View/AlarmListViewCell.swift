@@ -99,6 +99,7 @@ final class AlarmListViewCell: UICollectionViewCell {
         alarmIcon.image = alarm.isOn ? UIImage(systemName: "alarm.waves.left.and.right.fill") : UIImage(systemName: "alarm")
         alarmIcon.tintColor = alarm.isOn ? .mainPoint : .lightGray
         
+        dateStackView.arrangedSubviews.forEach { $0.removeFromSuperview() } // 셀 재사용 버그 방지
         let sortedDays = alarm.repeatDays.sorted { $0.rawValue < $1.rawValue }
         
         // 7일 모두 선택했을 때
