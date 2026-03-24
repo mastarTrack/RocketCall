@@ -97,7 +97,7 @@ final class AlarmListViewCell: UICollectionViewCell {
         containerView.isOn = alarm.isOn
         toggle.isOn = alarm.isOn
         alarmIcon.image = alarm.isOn ? UIImage(systemName: "alarm.waves.left.and.right.fill") : UIImage(systemName: "alarm")
-        alarmIcon.tintColor = alarm.isOn ? .mainPoint : .lightGray
+        alarmIcon.tintColor = alarm.isOn ? .mainPoint : .subLabel
         
         dateStackView.arrangedSubviews.forEach { $0.removeFromSuperview() } // 셀 재사용 버그 방지
         let sortedDays = alarm.repeatDays.sorted { $0.rawValue < $1.rawValue }
@@ -128,7 +128,7 @@ final class AlarmListViewCell: UICollectionViewCell {
         // 뱃지 색상
         if text == "매일" {
             label.textColor = .mainLabel
-            label.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
+            label.backgroundColor = .subLabel.withAlphaComponent(0.2)
         } else {
             label.textColor = .mainPoint
             label.backgroundColor = .mainPoint.withAlphaComponent(0.2)
@@ -147,8 +147,3 @@ final class AlarmListViewCell: UICollectionViewCell {
         return label
     }
 }
-//
-//
-//#Preview {
-//    AlarmListViewController()
-//}
