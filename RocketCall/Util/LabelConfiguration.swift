@@ -37,3 +37,11 @@ extension LabelConfiguration {
         lines: 1
     )
 }
+
+extension LabelConfiguration {
+    static let pointText = LabelConfiguration(
+        font: .systemFont(ofSize: 15),
+        color: .mainPoint,
+        lines: 0
+    )
+}
