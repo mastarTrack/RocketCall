@@ -32,7 +32,7 @@ final class AlarmRingView: UIView {
     
     let timeLabel = UILabel().then {
         $0.textColor = .white
-        $0.font = .systemFont(ofSize: 88, weight: .ultraLight)
+        $0.font = .systemFont(ofSize: 90, weight: .ultraLight)
         $0.textAlignment = .center
     }
     
@@ -126,11 +126,6 @@ final class AlarmRingView: UIView {
         
         addSubview(stopButton)
         addSubview(snoozeButton)
-        
-        addSubview(bottomGuideStackView)
-        bottomGuideStackView.addArrangedSubview(leftLine)
-        bottomGuideStackView.addArrangedSubview(guideLabel)
-        bottomGuideStackView.addArrangedSubview(rightLine)
     }
     
     private func setupLayout() {
@@ -158,25 +153,10 @@ final class AlarmRingView: UIView {
             $0.top.equalTo(dateLabel.snp.bottom).offset(15)
             $0.centerX.equalToSuperview()
         }
-        
-        leftLine.snp.makeConstraints {
-            $0.width.equalTo(55)
-            $0.height.equalTo(4)
-        }
-        
-        rightLine.snp.makeConstraints {
-            $0.width.equalTo(55)
-            $0.height.equalTo(4)
-        }
-        
-        bottomGuideStackView.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview().inset(56)
-            $0.bottom.equalTo(safeAreaLayoutGuide).inset(28)
-        }
 
         snoozeButton.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(40)
-            $0.bottom.equalTo(bottomGuideStackView.snp.top).offset(-40)
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-75)
             $0.height.equalTo(65)
         }
 
