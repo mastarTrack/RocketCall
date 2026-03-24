@@ -18,7 +18,7 @@ class MainController: UITabBarController {
 
 extension MainController {
     private func configure() {
-        let firstVC = UINavigationController(rootViewController: ViewController())
+        let firstVC = UINavigationController(rootViewController: HomeMainViewController())
         let secondVC = UINavigationController(rootViewController: ViewController())
         let thirdVC = UINavigationController(rootViewController: ViewController())
         let fourthVC = UINavigationController(rootViewController: ViewController())
