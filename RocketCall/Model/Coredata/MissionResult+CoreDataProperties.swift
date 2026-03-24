@@ -22,6 +22,7 @@ extension MissionResultEntity {
     @NSManaged public var title: String
     @NSManaged public var start: Date
     @NSManaged public var end: Date
+    @NSManaged public var studyTime: Int64
     @NSManaged public var isCompleted: Bool
 
 }

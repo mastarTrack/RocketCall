@@ -19,6 +19,7 @@ public class MissionResultEntity: NSManagedObject {
         static let title = "title"
         static let start = "start"
         static let end = "end"
+        static let studyTime = "studyTime"
         static let isCompleted = "isCompleted"
     }
 }

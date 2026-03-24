@@ -22,7 +22,6 @@ class ViewController: UIViewController {
         
         titleView.snp.makeConstraints {
             $0.top.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-            $0.height.equalTo(50)
         }
     }
 }

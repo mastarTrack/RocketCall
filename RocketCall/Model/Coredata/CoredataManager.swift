@@ -47,6 +47,7 @@ final class CoredataManager {
     enum CoreDataError: Error {
         case saveFailed
         case loadFailed
+        case empty
     }
 }
 
@@ -109,58 +110,138 @@ extension CoredataManager {
             throw CoreDataError.saveFailed
         }
     }
-    
 }
 
-//MARK: Create
+//MARK: Read
 extension CoredataManager {
-    // 알람 생성 메소드
-//    func fetchAlarmEntity(of alarmId: UUID) throws -> AlarmPayload {
-////        let request: NSFetchRequest<AlarmEntity> = AlarmEntity.fetchRequest()
-////        request.predicate = NSPredicate(format: "\(AlarmEntity.keys.id) == %@", alarmId)
-////        do {
-////            try context.save()
-////        } catch {
-////            throw CoreDataError.saveFailed
-////        }
-//    }
-    
-    // 미션 생성 메소드
-    func loadMissionEntity(mission: borrowing MissionPayload) throws {
-        guard let entity = NSEntityDescription.entity(forEntityName: MissionEntity.className, in: context) else { return }
-        
-        let newEntity = NSManagedObject(entity: entity, insertInto: context)
-        
-        newEntity.setValue(mission.id, forKey: MissionEntity.keys.id)
-        newEntity.setValue(mission.title, forKey: MissionEntity.keys.title)
-        newEntity.setValue(mission.concentrateTime, forKey: MissionEntity.keys.concentrateTime)
-        newEntity.setValue(mission.breakTime, forKey: MissionEntity.keys.breakTime)
-        newEntity.setValue(mission.cycle, forKey: MissionEntity.keys.cycle)
+    // 알람 불러오기 메소드
+    // - 개별 알람
+    func fetchAlarmEntity(of alarmId: UUID) throws -> AlarmPayload {
+        let request: NSFetchRequest<AlarmEntity> = AlarmEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "\(AlarmEntity.keys.id) == %@", alarmId as CVarArg)
         
         do {
-            try context.save()
+            guard let entity = try context.fetch(request).first else { throw CoreDataError.empty }
+            
+            return AlarmPayload(
+                id: entity.id,
+                title: entity.title,
+                hour: Int(entity.hour),
+                minute: Int(entity.minute),
+                isRepeat: entity.isRepeat,
+                repeatDay: Int(entity.repeatDay)
+            )
         } catch {
-            throw CoreDataError.saveFailed
+            throw CoreDataError.loadFailed
         }
     }
     
-    // 미션 결과 생성 메소드
-    func loadMissionResultEntity(result: borrowing MissionResultPayload) throws {
-        guard let entity = NSEntityDescription.entity(forEntityName: MissionResultEntity.className, in: context) else { return }
-        
-        let newEntity = NSManagedObject(entity: entity, insertInto: context)
-        
-        newEntity.setValue(result.id, forKey: MissionResultEntity.keys.id)
-        newEntity.setValue(result.title, forKey: MissionResultEntity.keys.title)
-        newEntity.setValue(result.start, forKey: MissionResultEntity.keys.start)
-        newEntity.setValue(result.end, forKey: MissionResultEntity.keys.end)
-        newEntity.setValue(result.isCompleted, forKey: MissionResultEntity.keys.isCompleted)
+    // - 모든 알람
+    func fetchAllAlarmEntity() throws -> [AlarmPayload] {
+        let request: NSFetchRequest<AlarmEntity> = AlarmEntity.fetchRequest()
         
         do {
-            try context.save()
+            let entities = try context.fetch(request)
+            guard !entities.isEmpty else { throw CoreDataError.empty }
+            
+            return entities.reduce(into: [AlarmPayload]()) { arr, entity in
+                arr.append(AlarmPayload(
+                    id: entity.id,
+                    title: entity.title,
+                    hour: Int(entity.hour),
+                    minute: Int(entity.minute),
+                    isRepeat: entity.isRepeat,
+                    repeatDay: Int(entity.repeatDay)
+                ))
+            }
         } catch {
-            throw CoreDataError.saveFailed
+            throw CoreDataError.loadFailed
         }
     }
     
+    // 미션 불러오기 메소드
+    // - 개별 미션
+    func fetchMissionEntity(of missionId: UUID) throws -> MissionPayload {
+        let request: NSFetchRequest<MissionEntity> = MissionEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "\(MissionEntity.keys.id) == %@", missionId as CVarArg)
+        
+        do {
+            guard let entity = try context.fetch(request).first else { throw CoreDataError.empty }
+            
+            return MissionPayload(
+                id: entity.id,
+                title: entity.title,
+                concentrateTime: Int(entity.concentrateTime),
+                breakTime: Int(entity.breakTime),
+                cycle: Int(entity.cycle)
+            )
+        } catch {
+            throw CoreDataError.loadFailed
+        }
+    }
+  
+    // - 모든 미션
+    func fetchAllMissionEntity() throws -> [MissionPayload] {
+        let request: NSFetchRequest<MissionEntity> = MissionEntity.fetchRequest()
+        
+        do {
+            let entities = try context.fetch(request)
+            guard !entities.isEmpty else { throw CoreDataError.empty }
+            
+            return entities.reduce(into: [MissionPayload]()) { arr, entity in
+                arr.append(MissionPayload(
+                    id: entity.id,
+                    title: entity.title,
+                    concentrateTime: Int(entity.concentrateTime),
+                    breakTime: Int(entity.breakTime),
+                    cycle: Int(entity.cycle)
+                ))
+            }
+        } catch {
+            throw CoreDataError.loadFailed
+        }
+    }
+    
+    // 미션 결과 불러오기 메소드
+    // - 개별 미션 결과
+    func fetchMissionResultEntity(of resultId: UUID) throws -> MissionResultPayload {
+        let request: NSFetchRequest<MissionResultEntity> = MissionResultEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "\(MissionResultEntity.keys.id) == %@", resultId as CVarArg)
+        
+        do {
+            guard let entity = try context.fetch(request).first else { throw CoreDataError.empty }
+            
+            return MissionResultPayload(
+                id: entity.id,
+                title: entity.title,
+                start: entity.start,
+                end: entity.end,
+                isCompleted: entity.isCompleted
+            )
+        } catch {
+            throw CoreDataError.loadFailed
+        }
+    }
+    
+    // - 모든 미션 결과
+    func fetchAllMissionResultEntity() throws -> [MissionResultPayload] {
+        let request: NSFetchRequest<MissionResultEntity> = MissionResultEntity.fetchRequest()
+        
+        do {
+            let entities = try context.fetch(request)
+            guard !entities.isEmpty else { throw CoreDataError.empty }
+            
+            return entities.reduce(into: [MissionResultPayload]()) { arr, entity in
+                arr.append(MissionResultPayload(
+                    id: entity.id,
+                    title: entity.title,
+                    start: entity.start,
+                    end: entity.end,
+                    isCompleted: entity.isCompleted
+                ))
+            }
+        } catch {
+            throw CoreDataError.loadFailed
+        }
+    }
 }
