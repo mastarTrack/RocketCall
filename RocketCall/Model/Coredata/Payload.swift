@@ -6,6 +6,7 @@
 //
 
 //MARK: CoreData 전달용 Payload
+// - CoreDataManager에서 소통할 때, CoreDataManager는 Payload 객체로 전달받고 Payload 객체를 반환합니다.
 import Foundation
 
 // 알람
