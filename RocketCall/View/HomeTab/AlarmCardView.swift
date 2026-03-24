@@ -21,6 +21,12 @@ class AlarmCardView: BaseCardView {
         $0.text = "기상"
     }
     
+    let timeLabel = UILabel().then {
+        $0.textColor = .mainLabel
+        $0.font = .systemFont(ofSize: 16, weight: .medium)
+        $0.text = "07:00"
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: .zero)
         
@@ -41,9 +47,25 @@ extension AlarmCardView {
      
         let repeatDaysStackView = UIStackView(symbol: "calendar", symbolColor: .subPoint, label: repeatDaysLabel)
         
+        let bar = UIView().then {
+            $0.backgroundColor = UIColor(red: 201/255.0, green: 209/255.0, blue: 232/255.0, alpha: 0.3) // cardView border와 동일
+            $0.snp.makeConstraints {
+                $0.height.equalTo(1)
+            }
+        }
+        
+        let timeTitle = UILabel().then {
+            $0.textColor = .subLabel
+            $0.font = .systemFont(ofSize: 12, weight: .medium)
+            $0.text = "알람 시간"
+        }
+        
         addSubview(colorChip)
         addSubview(repeatDaysStackView)
         addSubview(titleLabel)
+        addSubview(bar)
+        addSubview(timeTitle)
+        addSubview(timeLabel)
         
         colorChip.snp.makeConstraints {
             $0.leading.verticalEdges.equalToSuperview()
@@ -59,8 +81,25 @@ extension AlarmCardView {
             $0.top.equalTo(repeatDaysStackView.snp.bottom).offset(10)
             $0.trailing.equalToSuperview().inset(10)
             $0.leading.equalTo(colorChip.snp.trailing).offset(10)
-            
-            $0.bottom.equalToSuperview().offset(-10)
+        }
+        
+        bar.snp.makeConstraints {
+            $0.top.equalTo(titleLabel.snp.bottom).offset(10)
+            $0.leading.equalTo(colorChip.snp.trailing).offset(10)
+            $0.trailing.equalToSuperview().inset(10)
+        }
+        
+        timeTitle.snp.makeConstraints {
+            $0.top.equalTo(bar.snp.bottom).offset(12)
+            $0.leading.equalTo(colorChip.snp.trailing).offset(10)
+            $0.trailing.equalToSuperview().inset(10)
+        }
+        
+        timeLabel.snp.makeConstraints {
+            $0.top.equalTo(timeTitle.snp.bottom).offset(5)
+            $0.leading.equalTo(colorChip.snp.trailing).offset(10)
+            $0.trailing.equalToSuperview().inset(10)
+            $0.bottom.equalToSuperview().offset(-15)
         }
     }
 }

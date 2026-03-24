@@ -41,7 +41,7 @@ extension LabelConfiguration {
 
 extension LabelConfiguration {
     static let homeViewHeader = LabelConfiguration(
-        font: .systemFont(ofSize: 22, weight: .bold),
+        font: .systemFont(ofSize: 20, weight: .bold),
         color: .mainLabel,
         lines: 1
     )
