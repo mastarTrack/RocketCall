@@ -39,9 +39,27 @@ extension LabelConfiguration {
 }
 
 extension LabelConfiguration {
-    static let pointText = LabelConfiguration(
-        font: .systemFont(ofSize: 15),
+    static let pointText = LabelConfiguration (
+        font: .systemFont(ofSize: 16),
         color: .mainPoint,
         lines: 0
+    )
+    
+    static let thirdPointText = LabelConfiguration (
+        font: .systemFont(ofSize: 16),
+        color: .thirdPoint,
+        lines: 0
+    )
+    
+    static let text = LabelConfiguration (
+        font: .systemFont(ofSize: 24),
+        color: .mainLabel,
+        lines: 1
+    )
+    
+    static let subtext = LabelConfiguration (
+        font: .systemFont(ofSize: 20),
+        color: .subLabel,
+        lines: 1
     )
 }
