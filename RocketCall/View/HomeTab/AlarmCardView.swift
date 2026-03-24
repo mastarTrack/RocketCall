@@ -15,12 +15,14 @@ class AlarmCardView: BaseCardView {
         $0.text = "월 화 수 목 금"
     }
     
+    let titleLabel = UILabel().then {
+        $0.textColor = .mainLabel
+        $0.font = .systemFont(ofSize: 20, weight: .semibold)
+        $0.text = "기상"
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: .zero)
-        
-        self.snp.makeConstraints {
-            $0.height.equalTo(60)
-        }
         
         setLayout()
     }
@@ -41,6 +43,7 @@ extension AlarmCardView {
         
         addSubview(colorChip)
         addSubview(repeatDaysStackView)
+        addSubview(titleLabel)
         
         colorChip.snp.makeConstraints {
             $0.leading.verticalEdges.equalToSuperview()
@@ -52,5 +55,12 @@ extension AlarmCardView {
             $0.leading.equalTo(colorChip.snp.trailing).offset(10)
         }
         
+        titleLabel.snp.makeConstraints {
+            $0.top.equalTo(repeatDaysStackView.snp.bottom).offset(10)
+            $0.trailing.equalToSuperview().inset(10)
+            $0.leading.equalTo(colorChip.snp.trailing).offset(10)
+            
+            $0.bottom.equalToSuperview().offset(-10)
+        }
     }
 }

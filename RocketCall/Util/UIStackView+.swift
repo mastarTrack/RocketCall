@@ -12,12 +12,10 @@ extension UIStackView {
     convenience init(symbol: String, symbolColor: UIColor, label: UILabel) {
         self.init()
         
-        let symbol = UIImageView(image: UIImage(systemName: symbol))
-        symbol.tintColor = symbolColor
+        let config = UIImage.SymbolConfiguration(scale: .small)
+        let symbol = UIImageView(image: UIImage(systemName: symbol, withConfiguration: config))
         
-//        NSLayoutConstraint.activate([
-//            symbol.widthAnchor.constraint(equalTo: heightAnchor)
-//        ])
+        symbol.tintColor = symbolColor
         
         addArrangedSubview(symbol)
         addArrangedSubview(label)

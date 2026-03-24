@@ -41,6 +41,7 @@ final class HomeMainView: UIView {
         alarmCardView.snp.makeConstraints {
             $0.top.equalTo(alarmCardTitle.snp.bottom).offset(10)
             $0.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
+            
         }
     }
 }
