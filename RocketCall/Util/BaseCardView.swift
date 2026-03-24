@@ -33,7 +33,7 @@ final class BaseCardView: UIView {
     }
     
     private func setupStyle() {
-        self.backgroundColor = UIColor(red: 18/255.0, green: 26/255.0, blue: 48/255.0, alpha: 1.0)
+        self.backgroundColor = .cardBackground
         self.layer.cornerRadius = 16
         self.layer.masksToBounds = true
         self.layer.borderWidth = 1
