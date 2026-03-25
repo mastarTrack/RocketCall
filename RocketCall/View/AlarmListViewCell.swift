@@ -90,30 +90,30 @@ final class AlarmListViewCell: UICollectionViewCell {
     
     
     // MARK: - 데이터 입력
-    func configureAlarmListViewCell(with alarm: Alarm) {
-        timeLabel.text = String(format: "%02d:%02d", alarm.hour, alarm.minute)
-        titleLabel.text = alarm.title
-        
-        containerView.isOn = alarm.isOn
-        toggle.isOn = alarm.isOn
-        alarmIcon.image = alarm.isOn ? UIImage(systemName: "alarm.waves.left.and.right.fill") : UIImage(systemName: "alarm")
-        alarmIcon.tintColor = alarm.isOn ? .mainPoint : .subLabel
-        
-        dateStackView.arrangedSubviews.forEach { $0.removeFromSuperview() } // 셀 재사용 버그 방지
-        let sortedDays = alarm.repeatDays.sorted { $0.rawValue < $1.rawValue }
-        
-        // 7일 모두 선택했을 때
-        if sortedDays.count == 7 {
-            let badge = createDateBadge(text: "매일")
-            dateStackView.addArrangedSubview(badge)
-            
-        } else {
-            for day in sortedDays {
-                let badge = createDateBadge(text: day.koreanName)
-                dateStackView.addArrangedSubview(badge)
-            }
-        }
-    }
+//    func configureAlarmListViewCell(with alarm: Alarm) {
+//        timeLabel.text = String(format: "%02d:%02d", alarm.hour, alarm.minute)
+//        titleLabel.text = alarm.title
+//        
+//        containerView.isOn = alarm.isOn
+//        toggle.isOn = alarm.isOn
+//        alarmIcon.image = alarm.isOn ? UIImage(systemName: "alarm.waves.left.and.right.fill") : UIImage(systemName: "alarm")
+//        alarmIcon.tintColor = alarm.isOn ? .mainPoint : .subLabel
+//        
+//        dateStackView.arrangedSubviews.forEach { $0.removeFromSuperview() } // 셀 재사용 버그 방지
+//        let sortedDays = alarm.repeatDays.sorted { $0.rawValue < $1.rawValue }
+//        
+//        // 7일 모두 선택했을 때
+//        if sortedDays.count == 7 {
+//            let badge = createDateBadge(text: "매일")
+//            dateStackView.addArrangedSubview(badge)
+//            
+//        } else {
+//            for day in sortedDays {
+//                let badge = createDateBadge(text: day.koreanName)
+//                dateStackView.addArrangedSubview(badge)
+//            }
+//        }
+//    }
     
     
     // MARK: - 뱃지 찍어내는 메서드
