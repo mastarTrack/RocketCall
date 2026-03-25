@@ -56,14 +56,14 @@ extension StopWatchViewController {
         
         titleView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.leading.equalToSuperview().offset(10)
-            $0.trailing.equalToSuperview().inset(10)
+            $0.leading.equalToSuperview().offset(20)
+            $0.trailing.equalToSuperview().inset(20)
         }
         
         mainStack.snp.makeConstraints { ms in
             ms.top.equalTo(titleView.snp.bottom)
-            ms.leading.equalToSuperview().offset(10)
-            ms.trailing.bottom.equalToSuperview().inset(10)
+            ms.leading.equalToSuperview().offset(20)
+            ms.trailing.bottom.equalToSuperview().inset(20)
         }
         titleView.snp.makeConstraints {
             $0.height.equalTo(100)
