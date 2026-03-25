@@ -7,6 +7,7 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 import SnapKit
 import Then
 
@@ -14,6 +15,10 @@ import Then
 class StopWatchViewController: UIViewController {
     
     //MARK: - ViewModel
+    private let vm = StopWatchViewModel()
+    
+    //MARK: - Properties
+    private var disposeBag = DisposeBag()
     
     //MARK: - Components
     private let titleView = TitleView(
@@ -35,6 +40,29 @@ class StopWatchViewController: UIViewController {
         //description = "스톱워치 기능으로 원하는 시간까지 카운트하세요."
         view.backgroundColor = .background
         configureUI()
+        bind()
+    }
+}
+
+//MARK: - Binding
+extension StopWatchViewController {
+    func bind() {
+        let startPause = stopWatchHeaderView.startButton.rx.tap
+            .map { [weak self] _ -> Bool in
+                guard let self else { return false }
+                self.stopWatchHeaderView.startButton.isSelected.toggle()
+                return self.stopWatchHeaderView.startButton.isSelected
+            }
+        
+        let input = StopWatchViewModel.Input(
+            startPause: startPause
+        )
+        
+        let output = vm.transform(input)
+        
+        output.timer
+            .bind(to: stopWatchHeaderView.timerLabel.rx.text)
+            .disposed(by: disposeBag)
     }
 }
 
