@@ -21,7 +21,7 @@ class CustomMissionCell: UICollectionViewCell {
     
     private let rightStackView = UIStackView()
     private let timeLabel = UILabel()
-    private let startButton = CircleButton(size: 50, backgroundColor: .mainPoint, image: UIImage(systemName: "play"), tintColor: .white)
+    private let startButton = CircleButton(size: 50, backgroundColor: .mainPoint.withAlphaComponent(0.2), image: UIImage(systemName: "play"), tintColor: .mainPoint)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -57,6 +57,9 @@ extension CustomMissionCell {
         rightStackView.axis = .vertical
         rightStackView.spacing = 5
         rightStackView.alignment = .trailing
+        
+        startButton.layer.borderColor = UIColor.mainPoint.cgColor
+        startButton.layer.borderWidth = 1
         
     }
     
