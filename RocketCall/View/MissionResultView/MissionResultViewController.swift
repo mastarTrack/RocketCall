@@ -47,9 +47,14 @@ class MissionResultViewController: UIViewController {
         }
         
         // 여기서 데이터 넣어줌(사용시 샘플 데이터 로직 부분 삭제하시면 됩니다)
-        if let resultId,
-           let payload = try? coreDataManager.fetchMissionResult(of: resultId) {
-            missionResultView.configure(with: payload)
+        if let resultId {
+            do {
+                let payload = try coreDataManager.fetchMissionResult(of: resultId)
+                missionResultView.configure(with: payload)
+            } catch {
+                // TODO: 오류 처리 로직 구현
+                missionResultView.configure(with: samplePayload)
+            }
         } else {
             missionResultView.configure(with: samplePayload)
         }
