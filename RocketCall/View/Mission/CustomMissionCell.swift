@@ -42,7 +42,7 @@ extension CustomMissionCell {
         labelStackView.axis = .vertical
         labelStackView.spacing = 5
         
-        titleLabel.font = .boldSystemFont(ofSize: 14)
+        titleLabel.font = .systemFont(ofSize: 14, weight: .semibold)
         titleLabel.textColor = .mainLabel
         
         subtitleLabel.font = subtitleConfig.font
