@@ -39,7 +39,7 @@ class ActivatedMissionCell: UICollectionViewCell {
 
 extension ActivatedMissionCell {
     private func setAttributes() {
-        let titleConfig = LabelConfiguration.title
+        let titleConfig = LabelConfiguration.main24Bold
         let timeConfig = LabelConfiguration.missionTime
         
         titleLabel.font = titleConfig.font

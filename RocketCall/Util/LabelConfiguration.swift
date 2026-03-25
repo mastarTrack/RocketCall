@@ -38,7 +38,7 @@ extension LabelConfiguration {
     )
     
     static let missionTime = LabelConfiguration(
-        font: .systemFont(ofSize: 36),
+        font: .systemFont(ofSize: 36, weight: .thin),
         color: .mainLabel,
         lines: 1
     )
