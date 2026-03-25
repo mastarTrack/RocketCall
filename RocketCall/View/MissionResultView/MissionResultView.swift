@@ -22,39 +22,28 @@ final class MissionResultView: UIView {
     }
     
     private let coloredLabel = UILabel().then {
-        $0.text = "✓ 미션 성공"
         $0.textColor = UIColor.systemBlue
         $0.font = .systemFont(ofSize: 15, weight: .bold)
         $0.textAlignment = .center
     }
     
     private let titleLabel = UILabel().then {
-        $0.text = "미션 완료!"
         $0.textColor = .white
         $0.font = .systemFont(ofSize: 35, weight: .bold)
         $0.textAlignment = .center
     }
     
-    private let subtitleLabel = UILabel().then {
-        $0.text = "여정을 성공적으로 완료했습니다"
-        $0.textColor = UIColor.lightGray
-        $0.font = .systemFont(ofSize: 15, weight: .medium)
+    private let subtitleLabel = UILabel(config: .sub16).then {
         $0.textAlignment = .center
     }
     
     private let infoCardView = BaseCardView()
     
-    private let missionNameTitleLabel = UILabel().then {
-        $0.text = "현재 끝난 미션"
-        $0.textColor = UIColor.lightGray
-        $0.font = .systemFont(ofSize: 15, weight: .medium)
+    private let missionNameTitleLabel = UILabel(text: "현재 끝난 미션", config: .sub16).then {
         $0.textAlignment = .center
     }
     
-    private let missionNameValueLabel = UILabel().then {
-        $0.text = "미션이름"
-        $0.textColor = .white
-        $0.font = .systemFont(ofSize: 25, weight: .bold)
+    private let missionNameValueLabel = UILabel(config: .main24Bold).then {
         $0.textAlignment = .center
     }
     
@@ -70,19 +59,13 @@ final class MissionResultView: UIView {
     private let Seperater4 = SeperaterView()
     private let Seperater5 = SeperaterView()
     
-    private let completedDateTitleLabel = UILabel().then {
+    private let completedDateTitleLabel = UILabel(config: .sub16).then {
         $0.text = "완료 일시"
-        $0.textColor = UIColor.gray
-        $0.font = .systemFont(ofSize: 15, weight: .medium)
         $0.textAlignment = .center
     }
     
-    private let completedDateValueLabel = UILabel().then {
-        $0.text = "2026. 3. 20. 오후 5:41:08"
-        $0.textColor = .white
-        $0.font = .systemFont(ofSize: 15, weight: .medium)
+    private let completedDateValueLabel = UILabel(config: .sub16).then {
         $0.textAlignment = .center
-        $0.numberOfLines = 0
     }
     
     let homeButton = RectangleButton(title: "홈으로 돌아가기", color: .subLabel) .then {
@@ -291,6 +274,7 @@ final class MissionResultView: UIView {
     }
 }
 
+// 날짜 및 시간 변경
 extension MissionResultView {
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
