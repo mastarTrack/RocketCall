@@ -74,11 +74,5 @@ extension LabelConfiguration {
         color: .mainLabel,
         lines: 1
     )
-    
-    static let main30Bold = LabelConfiguration(
-        font: .systemFont(ofSize: 30, weight: .bold),
-        color: .mainLabel,
-        lines: 1
-    )
 }
 
