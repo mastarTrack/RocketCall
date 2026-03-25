@@ -36,14 +36,14 @@ class CustomMissionCell: UICollectionViewCell {
 
 extension CustomMissionCell {
     private func setAttributes() {
-        let titleConfig = LabelConfiguration.title
-        let subtitleConfig = LabelConfiguration.subTitle
+        
+        let subtitleConfig = LabelConfiguration.sub12
         
         labelStackView.axis = .vertical
         labelStackView.spacing = 5
         
-        titleLabel.font = LabelConfiguration.descriptionTitle.font
-        titleLabel.textColor = titleConfig.color
+        titleLabel.font = .boldSystemFont(ofSize: 14)
+        titleLabel.textColor = .mainLabel
         
         subtitleLabel.font = subtitleConfig.font
         subtitleLabel.textColor = subtitleConfig.color
@@ -51,8 +51,8 @@ extension CustomMissionCell {
         cycleLabel.font = subtitleConfig.font
         cycleLabel.textColor = subtitleConfig.color
         
-        timeLabel.font = titleConfig.font
-        timeLabel.textColor = titleConfig.color
+        timeLabel.font = .boldSystemFont(ofSize: 18)
+        timeLabel.textColor = .mainLabel
         
         rightStackView.axis = .vertical
         rightStackView.spacing = 5
