@@ -18,10 +18,10 @@ class CreateMissionView: UIView {
     private let quickTitleLabel = UILabel()
     private let quickGridStackView = UIStackView()
     private let quickItems: [(icon: String, title: String, subtitle: String)] = [
-        ("", "25분 미션", "25분 여행"),
-        ("", "50분 미션", "50분 여행"),
-        ("", "90분 미션", "90분 여행"),
-        ("", "120분 미션", "120분 여행")
+        ("moon.stars.fill", "25분 미션", "25분 여행"),
+        ("moon.stars.fill", "50분 미션", "50분 여행"),
+        ("moon.stars.fill", "90분 미션", "90분 여행"),
+        ("moon.stars.fill", "120분 미션", "120분 여행")
     ]
     
     private let missionNameLabel = UILabel()
@@ -168,9 +168,13 @@ extension CreateMissionView {
             for column in 0..<2 {
                 let item = quickItems[row * 2 + column]
                 let view = BaseCardView()
-                let iconLabel = UILabel()
-                iconLabel.text = item.icon
-                iconLabel.font = .systemFont(ofSize: 30) // Configuration으로 넣어두기 ?
+                
+                let iconImageView = UIImageView(image: UIImage(systemName: item.icon))
+                iconImageView.tintColor = .white
+                iconImageView.contentMode = .scaleAspectFit
+                iconImageView.snp.makeConstraints {
+                    $0.size.equalTo(50)
+                }
                 
                 let titleLabel = UILabel()
                 titleLabel.text = item.title
@@ -182,13 +186,15 @@ extension CreateMissionView {
                 subtitleLabel.font = LabelConfiguration.subTitle.font
                 subtitleLabel.textColor = .systemBlue // Configuration으로 넣어두기 ?
                 
-                let stackView = UIStackView(arrangedSubviews: [iconLabel, titleLabel, subtitleLabel])
+                let stackView = UIStackView(arrangedSubviews: [iconImageView, titleLabel, subtitleLabel])
                 stackView.axis = .vertical
+                stackView.alignment = .leading
                 stackView.spacing = 5
                 
                 view.addSubview(stackView)
                 stackView.snp.makeConstraints {
-                    $0.top.leading.equalToSuperview().inset(10)
+                    $0.top.leading.trailing.equalToSuperview().inset(20)
+                    $0.bottom.lessThanOrEqualToSuperview().inset(20)
                 }
                 rowStack.addArrangedSubview(view)
             }
