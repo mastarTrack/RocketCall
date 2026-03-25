@@ -39,27 +39,46 @@ extension LabelConfiguration {
 }
 
 extension LabelConfiguration {
-    static let pointText = LabelConfiguration (
-        font: .systemFont(ofSize: 16),
-        color: .mainPoint,
-        lines: 0
+    static let sub12 = LabelConfiguration(
+        font: .systemFont(ofSize: 12, weight: .medium),
+        color: .subLabel,
+        lines: 1
     )
     
-    static let thirdPointText = LabelConfiguration (
-        font: .systemFont(ofSize: 16),
-        color: .thirdPoint,
-        lines: 0
+    static let sub14 = LabelConfiguration(
+        font: .systemFont(ofSize: 14, weight: .medium),
+        color: .subLabel,
+        lines: 1
     )
     
-    static let text = LabelConfiguration (
-        font: .systemFont(ofSize: 24),
+    static let sub16 = LabelConfiguration(
+        font: .systemFont(ofSize: 16, weight: .medium),
+        color: .subLabel,
+        lines: 1
+    )
+
+    static let main24 = LabelConfiguration(
+        font: .systemFont(ofSize: 24, weight: .medium),
         color: .mainLabel,
         lines: 1
     )
     
-    static let subtext = LabelConfiguration (
-        font: .systemFont(ofSize: 20),
-        color: .subLabel,
+    static let main30 = LabelConfiguration(
+        font: .systemFont(ofSize: 30, weight: .medium),
+        color: .mainLabel,
+        lines: 1
+    )
+
+    static let main24Bold = LabelConfiguration(
+        font: .systemFont(ofSize: 24, weight: .bold),
+        color: .mainLabel,
+        lines: 1
+    )
+    
+    static let main30Bold = LabelConfiguration(
+        font: .systemFont(ofSize: 30, weight: .bold),
+        color: .mainLabel,
         lines: 1
     )
 }
+
