@@ -11,6 +11,15 @@ import SnapKit
 enum MissionSection: Int, CaseIterable {
     case activatedMission
     case customMission
+    
+    var title: String {
+        switch self {
+        case .activatedMission:
+            return "활성 임무 목록"
+        case .customMission:
+            return "커스텀 임무 목록"
+        }
+    }
 }
 
 class MissionView: UIView {
@@ -70,6 +79,10 @@ extension MissionView {
         section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 20, trailing: 20)
         section.interGroupSpacing = 10
         
+        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(60))
+        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+        section.boundarySupplementaryItems = [header]
+        
         return section
     }
     
@@ -83,6 +96,10 @@ extension MissionView {
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 20, trailing: 20)
         section.interGroupSpacing = 10
+        
+        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(60))
+        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+        section.boundarySupplementaryItems = [header]
         
         return section
     }

@@ -53,6 +53,7 @@ extension MissionViewController {
         mainView.collectionView.dataSource = self
         mainView.collectionView.register(ActivatedMissionCell.self, forCellWithReuseIdentifier: ActivatedMissionCell.id)
         mainView.collectionView.register(CustomMissionCell.self, forCellWithReuseIdentifier: CustomMissionCell.id)
+        mainView.collectionView.register(MissionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: MissionHeaderView.id)
     }
 }
 
@@ -61,6 +62,14 @@ extension MissionViewController: UICollectionViewDelegate {
 }
 
 extension MissionViewController: UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let sectionType = MissionSection.allCases[indexPath.section]
+        guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: MissionHeaderView.id, for: indexPath) as? MissionHeaderView else { return UICollectionReusableView() }
+        header.config(title: sectionType.title)
+        return header
+    }
+    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         MissionSection.allCases.count
     }
