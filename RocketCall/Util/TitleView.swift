@@ -33,7 +33,7 @@ extension TitleView {
         backgroundColor = .clear
         
         let symbolConfig = UIImage.SymbolConfiguration(weight: .heavy)
-        addButton.setImage(UIImage(systemName: "plus.circle.fill",withConfiguration: symbolConfig), for: .normal)
+        addButton.setImage(UIImage(systemName: "plus.circle.fill", withConfiguration: symbolConfig), for: .normal)
         addButton.tintColor = .mainPoint
     }
     
