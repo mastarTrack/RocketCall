@@ -13,7 +13,7 @@ class HomeMainViewController: UIViewController {
     let homeMainView = HomeMainView()
     
     override func loadView() {
-        view = HomeMainView()
+        view = homeMainView
     }
     
     override func viewDidLoad() {

@@ -11,35 +11,33 @@ import Then
 import SwiftUI
 
 final class HomeMainView: UIView {
-    let alarmCardView = AlarmCardView()
+    //MARK: set attributes
+    private let titleView = TitleView(title: "항행일지", subTitle: "우주 탐사 대시보드", hasButton: false)
+    
+    private let alarmCardTitle = UILabel(text: "다가오는 알람", config: .homeViewHeader)
+    private let alarmCardView = AlarmCardView()
+    
+    private let chartBaseCardView = BaseCardView().then {
+        $0.isOn = true
+    }
+    
+    // SwiftUI로 생성된 ChartView를 UIKit에서 사용하기 위한 HostingController
     let chartHostingController = UIHostingController(rootView: ChartView()).then {
         $0.view.backgroundColor = .clear
     }
     
     init() {
         super.init(frame: .zero)
+        backgroundColor = .background
         setLayout()
-        setAttributes()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setAttributes() {
-        backgroundColor = .background
-        
-    }
-    
     private func setLayout() {
-        let titleView = TitleView(title: "항행일지", subTitle: "우주 탐사 대시보드", hasButton: false)
-        let alarmCardTitle = UILabel(text: "다가오는 알람", config: .homeViewHeader)
-        
         let chartViewTitle = generateChartTitleStack()
-        let chartBaseCardView = BaseCardView().then {
-            $0.isOn = true
-        }
-        
         let smallCardStackView = generateSmallCardStack()
         
         addSubview(titleView)
