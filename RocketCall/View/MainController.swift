@@ -8,6 +8,8 @@ import UIKit
 import SnapKit
 
 class MainController: UITabBarController {
+    let coreDataManager = CoreDataManager()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
@@ -19,9 +21,9 @@ class MainController: UITabBarController {
 extension MainController {
     private func configure() {
         let firstVC = UINavigationController(rootViewController: HomeMainViewController())
-        let secondVC = UINavigationController(rootViewController: ViewController())
-        let thirdVC = UINavigationController(rootViewController: ViewController())
-        let fourthVC = UINavigationController(rootViewController: ViewController())
+        let secondVC = UINavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
+        let thirdVC = UINavigationController(rootViewController: MissionViewController(coreDataManager: coreDataManager))
+        let fourthVC = UINavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
         
         firstVC.tabBarItem = UITabBarItem(title: "홈", image: UIImage(systemName: "house"), tag: 0)
         secondVC.tabBarItem = UITabBarItem(title: "알람", image: UIImage(systemName: "alarm"), tag: 1)
