@@ -21,6 +21,7 @@ final class AlarmRingView: UIView {
     private let time: String
     private let date: String
     private let title: String
+    private let notificationCenter: NotificationCenter
     
     private let circleContainerView = CircleContainerView(size: 180)
     
@@ -88,10 +89,16 @@ final class AlarmRingView: UIView {
         $0.layer.cornerRadius = 2
     }
     
-    init(time: String, date: String, title: String) {
+    init(
+        time: String,
+        date: String,
+        title: String,
+        notificationCenter: NotificationCenter = .default
+    ) {
         self.time = time
         self.date = date
         self.title = title
+        self.notificationCenter = notificationCenter
         super.init(frame: .zero)
         
         configureUI()
@@ -101,7 +108,7 @@ final class AlarmRingView: UIView {
         // 앱 상태를 감지하는 부분
         // didBecomeActiveNotification(앱이 다시 활성화 될 때 호출됨)
         // 앱이 켜지면 handleDidBecomeActive를 실행하라고 설정함
-        NotificationCenter.default.addObserver(
+        notificationCenter.addObserver(
             self,
             selector: #selector(handleDidBecomeActive),
             name: UIApplication.didBecomeActiveNotification,
@@ -117,7 +124,7 @@ final class AlarmRingView: UIView {
     
     // 순환참조를 막는 옵저버 제거 부분
     deinit {
-        NotificationCenter.default.removeObserver(self)
+        notificationCenter.removeObserver(self)
     }
     
     // 뷰가 화면에 붙고/떨어질때 호출됨 - 화면이 보이는걸 분기로 실행을 나눔
@@ -243,5 +250,4 @@ extension AlarmRingView {
         )
     }
 }
-
 
