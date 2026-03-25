@@ -23,8 +23,8 @@ class ActivatedMissionCell: UICollectionViewCell {
 //    private let progressBar = UIProgressView()
     
     private let buttonStackView = UIStackView()
-    private let startButton = RectangleButton(title: "발사",image: UIImage(systemName: "play"), backgroundColor: .cardBackground, tintColor: .mainPoint) // 색상 수정 필요
-    private let resetButton = RectangleButton(image: UIImage(systemName: "arrow.trianglehead.counterclockwise.rotate.90"), backgroundColor: .cardBackground, tintColor: .mainLabel) // 색상 수정 필요
+    private let startButton = RectangleButton(title: "발사",image: UIImage(systemName: "play"), backgroundColor: .mainPoint.withAlphaComponent(0.2), tintColor: .mainPoint)
+    private let resetButton = RectangleButton(image: UIImage(systemName: "arrow.trianglehead.counterclockwise.rotate.90"), backgroundColor: .mainLabel.withAlphaComponent(0.1), tintColor: .mainLabel)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
