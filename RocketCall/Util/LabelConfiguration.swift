@@ -39,8 +39,6 @@ extension LabelConfiguration {
 }
 
 extension LabelConfiguration {
-    
-    // 크기: 12~18, 색: subLabel, weight: medium
     static let sub12 = LabelConfiguration(
         font: .systemFont(ofSize: 12, weight: .medium),
         color: .subLabel,
@@ -58,32 +56,7 @@ extension LabelConfiguration {
         color: .subLabel,
         lines: 1
     )
-    
-    static let sub18 = LabelConfiguration(
-        font: .systemFont(ofSize: 18, weight: .medium),
-        color: .subLabel,
-        lines: 1
-    )
-    
-    // 크기: 18~30, 색: mainLabel, weight: medium/bold
-    static let main18 = LabelConfiguration(
-        font: .systemFont(ofSize: 18, weight: .medium),
-        color: .mainLabel,
-        lines: 1
-    )
-    
-    static let main20 = LabelConfiguration(
-        font: .systemFont(ofSize: 20, weight: .medium),
-        color: .mainLabel,
-        lines: 1
-    )
-    
-    static let main22 = LabelConfiguration(
-        font: .systemFont(ofSize: 22, weight: .medium),
-        color: .mainLabel,
-        lines: 1
-    )
-    
+
     static let main24 = LabelConfiguration(
         font: .systemFont(ofSize: 24, weight: .medium),
         color: .mainLabel,
@@ -95,25 +68,7 @@ extension LabelConfiguration {
         color: .mainLabel,
         lines: 1
     )
-    
-    static let main18Bold = LabelConfiguration(
-        font: .systemFont(ofSize: 18, weight: .bold),
-        color: .mainLabel,
-        lines: 1
-    )
-    
-    static let main20Bold = LabelConfiguration(
-        font: .systemFont(ofSize: 20, weight: .bold),
-        color: .mainLabel,
-        lines: 1
-    )
-    
-    static let main22Bold = LabelConfiguration(
-        font: .systemFont(ofSize: 22, weight: .bold),
-        color: .mainLabel,
-        lines: 1
-    )
-    
+
     static let main24Bold = LabelConfiguration(
         font: .systemFont(ofSize: 24, weight: .bold),
         color: .mainLabel,
@@ -125,4 +80,27 @@ extension LabelConfiguration {
         color: .mainLabel,
         lines: 1
     )
+}
+
+/*
+ 사용예시
+ let subLabel = UILabel(config: .sub(size: 12))
+ let mainLabel = UILabel(config: .main(size: 24, weight: .bold))
+ */
+extension LabelConfiguration {
+    static func sub(size: CGFloat) -> LabelConfiguration {
+        return LabelConfiguration(
+            font: .systemFont(ofSize: size, weight: .medium),
+            color: .subLabel,
+            lines: 1
+        )
+    }
+    
+    static func main(size: CGFloat, weight: UIFont.Weight = .medium) -> LabelConfiguration {
+        return LabelConfiguration(
+            font: .systemFont(ofSize: size, weight: weight),
+            color: .mainLabel,
+            lines: 1
+        )
+    }
 }
