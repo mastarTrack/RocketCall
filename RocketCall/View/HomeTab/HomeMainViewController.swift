@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import SwiftUI
 
 class HomeMainViewController: UIViewController {
     let homeMainView = HomeMainView()
@@ -18,5 +19,8 @@ class HomeMainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.isHidden = true
+        
+        addChild(homeMainView.chartHostingController) // UIHostingVC와 현재 VC의 생명주기 동기화
+        homeMainView.chartHostingController.didMove(toParent: self)
     }
 }

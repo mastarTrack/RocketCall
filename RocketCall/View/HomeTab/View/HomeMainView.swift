@@ -12,7 +12,7 @@ import SwiftUI
 
 final class HomeMainView: UIView {
     let alarmCardView = AlarmCardView()
-    let chartView = UIHostingController(rootView: ChartView()).then {
+    let chartHostingController = UIHostingController(rootView: ChartView()).then {
         $0.view.backgroundColor = .clear
     }
     
@@ -49,7 +49,7 @@ final class HomeMainView: UIView {
         
         addSubview(chartViewTitle)
         addSubview(chartBaseCardView)
-        chartBaseCardView.addSubview(chartView.view)
+        chartBaseCardView.addSubview(chartHostingController.view)
         
         addSubview(smallCardStackView)
         
@@ -78,7 +78,7 @@ final class HomeMainView: UIView {
             $0.height.equalTo(255).priority(.low) // hugging 우선순위를 낮게 조정
         }
         
-        chartView.view.snp.makeConstraints {
+        chartHostingController.view.snp.makeConstraints {
             $0.top.equalToSuperview().offset(20)
             $0.horizontalEdges.equalToSuperview().inset(15)
             $0.bottom.equalToSuperview().inset(10)
