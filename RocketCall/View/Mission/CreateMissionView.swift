@@ -55,45 +55,45 @@ extension CreateMissionView {
         self.backgroundColor = .background
         scrollView.showsVerticalScrollIndicator = false
         
-        let titleConfig = LabelConfiguration.title
-        let subtitleConfig = LabelConfiguration.subTitle
+        let labelConfig = LabelConfiguration.missionLabel
+        let sub16Config = LabelConfiguration.sub16
         
         quickTitleLabel.text = "빠른 선택"
-        quickTitleLabel.font = titleConfig.font
-        quickTitleLabel.textColor = titleConfig.color
+        quickTitleLabel.font = .systemFont(ofSize: 14, weight: .semibold)
+        quickTitleLabel.textColor = .mainLabel
         
         quickGridStackView.axis = .vertical
         quickGridStackView.spacing = 10
         
         missionNameLabel.text = "미션명"
-        missionNameLabel.font = titleConfig.font
-        missionNameLabel.textColor = titleConfig.color
+        missionNameLabel.font = labelConfig.font
+        missionNameLabel.textColor = labelConfig.color
         missionNameLabel.setContentHuggingPriority(.required, for: .horizontal)
         
         missionNameField.placeholder = "미션명을 입력해주세요."
-        missionNameField.font = subtitleConfig.font
-        missionNameField.textColor = subtitleConfig.color
+        missionNameField.font = labelConfig.font
+        missionNameField.textColor = labelConfig.color
         missionNameField.layer.cornerRadius = 10
-        missionNameField.backgroundColor = .cardBackground // backgroundColor 수정필요
-        missionNameField.layer.borderWidth = 1 // borderColor 수정 필요
+        missionNameField.backgroundColor = .cardBackground
+        missionNameField.layer.borderWidth = 1
         missionNameField.layer.borderColor = UIColor(red: 201/255.0, green: 209/255.0, blue: 232/255.0, alpha: 0.3).cgColor
         missionNameField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 0))
         missionNameField.leftViewMode = .always
         
         totalTimeLabel.text = "총 소요 시간"
-        totalTimeLabel.font = subtitleConfig.font
-        totalTimeLabel.textColor = subtitleConfig.color
+        totalTimeLabel.font = sub16Config.font
+        totalTimeLabel.textColor = sub16Config.color
         
-        totalTimeValueLabel.font = titleConfig.font
-        totalTimeValueLabel.textColor = titleConfig.color
+        totalTimeValueLabel.font = LabelConfiguration.main24Bold.font
+        totalTimeValueLabel.textColor = LabelConfiguration.main24Bold.color
         totalTimeValueLabel.textAlignment = .right
         
         intervalLabel.text = "반복 주기"
-        intervalLabel.font = subtitleConfig.font
-        intervalLabel.textColor = subtitleConfig.color
+        intervalLabel.font = sub16Config.font
+        intervalLabel.textColor = sub16Config.color
         
-        intervalValueLabel.font = titleConfig.font
-        intervalValueLabel.textColor = titleConfig.color
+        intervalValueLabel.font = sub16Config.font
+        intervalValueLabel.textColor = sub16Config.color
         intervalValueLabel.textAlignment = .right
         
         
@@ -179,18 +179,18 @@ extension CreateMissionView {
                 
                 let titleLabel = UILabel()
                 titleLabel.text = item.title
-                titleLabel.font = LabelConfiguration.title.font
-                titleLabel.textColor = LabelConfiguration.title.color
+                titleLabel.font = .boldSystemFont(ofSize: 16)
+                titleLabel.textColor = .mainLabel
                 
                 let subtitleLabel = UILabel()
                 subtitleLabel.text = item.subtitle
-                subtitleLabel.font = LabelConfiguration.subTitle.font
-                subtitleLabel.textColor = .systemBlue // Configuration으로 넣어두기 ?
+                subtitleLabel.font = .boldSystemFont(ofSize: 12)
+                subtitleLabel.textColor = .systemBlue
                 
                 let stackView = UIStackView(arrangedSubviews: [iconImageView, titleLabel, subtitleLabel])
                 stackView.axis = .vertical
                 stackView.alignment = .leading
-                stackView.spacing = 5
+                stackView.spacing = 8
                 
                 view.addSubview(stackView)
                 stackView.snp.makeConstraints {
