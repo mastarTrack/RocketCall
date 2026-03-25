@@ -53,11 +53,11 @@ final class MissionResultView: UIView {
     private let endTimeRow = InfoPairView(title: "끝난 시간")
     private let stateRow = StateRowView(title: "상태")
     
-    private let Seperater1 = SeperaterView()
-    private let Seperater2 = SeperaterView()
-    private let Seperater3 = SeperaterView()
-    private let Seperater4 = SeperaterView()
-    private let Seperater5 = SeperaterView()
+    private let Separator1 = SeparatorView()
+    private let Separator2 = SeparatorView()
+    private let Separator3 = SeparatorView()
+    private let Separator4 = SeparatorView()
+    private let Separator5 = SeparatorView()
     
     private let completedDateTitleLabel = UILabel(config: .sub16).then {
         $0.text = "완료 일시"
@@ -312,7 +312,7 @@ extension MissionResultView {
     }
 }
 
-class SeperaterView: UIView {
+class SeparatorView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = UIColor.white.withAlphaComponent(0.1)
