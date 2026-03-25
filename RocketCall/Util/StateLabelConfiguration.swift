@@ -31,3 +31,17 @@ extension StateLabelConfiguration {
         borderColor: UIColor.red
     )
 }
+
+extension StateLabelConfiguration {
+    static let success = StateLabelConfiguration(
+        font: .systemFont(ofSize: 14, weight: .medium),
+        color: .systemGreen,
+        backgroundColor: UIColor.systemGreen.withAlphaComponent(0.2)
+    )
+    
+    static let failure = StateLabelConfiguration(
+        font: .systemFont(ofSize: 14, weight: .medium),
+        color: .systemRed,
+        backgroundColor: UIColor.systemRed.withAlphaComponent(0.2)
+    )
+}

@@ -6,6 +6,8 @@
 //
 import UIKit
 
+
+// TitleEdgesInsets 경고 -> Config로 변경
 class RectangleButton: UIButton {
     init(title: String, color: UIColor) {
         super.init(frame: .zero)
@@ -17,16 +19,43 @@ class RectangleButton: UIButton {
     }
 }
 
+
+// Text
 extension RectangleButton {
     private func setAttributes(title: String, color: UIColor) {
-        self.setTitle(title, for: .normal)
-        self.setTitleColor(.white, for: .normal)
-        self.titleLabel?.font = .boldSystemFont(ofSize: 16)
-        self.titleLabel?.textAlignment = .center
-        self.backgroundColor = color
+        var config = UIButton.Configuration.filled()
+        config.title = title
+        config.baseForegroundColor = .white
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer {
+            var attribute = $0
+            attribute.font = .boldSystemFont(ofSize: 16)
+            return attribute
+        }
+        config.baseBackgroundColor = color
+        config.cornerStyle = .fixed
+        config.background.cornerRadius = 10
+        self.configuration = config
+    }
+}
+
+
+// Icon + text
+extension RectangleButton {
+    convenience init(
+        title: String? = nil,
+        image: UIImage? = nil,
+        backgroundColor: UIColor,
+        tintColor: UIColor? = nil
+    ) {
+        self.init(title: title ?? "", color: backgroundColor)
         
-        self.layer.cornerRadius = 10
-        self.clipsToBounds = true
+        var config = self.configuration ?? UIButton.Configuration.filled()
+        config.image = image
+        config.baseForegroundColor = tintColor ?? .white
         
+        if title != nil && image != nil {
+            config.imagePadding = 10
+        }
+        self.configuration = config
     }
 }
