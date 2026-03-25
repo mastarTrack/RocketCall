@@ -15,7 +15,7 @@ class ActivatedMissionCell: UICollectionViewCell {
     
     private let containerView = BaseCardView()
     
-    private let stateLabel = StateLabel(text: "1/4 사이클", config: .complete) //수정 필요
+    private let stateLabel = StateLabel(text: "1/4 사이클", config: .success) //수정 필요
     private let titleLabel = UILabel()
     private let timeLabel = UILabel()
     
