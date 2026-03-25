@@ -14,7 +14,7 @@ enum MissionSection: Int, CaseIterable {
 }
 
 class MissionView: UIView {
-    private let titleView = TitleView(title: "계획된 임무", subTitle: "포모도로 타이머를 설정하고 시작하세요.", hasButton: true)
+    let titleView = TitleView(title: "계획된 임무", subTitle: "포모도로 타이머를 설정하고 시작하세요.", hasButton: true)
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
     
     override init(frame: CGRect) {
@@ -63,7 +63,7 @@ extension MissionView {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(160))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(160))
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(160))
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
