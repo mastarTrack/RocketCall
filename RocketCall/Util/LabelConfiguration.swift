@@ -36,4 +36,10 @@ extension LabelConfiguration {
         color: .subLabel,
         lines: 1
     )
+    
+    static let missionTime = LabelConfiguration(
+        font: .systemFont(ofSize: 36),
+        color: .mainLabel,
+        lines: 1
+    )
 }
