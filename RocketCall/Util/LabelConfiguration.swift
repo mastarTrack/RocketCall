@@ -46,19 +46,19 @@ extension LabelConfiguration {
     )
     
     static let thirdPointText = LabelConfiguration (
-        font: .systemFont(ofSize: 16),
+        font: .systemFont(ofSize: 14),
         color: .thirdPoint,
         lines: 0
     )
     
     static let text = LabelConfiguration (
-        font: .systemFont(ofSize: 24),
+        font: .systemFont(ofSize: 16),
         color: .mainLabel,
         lines: 1
     )
     
     static let subtext = LabelConfiguration (
-        font: .systemFont(ofSize: 20),
+        font: .systemFont(ofSize: 14),
         color: .subLabel,
         lines: 1
     )

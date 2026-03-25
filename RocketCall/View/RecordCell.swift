@@ -27,9 +27,7 @@ class RecordCell: UICollectionViewCell {
     private let locationLabel = UILabel(
         text: "계산 중...",
         config: .thirdPointText
-    ).then {
-        $0.font = .boldSystemFont(ofSize: 18)
-    }
+    )
     
     
     //MARK: - Init

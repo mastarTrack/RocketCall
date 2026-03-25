@@ -112,12 +112,13 @@ extension StopWatchRecordView {
         addSubview(titleLabel)
         addSubview(recordCollectionView)
         
+        
         titleLabel.snp.makeConstraints {
             $0.top.leading.equalToSuperview()
         }
         
         recordCollectionView.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(20)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(10)
             $0.leading.trailing.bottom.equalToSuperview()
         }
     }
