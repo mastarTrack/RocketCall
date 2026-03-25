@@ -1,23 +1,26 @@
 //
-//  ViewController.swift
+//  StopWatchViewController.swift
 //  RocketCall
 //
-//  Created by 손영빈 on 3/23/26.
+//  Created by Hanjuheon on 3/24/26.
 //
 
 import UIKit
+import RxSwift
 import SnapKit
+import Then
 
-// StateLabel 예시 및 NavigationController 타이틀 설정 예시
-class ViewController: UIViewController {
-
+class StopWatchViewController: UIViewController {
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .background
+
     }
 }
 
+
 @available(iOS 17.0, *)
 #Preview {
-    ViewController()
+    StopWatchViewController()
 }
