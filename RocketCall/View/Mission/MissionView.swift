@@ -37,7 +37,6 @@ extension MissionView {
         
         titleView.snp.makeConstraints {
             $0.top.horizontalEdges.equalTo(self.safeAreaLayoutGuide)
-            $0.height.equalTo(50)
         }
         
         collectionView.snp.makeConstraints {
