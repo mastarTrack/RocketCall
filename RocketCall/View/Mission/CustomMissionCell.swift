@@ -37,7 +37,7 @@ class CustomMissionCell: UICollectionViewCell {
 extension CustomMissionCell {
     private func setAttributes() {
         
-        let subtitleConfig = LabelConfiguration.sub12
+        let subtitleConfig = LabelConfiguration(font: .systemFont(ofSize: 12), color: .secondLabel, lines: 1)
         
         labelStackView.axis = .vertical
         labelStackView.spacing = 5

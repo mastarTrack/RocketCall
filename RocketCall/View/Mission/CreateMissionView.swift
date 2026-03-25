@@ -70,7 +70,10 @@ extension CreateMissionView {
         missionNameLabel.textColor = labelConfig.color
         missionNameLabel.setContentHuggingPriority(.required, for: .horizontal)
         
-        missionNameField.placeholder = "미션명을 입력해주세요."
+        missionNameField.attributedPlaceholder = NSAttributedString(
+            string: "미션명을 입력해주세요.",
+            attributes: [.foregroundColor: UIColor.secondLabel ]
+        )
         missionNameField.font = labelConfig.font
         missionNameField.textColor = labelConfig.color
         missionNameField.layer.cornerRadius = 10

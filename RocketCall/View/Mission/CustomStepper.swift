@@ -73,17 +73,15 @@ extension CustomStepper {
 
 extension CustomStepper {
     private func setAttributes() {
-        let titleConfig = LabelConfiguration.title
-        let subTitleConfig = LabelConfiguration.subTitle
         
-        titleLabel.font = titleConfig.font
-        titleLabel.textColor = titleConfig.color
+        titleLabel.font = LabelConfiguration.missionLabel.font
+        titleLabel.textColor = LabelConfiguration.missionLabel.color
         
-        subtitleLabel.font = subTitleConfig.font
-        subtitleLabel.textColor = subTitleConfig.color
+        subtitleLabel.font = .systemFont(ofSize: 12)
+        subtitleLabel.textColor = .secondLabel
         
-        valueLabel.font = titleConfig.font
-        valueLabel.textColor = titleConfig.color
+        valueLabel.font = LabelConfiguration.main24Bold.font
+        valueLabel.textColor = LabelConfiguration.main24Bold.color
         valueLabel.textAlignment = .center
         valueLabel.setContentHuggingPriority(.required, for: .horizontal)
         
