@@ -62,7 +62,7 @@ final class AlarmRingView: UIView {
     
     let snoozeButton = RectangleButton(title: "다시 알림 (5분)", color: .subLabel).then {
         $0.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
-        $0.backgroundColor = UIColor.white.withAlphaComponent(0.08)
+        $0.backgroundColor = UIColor.white.withAlphaComponent(0.1)
     }
     
     private let bottomGuideStackView = UIStackView().then {

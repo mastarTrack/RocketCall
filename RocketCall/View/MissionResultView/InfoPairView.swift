@@ -39,6 +39,10 @@ class InfoPairView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func updateData(_ text: String) {
+        dataLabel.text = text
+    }
+    
     private func configureUI() {
         addSubview(titleLabel)
         addSubview(dataLabel)

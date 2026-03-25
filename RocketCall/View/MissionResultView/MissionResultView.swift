@@ -11,6 +11,17 @@ import Then
 // 헤더 스택 뷰
 // 카드뷰
 // 하단 버튼
+
+struct MissionResultData {
+    let state: Bool
+    let missionName: String
+    let route: String
+    let duration: String
+    let type: String
+    let statusText: String
+    let completedDate: String
+}
+
 final class MissionResultView: UIView {
     
     private let scrollView = UIScrollView()
@@ -18,7 +29,7 @@ final class MissionResultView: UIView {
     
     private let iconCircleView = CircleContainerView(size: 100)
     
-    private let checkImageView = UIImageView().then {
+    private let resultImageView = UIImageView().then {
         $0.image = UIImage(systemName: "checkmark.circle")
         $0.tintColor = .white
         $0.contentMode = .scaleAspectFit
@@ -96,9 +107,41 @@ final class MissionResultView: UIView {
         configureUI()
         setLayout()
     }
-    
+        
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configure(with data: MissionResultData) {
+        applyState(data.state)
+        
+        missionNameValueLabel.text = data.missionName
+        routeRow.updateData(data.route)
+        durationRow.updateData(data.duration)
+        typeRow.updateData(data.type)
+        completedDateValueLabel.text = data.completedDate
+        
+        stateRow.updateState(data.state)
+    }
+    
+    private func applyState(_ state: Bool) {
+        switch state {
+        case true:
+            iconCircleView.backgroundColor = .mainPoint
+            resultImageView.image = UIImage(systemName: "checkmark.circle")
+            coloredLabel.text = "✓ 미션 성공"
+            coloredLabel.textColor = .systemGreen
+            titleLabel.text = "미션 완료!"
+            subtitleLabel.text = "여정을 성공적으로 완료했습니다"
+            
+        case false:
+            iconCircleView.backgroundColor = .systemRed
+            resultImageView.image = UIImage(systemName: "xmark.circle")
+            coloredLabel.text = "✗ 미션 실패"
+            coloredLabel.textColor = .systemRed
+            titleLabel.text = "미션 실패"
+            subtitleLabel.text = "여정을 완료하지 못했습니다"
+        }
     }
     
     private func configureUI() {
@@ -108,7 +151,7 @@ final class MissionResultView: UIView {
         
         // 헤더 추가
         contentView.addSubview(iconCircleView)
-        iconCircleView.addSubview(checkImageView)
+        iconCircleView.addSubview(resultImageView)
         contentView.addSubview(coloredLabel)
         contentView.addSubview(titleLabel)
         contentView.addSubview(subtitleLabel)
@@ -147,7 +190,7 @@ final class MissionResultView: UIView {
             $0.centerX.equalToSuperview()
         }
         
-        checkImageView.snp.makeConstraints {
+        resultImageView.snp.makeConstraints {
             $0.center.equalToSuperview()
             $0.size.equalTo(60)
         }
