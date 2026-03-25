@@ -47,7 +47,7 @@ extension CustomStepper {
             .disposed(by: disposeBag)
         
         value
-            .map { $0 > 1 }
+            .map { $0 > 0 }
             .bind(to: minusButton.rx.isEnabled)
             .disposed(by: disposeBag)
         

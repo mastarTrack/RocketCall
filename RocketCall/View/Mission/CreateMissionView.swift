@@ -60,7 +60,7 @@ extension CreateMissionView {
         
         quickTitleLabel.text = "빠른 선택"
         quickTitleLabel.font = .systemFont(ofSize: 14, weight: .semibold)
-        quickTitleLabel.textColor = .mainLabel
+        quickTitleLabel.textColor = .subLabel
         
         quickGridStackView.axis = .vertical
         quickGridStackView.spacing = 10
