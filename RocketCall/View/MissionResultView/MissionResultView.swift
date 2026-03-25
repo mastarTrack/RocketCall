@@ -7,20 +7,6 @@
 import UIKit
 import SnapKit
 import Then
-// 원
-// 헤더 스택 뷰
-// 카드뷰
-// 하단 버튼
-
-struct MissionResultData {
-    let state: Bool
-    let missionName: String
-    let route: String
-    let duration: String
-    let type: String
-    let statusText: String
-    let completedDate: String
-}
 
 final class MissionResultView: UIView {
     
@@ -59,22 +45,22 @@ final class MissionResultView: UIView {
     private let infoCardView = BaseCardView()
     
     private let missionNameTitleLabel = UILabel().then {
-        $0.text = "현재 미션"
+        $0.text = "현재 끝난 미션"
         $0.textColor = UIColor.lightGray
         $0.font = .systemFont(ofSize: 15, weight: .medium)
         $0.textAlignment = .center
     }
     
     private let missionNameValueLabel = UILabel().then {
-        $0.text = "계획된 미션"
+        $0.text = "미션이름"
         $0.textColor = .white
         $0.font = .systemFont(ofSize: 25, weight: .bold)
         $0.textAlignment = .center
     }
     
-    private let routeRow = InfoPairView(title: "경로", data: "지구 → 달")
-    private let durationRow = InfoPairView(title: "소요 시간", data: "00:14")
-    private let typeRow = InfoPairView(title: "유형", data: "계획된 미션")
+    private let startTimeRow = InfoPairView(title: "시작 시간")
+    private let durationRow = InfoPairView(title: "총 소요 시간")
+    private let endTimeRow = InfoPairView(title: "끝난 시간")
     private let stateRow = StateRowView(title: "상태")
     
     private let Seperater1 = SeperaterView()
@@ -112,16 +98,16 @@ final class MissionResultView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(with data: MissionResultData) {
-        applyState(data.state)
+    func configure(with payload: MissionResultPayload) {
+        applyState(payload.isCompleted)
         
-        missionNameValueLabel.text = data.missionName
-        routeRow.updateData(data.route)
-        durationRow.updateData(data.duration)
-        typeRow.updateData(data.type)
-        completedDateValueLabel.text = data.completedDate
+        missionNameValueLabel.text = payload.title
+        startTimeRow.updateData(Self.dateFormatter.string(from: payload.start))
+        durationRow.updateData(Self.formattedStudyTime(payload.studyTime))
+        endTimeRow.updateData(Self.dateFormatter.string(from: payload.end))
+        completedDateValueLabel.text = Self.completedDateFormatter.string(from: payload.end)
         
-        stateRow.updateState(data.state)
+        stateRow.updateState(payload.isCompleted)
     }
     
     private func applyState(_ state: Bool) {
@@ -161,11 +147,11 @@ final class MissionResultView: UIView {
         infoCardView.addSubview(missionNameTitleLabel)
         infoCardView.addSubview(missionNameValueLabel)
         
-        infoCardView.addSubview(routeRow)
-        infoCardView.addSubview(Seperater1)
         infoCardView.addSubview(durationRow)
+        infoCardView.addSubview(Seperater1)
+        infoCardView.addSubview(startTimeRow)
         infoCardView.addSubview(Seperater2)
-        infoCardView.addSubview(typeRow)
+        infoCardView.addSubview(endTimeRow)
         infoCardView.addSubview(Seperater3)
         infoCardView.addSubview(stateRow)
         infoCardView.addSubview(Seperater4)
@@ -226,38 +212,38 @@ final class MissionResultView: UIView {
             $0.leading.trailing.equalToSuperview().inset(25)
         }
         
-        routeRow.snp.makeConstraints {
+        durationRow.snp.makeConstraints {
             $0.top.equalTo(missionNameValueLabel.snp.bottom).offset(35)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(25)
         }
         
         Seperater1.snp.makeConstraints {
-            $0.top.equalTo(routeRow.snp.bottom).offset(15)
+            $0.top.equalTo(durationRow.snp.bottom).offset(15)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(1)
         }
         
-        durationRow.snp.makeConstraints {
+        startTimeRow.snp.makeConstraints {
             $0.top.equalTo(Seperater1.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(25)
         }
         
         Seperater2.snp.makeConstraints {
-            $0.top.equalTo(durationRow.snp.bottom).offset(20)
+            $0.top.equalTo(startTimeRow.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(1)
         }
         
-        typeRow.snp.makeConstraints {
+        endTimeRow.snp.makeConstraints {
             $0.top.equalTo(Seperater2.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(25)
         }
         
         Seperater3.snp.makeConstraints {
-            $0.top.equalTo(typeRow.snp.bottom).offset(20)
+            $0.top.equalTo(endTimeRow.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(1)
         }
@@ -291,6 +277,29 @@ final class MissionResultView: UIView {
             $0.height.equalTo(60)
             $0.bottom.equalToSuperview().offset(-20)
         }
+    }
+}
+
+extension MissionResultView {
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "a h:mm"
+        return formatter
+    }()
+    
+    private static let completedDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "yyyy. M. d. a h:mm:ss"
+        return formatter
+    }()
+    
+    private static func formattedStudyTime(_ studyTime: Int) -> String {
+        let hours = studyTime / 60
+        let minutes = studyTime % 60
+        
+        return String(format: "%02d:%02d", hours, minutes)
     }
 }
 
