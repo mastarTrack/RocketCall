@@ -6,9 +6,10 @@
 //
 
 import UIKit
+import SnapKit
 
 // symbol label 가로 스택뷰 생성용
-class symbolLabelStack: UIStackView {
+class SymbolLabelStack: UIStackView {
 
     init(symbol: String, symbolColor: UIColor, label: UILabel) {
         super.init(frame: .zero)
@@ -26,6 +27,10 @@ class symbolLabelStack: UIStackView {
         
         symbol.setContentHuggingPriority(.required, for: .horizontal)
         symbol.setContentCompressionResistancePriority(.required, for: .horizontal)
+        
+        self.snp.makeConstraints {
+            $0.height.equalTo(label.snp.height)
+        }
     }
     
     

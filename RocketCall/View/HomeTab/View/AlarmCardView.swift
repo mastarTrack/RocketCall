@@ -45,7 +45,7 @@ extension AlarmCardView {
             $0.clipsToBounds = true
         }
      
-        let repeatDaysStackView = symbolLabelStack(symbol: "calendar", symbolColor: .subPoint, label: repeatDaysLabel)
+        let repeatDaysStackView = SymbolLabelStack(symbol: "calendar", symbolColor: .subPoint, label: repeatDaysLabel)
         
         let bar = UIView().then {
             $0.backgroundColor = UIColor(red: 201/255.0, green: 209/255.0, blue: 232/255.0, alpha: 0.3) // cardView border와 동일

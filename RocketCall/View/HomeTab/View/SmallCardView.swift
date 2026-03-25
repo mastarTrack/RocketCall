@@ -74,7 +74,7 @@ extension SmallCardView {
             $0.font = .systemFont(ofSize: 12, weight: .semibold)
         }
         
-        let titleStackView = symbolLabelStack(symbol: type.symbol, symbolColor: type.titleColor, label: title)
+        let titleStackView = SymbolLabelStack(symbol: type.symbol, symbolColor: type.titleColor, label: title)
         
         
         addSubview(titleStackView)
