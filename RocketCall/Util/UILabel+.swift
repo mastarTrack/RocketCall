@@ -13,7 +13,7 @@ extension UILabel {
         self.numberOfLines = config.lines
     }
     
-    convenience init(text: String, config: LabelConfiguration) {
+    convenience init(text: String = "", config: LabelConfiguration) {
         self.init()
         self.text = text
         apply(config)

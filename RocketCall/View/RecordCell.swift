@@ -16,18 +16,21 @@ class RecordCell: UICollectionViewCell {
     
     private let countLabel = UILabel(
         text: "# 0",
-        config: .subtext
+        config: .sub14
     )
     
     private let  timerLabel = UILabel(
         text: "00:00.00",
-        config: .text
+        config: .sub16
     )
     
     private let locationLabel = UILabel(
         text: "계산 중...",
-        config: .thirdPointText
-    )
+        config: .sub12
+    ).then {
+        $0.textColor = .thirdPoint
+    }
+
     
     
     //MARK: - Init
