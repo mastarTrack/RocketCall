@@ -44,7 +44,9 @@ extension ActivatedMissionCell {
         
         titleLabel.font = titleConfig.font
         titleLabel.textColor = titleConfig.color
+        titleLabel.setContentHuggingPriority(.required, for: .horizontal)
         
+        timeLabel.textAlignment = .right
         timeLabel.font = timeConfig.font
         timeLabel.textColor = timeConfig.color
         
@@ -78,11 +80,13 @@ extension ActivatedMissionCell {
         
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(stateLabel.snp.bottom).offset(10)
-            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.leading.equalToSuperview().offset(20)
+            $0.trailing.equalTo(timeLabel.snp.leading).offset(-10)
         }
         
         timeLabel.snp.makeConstraints {
-            $0.top.trailing.equalToSuperview().inset(20)
+            $0.centerY.equalTo(titleLabel)
+            $0.trailing.equalToSuperview().offset(-20)
         }
         
         buttonStackView.snp.makeConstraints {
