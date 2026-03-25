@@ -21,6 +21,7 @@ class StateLabel: UILabel {
     convenience init(text: String, config: StateLabelConfiguration) {
         self.init()        
         self.text = text
+        self.font = config.font // 추가
         self.textColor = config.color // 글자 색
         self.backgroundColor = config.backgroundColor // 배경 색
         
