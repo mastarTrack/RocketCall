@@ -18,10 +18,10 @@ class CreateMissionView: UIView {
     private let quickTitleLabel = UILabel()
     private let quickGridStackView = UIStackView()
     private let quickItems: [(icon: String, title: String, subtitle: String)] = [
-        ("moon.stars.fill", "25분 미션", "25분 여행"),
-        ("moon.stars.fill", "50분 미션", "50분 여행"),
-        ("moon.stars.fill", "90분 미션", "90분 여행"),
-        ("moon.stars.fill", "120분 미션", "120분 여행")
+        ("moon.stars.fill", "25분 미션", "25분 집중 / 5분 휴식"),
+        ("moon.stars.fill", "50분 미션", "50분 집중 / 10분 휴식"),
+        ("moon.stars.fill", "90분 미션", "90분 집중 / 20분 휴식"),
+        ("moon.stars.fill", "120분 미션", "120분 집중 / 20분 휴식")
     ]
     
     private let missionNameLabel = UILabel()
