@@ -8,7 +8,7 @@ import UIKit
 import SnapKit
 import Then
 
-// 실패시 로직 고민해보기
+// MissionResultView 구성을 위한 뷰
 final class StateRowView: InfoPairView {
     
     private let stateLabel = StateLabel(text: "✓ 성공", config: .success)

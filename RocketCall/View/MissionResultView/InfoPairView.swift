@@ -8,6 +8,7 @@ import UIKit
 import SnapKit
 import Then
 
+// MissionResultView 구성을 위한 뷰
 class InfoPairView: UIView {
     
     private let titleLabel = UILabel().then {

@@ -151,7 +151,8 @@ final class MissionResultView: UIView {
     
     private func setLayout() {
         scrollView.snp.makeConstraints {
-            $0.edges.equalTo(safeAreaLayoutGuide)
+            $0.leading.trailing.top.equalTo(safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
         }
         
         contentView.snp.makeConstraints {

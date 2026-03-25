@@ -7,6 +7,8 @@
 import UIKit
 import SnapKit
 
+//결과 화면(MissionResultViewController) 띄울 때 push해서 띄우고
+//hidesBottomBarWhenPushed = true로 탭바 숨겨주시면 됩니다
 class MissionResultViewController: UIViewController {
     private let coreDataManager: CoreDataManager
     private let resultId: UUID?
@@ -22,7 +24,8 @@ class MissionResultViewController: UIViewController {
         studyTime: 150,
         isCompleted: false
     )
-
+    
+    // 코어데이터와 아이디를 받아서 뷰를 그림
     init(coreDataManager: CoreDataManager, resultId: UUID? = nil) {
         self.coreDataManager = coreDataManager
         self.resultId = resultId
@@ -39,10 +42,11 @@ class MissionResultViewController: UIViewController {
         
         view.addSubview(missionResultView)
         missionResultView.snp.makeConstraints {
-            $0.edges.equalTo(view.safeAreaLayoutGuide)
+            $0.leading.trailing.top.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
         }
         
-        // 여기서 데이터 넣어줌
+        // 여기서 데이터 넣어줌(사용시 샘플 데이터 로직 부분 삭제하시면 됩니다)
         if let resultId,
            let payload = try? coreDataManager.fetchMissionResult(of: resultId) {
             missionResultView.configure(with: payload)
