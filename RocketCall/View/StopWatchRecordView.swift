@@ -15,7 +15,7 @@ class StopWatchRecordView: UIView {
     //MARK: - Components
     private let titleLabel = UILabel(
         text: "Checkpoint Records",
-        config: .subtext
+        config: .sub14
     )
     
     private lazy var recordCollectionView = UICollectionView(
