@@ -51,12 +51,15 @@ extension ActivatedMissionCell {
         buttonStackView.axis = .horizontal
         buttonStackView.spacing = 10
         
-        startButton.setTitleColor(.mainPoint, for: .normal)
-        startButton.layer.borderColor = UIColor.mainPoint.cgColor
-        startButton.layer.borderWidth = 1
+        var startConfig = startButton.configuration
+        startConfig?.background.strokeColor = .mainPoint
+        startConfig?.background.strokeWidth = 1
+        startButton.configuration = startConfig
         
-        resetButton.layer.borderColor = UIColor.white.cgColor // 수정 필요
-        resetButton.layer.borderWidth = 1
+        var resetConfig = resetButton.configuration
+        resetConfig?.background.strokeColor = .white
+        resetConfig?.background.strokeWidth = 1
+        resetButton.configuration = resetConfig
         
     }
     private func setLayout() {
