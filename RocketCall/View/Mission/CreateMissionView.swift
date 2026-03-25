@@ -76,6 +76,7 @@ extension CreateMissionView {
         missionNameField.layer.cornerRadius = 10
         missionNameField.backgroundColor = .cardBackground // backgroundColor 수정필요
         missionNameField.layer.borderWidth = 1 // borderColor 수정 필요
+        missionNameField.layer.borderColor = UIColor(red: 201/255.0, green: 209/255.0, blue: 232/255.0, alpha: 0.3).cgColor
         missionNameField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 0))
         missionNameField.leftViewMode = .always
         
