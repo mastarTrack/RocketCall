@@ -26,9 +26,8 @@ class MissionHeaderView: UICollectionReusableView {
 
 extension MissionHeaderView {
     private func setAttributes() {
-        let config = LabelConfiguration.subTitle
-        titleLabel.font = config.font
-        titleLabel.textColor = config.color
+        titleLabel.font = .systemFont(ofSize: 14, weight: .semibold)
+        titleLabel.textColor = .subLabel
     }
     
     private func setLayout() {
