@@ -65,9 +65,7 @@ extension StopWatchViewController {
             ms.leading.equalToSuperview().offset(20)
             ms.trailing.bottom.equalToSuperview().inset(20)
         }
-        titleView.snp.makeConstraints {
-            $0.height.equalTo(100)
-        }
+
         stopWatchHeaderView.snp.makeConstraints {
             $0.height.equalTo(430)
         }
