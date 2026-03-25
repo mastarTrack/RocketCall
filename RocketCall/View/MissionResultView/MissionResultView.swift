@@ -134,15 +134,14 @@ final class MissionResultView: UIView {
         infoCardView.addSubview(missionNameValueLabel)
         
         infoCardView.addSubview(durationRow)
-        infoCardView.addSubview(Seperater1)
+        infoCardView.addSubview(Separator1)
         infoCardView.addSubview(focusRow)
-        infoCardView.addSubview(Seperater2)
+        infoCardView.addSubview(Separator2)
         infoCardView.addSubview(startTimeRow)
-        infoCardView.addSubview(Seperater3)
+        infoCardView.addSubview(Separator3)
         infoCardView.addSubview(endTimeRow)
-        infoCardView.addSubview(Seperater4)
+        infoCardView.addSubview(Separator4)
         infoCardView.addSubview(stateRow)
-        infoCardView.addSubview(Seperater5)
         infoCardView.addSubview(completedDateTitleLabel)
         infoCardView.addSubview(completedDateValueLabel)
         
@@ -207,50 +206,50 @@ final class MissionResultView: UIView {
             $0.height.equalTo(25)
         }
         
-        Seperater1.snp.makeConstraints {
+        Separator1.snp.makeConstraints {
             $0.top.equalTo(durationRow.snp.bottom).offset(15)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(1)
         }
         
         focusRow.snp.makeConstraints {
-            $0.top.equalTo(Seperater1.snp.bottom).offset(20)
+            $0.top.equalTo(Separator1.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(25)
         }
         
-        Seperater2.snp.makeConstraints {
+        Separator2.snp.makeConstraints {
             $0.top.equalTo(focusRow.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(1)
         }
         
         startTimeRow.snp.makeConstraints {
-            $0.top.equalTo(Seperater2.snp.bottom).offset(20)
+            $0.top.equalTo(Separator2.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(25)
         }
         
-        Seperater3.snp.makeConstraints {
+        Separator3.snp.makeConstraints {
             $0.top.equalTo(startTimeRow.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(1)
         }
         
         endTimeRow.snp.makeConstraints {
-            $0.top.equalTo(Seperater3.snp.bottom).offset(20)
+            $0.top.equalTo(Separator3.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(25)
         }
         
-        Seperater4.snp.makeConstraints {
+        Separator4.snp.makeConstraints {
             $0.top.equalTo(endTimeRow.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(1)
         }
         
         stateRow.snp.makeConstraints {
-            $0.top.equalTo(Seperater4.snp.bottom).offset(20)
+            $0.top.equalTo(Separator4.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(25)
         }
