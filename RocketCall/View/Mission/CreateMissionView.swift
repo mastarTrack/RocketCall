@@ -25,7 +25,7 @@ class CreateMissionView: UIView {
     ]
     
     private let missionNameLabel = UILabel()
-    private let missionNameField = UITextField()
+    let missionNameField = UITextField()
     
     let studyStepper = CustomStepper(title: "집중 시간", subtitle: "분 단위로 입력해주세요.", initialValue: 0)
     let restStepper = CustomStepper(title: "휴식 시간", subtitle: "분 단위로 입력해주세요.", initialValue: 0)
