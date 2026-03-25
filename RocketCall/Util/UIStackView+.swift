@@ -8,9 +8,10 @@
 import UIKit
 
 // symbol label 가로 스택뷰 생성용
-extension UIStackView {
-    convenience init(symbol: String, symbolColor: UIColor, label: UILabel) {
-        self.init()
+class symbolLabelStack: UIStackView {
+
+    init(symbol: String, symbolColor: UIColor, label: UILabel) {
+        super.init(frame: .zero)
         
         let config = UIImage.SymbolConfiguration(scale: .small)
         let symbol = UIImageView(image: UIImage(systemName: symbol, withConfiguration: config))
@@ -22,5 +23,14 @@ extension UIStackView {
         
         axis = .horizontal
         spacing = 5
+        
+        symbol.setContentHuggingPriority(.required, for: .horizontal)
+        symbol.setContentCompressionResistancePriority(.required, for: .horizontal)
+    }
+    
+    
+    
+    required init(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
