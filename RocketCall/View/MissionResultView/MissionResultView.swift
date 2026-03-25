@@ -58,8 +58,9 @@ final class MissionResultView: UIView {
         $0.textAlignment = .center
     }
     
-    private let startTimeRow = InfoPairView(title: "시작 시간")
     private let durationRow = InfoPairView(title: "총 소요 시간")
+    private let focusRow = InfoPairView(title: "집중 시간")
+    private let startTimeRow = InfoPairView(title: "시작 시간")
     private let endTimeRow = InfoPairView(title: "끝난 시간")
     private let stateRow = StateRowView(title: "상태")
     
@@ -67,6 +68,7 @@ final class MissionResultView: UIView {
     private let Seperater2 = SeperaterView()
     private let Seperater3 = SeperaterView()
     private let Seperater4 = SeperaterView()
+    private let Seperater5 = SeperaterView()
     
     private let completedDateTitleLabel = UILabel().then {
         $0.text = "완료 일시"
@@ -102,8 +104,9 @@ final class MissionResultView: UIView {
         applyState(payload.isCompleted)
         
         missionNameValueLabel.text = payload.title
+        durationRow.updateData(Self.formattedDuration(from: payload.start, to: payload.end))
+        focusRow.updateData(Self.formattedHourMinute(payload.studyTime))
         startTimeRow.updateData(Self.dateFormatter.string(from: payload.start))
-        durationRow.updateData(Self.formattedStudyTime(payload.studyTime))
         endTimeRow.updateData(Self.dateFormatter.string(from: payload.end))
         completedDateValueLabel.text = Self.completedDateFormatter.string(from: payload.end)
         
@@ -149,12 +152,14 @@ final class MissionResultView: UIView {
         
         infoCardView.addSubview(durationRow)
         infoCardView.addSubview(Seperater1)
-        infoCardView.addSubview(startTimeRow)
+        infoCardView.addSubview(focusRow)
         infoCardView.addSubview(Seperater2)
-        infoCardView.addSubview(endTimeRow)
+        infoCardView.addSubview(startTimeRow)
         infoCardView.addSubview(Seperater3)
-        infoCardView.addSubview(stateRow)
+        infoCardView.addSubview(endTimeRow)
         infoCardView.addSubview(Seperater4)
+        infoCardView.addSubview(stateRow)
+        infoCardView.addSubview(Seperater5)
         infoCardView.addSubview(completedDateTitleLabel)
         infoCardView.addSubview(completedDateValueLabel)
         
@@ -213,7 +218,7 @@ final class MissionResultView: UIView {
         }
         
         durationRow.snp.makeConstraints {
-            $0.top.equalTo(missionNameValueLabel.snp.bottom).offset(35)
+            $0.top.equalTo(missionNameValueLabel.snp.bottom).offset(40)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(25)
         }
@@ -224,44 +229,50 @@ final class MissionResultView: UIView {
             $0.height.equalTo(1)
         }
         
-        startTimeRow.snp.makeConstraints {
+        focusRow.snp.makeConstraints {
             $0.top.equalTo(Seperater1.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(25)
         }
         
         Seperater2.snp.makeConstraints {
-            $0.top.equalTo(startTimeRow.snp.bottom).offset(20)
+            $0.top.equalTo(focusRow.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(1)
         }
         
-        endTimeRow.snp.makeConstraints {
+        startTimeRow.snp.makeConstraints {
             $0.top.equalTo(Seperater2.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(25)
         }
         
         Seperater3.snp.makeConstraints {
-            $0.top.equalTo(endTimeRow.snp.bottom).offset(20)
+            $0.top.equalTo(startTimeRow.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(1)
         }
         
-        stateRow.snp.makeConstraints {
+        endTimeRow.snp.makeConstraints {
             $0.top.equalTo(Seperater3.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(25)
         }
         
         Seperater4.snp.makeConstraints {
-            $0.top.equalTo(stateRow.snp.bottom).offset(25)
+            $0.top.equalTo(endTimeRow.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(30)
             $0.height.equalTo(1)
         }
         
+        stateRow.snp.makeConstraints {
+            $0.top.equalTo(Seperater4.snp.bottom).offset(20)
+            $0.leading.trailing.equalToSuperview().inset(30)
+            $0.height.equalTo(25)
+        }
+
         completedDateTitleLabel.snp.makeConstraints {
-            $0.top.equalTo(Seperater4.snp.bottom).offset(30)
+            $0.top.equalTo(stateRow.snp.bottom).offset(30)
             $0.leading.trailing.equalToSuperview().inset(25)
         }
         
@@ -295,11 +306,24 @@ extension MissionResultView {
         return formatter
     }()
     
-    private static func formattedStudyTime(_ studyTime: Int) -> String {
-        let hours = studyTime / 60
-        let minutes = studyTime % 60
+    private static func formattedDuration(from start: Date, to end: Date) -> String {
+        let durationInMinutes = max(0, Int(end.timeIntervalSince(start)) / 60)
+        return formattedHourMinute(durationInMinutes)
+    }
+    
+    private static func formattedHourMinute(_ totalMinutes: Int) -> String {
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
         
-        return String(format: "%02d:%02d", hours, minutes)
+        if hours > 0 && minutes > 0 {
+            return "\(hours)시간 \(minutes)분"
+        }
+        
+        if hours > 0 {
+            return "\(hours)시간"
+        }
+        
+        return "\(minutes)분"
     }
 }
 
