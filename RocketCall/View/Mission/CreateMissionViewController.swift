@@ -41,6 +41,7 @@ extension CreateMissionViewController {
             studyTime: mainView.studyStepper.value.asObservable(),
             restTime: mainView.restStepper.value.asObservable(),
             cycleCount: mainView.cycleStepper.value.asObservable(),
+            createButtonTapped: mainView.createButton.rx.tap.asObservable()
         )
         
         let output = viewModel.transform(input: input)
@@ -51,6 +52,19 @@ extension CreateMissionViewController {
         
         output.intervalText
             .bind(to: mainView.intervalValueLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        output.success
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            .disposed(by: disposeBag)
+        
+        // Alert 연결 필요
+        output.error
+            .subscribe(onNext: { error in
+                print("error: \(error)")
+            })
             .disposed(by: disposeBag)
     }
 }

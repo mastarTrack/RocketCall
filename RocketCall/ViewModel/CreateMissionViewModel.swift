@@ -13,7 +13,7 @@ class CreateMissionViewModel {
     
     private let disposeBag = DisposeBag()
     private let coreDataManager: CoreDataManager
-    private let errorSubject = PublishSubject<Error>()
+    private let errorSubject = PublishSubject<CoreDataManager.CoreDataError>()
     
     init(coreDataManager: CoreDataManager) {
         self.coreDataManager = coreDataManager
@@ -24,11 +24,14 @@ class CreateMissionViewModel {
         let studyTime: Observable<Int>
         let restTime: Observable<Int>
         let cycleCount: Observable<Int>
+        let createButtonTapped: Observable<Void>
     }
     
     struct Output {
         let totalTime: Observable<String>
         let intervalText: Observable<String>
+        let success: Observable<Void>
+        let error: Observable<CoreDataManager.CoreDataError>
     }
     
     func transform(input: Input) -> Output {
@@ -53,9 +56,39 @@ class CreateMissionViewModel {
                 return "\(studyTime + restTime) x \(cycleCount)회 반복" // 정하고 수정 필요
             }
         
+        let success = input.createButtonTapped
+            .flatMap {
+                Observable.combineLatest(
+                    input.missionName,
+                    input.restTime,
+                    input.restTime,
+                    input.cycleCount
+                ).take(1)
+            }
+            .flatMap { [weak self] (missionName, studyTime, restTime, cycleCount) -> Observable<Void> in
+                guard let self else { return .empty() }
+                let mission = MissionPayload(
+                    id: UUID(),
+                    title: missionName,
+                    concentrateTime: studyTime,
+                    breakTime: restTime,
+                    cycle: cycleCount
+                )
+                do {
+                    try self.coreDataManager.createMissionEntity(mission: mission)
+                    print("저장 성공.\n title: \(missionName), concentrateTime: \(studyTime), breakTime: \(restTime), cycle: \(cycleCount)")
+                    return .just(())
+                } catch let error as CoreDataManager.CoreDataError {
+                    self.errorSubject.onNext(error)
+                    return .empty()
+                }
+            }
+        
         return Output(
             totalTime: totalTime,
-            intervalText: intervalText
+            intervalText: intervalText,
+            success: success,
+            error: errorSubject.asObserver()
         )
     }
 }
