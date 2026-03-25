@@ -20,8 +20,8 @@ class MissionResultViewController: UIViewController {
         id: UUID(),
         title: "CS 공부",
         start: Date(timeIntervalSince1970: 1773995228),
-        end: Date(timeIntervalSince1970: 1773996068),
-        studyTime: 150,
+        end: Date(timeIntervalSince1970: 1773999428),
+        studyTime: 45,
         isCompleted: false
     )
     
