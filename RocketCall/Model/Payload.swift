@@ -17,6 +17,7 @@ struct AlarmPayload {
     var minute: Int
     var isRepeat: Bool // 알람 반복 여부
     var repeatDays: [Int] = [] // 반복 요일, 없을 경우 빈 배열
+    var isOn: Bool
 }
 
 // 커스텀 미션 - 뽀모도로
