@@ -20,7 +20,7 @@ struct AlarmPayload {
 }
 
 // 커스텀 미션 - 뽀모도로
-struct MissionPayload {
+struct MissionPayload: Hashable {
     var id: UUID
     var title: String
     var concentrateTime: Int // 집중 시간
@@ -28,7 +28,7 @@ struct MissionPayload {
     var cycle: Int // 사이클 수
 }
 
-struct ActivatedMissionPayload {
+struct ActivatedMissionPayload: Hashable {
     var id: UUID
     var mission: MissionPayload // 미션 정보
     var currentCycle: Int // 현재 사이클

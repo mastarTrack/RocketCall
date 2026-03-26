@@ -9,6 +9,11 @@ import UIKit
 import RxSwift
 import RxCocoa
 
+enum MissionItem: Hashable {
+    case activatedMission(ActivatedMissionPayload)
+    case customMission(MissionPayload)
+}
+
 class MissionViewController: UIViewController {
     
     private let mainView = MissionView()
@@ -21,6 +26,34 @@ class MissionViewController: UIViewController {
     
     private var activatedMissions: [ActivatedMissionPayload] = []
     private let activatedMissionSubject = PublishSubject<MissionPayload>()
+    
+    private lazy var dataSource: UICollectionViewDiffableDataSource<MissionSection, MissionItem> = {
+        let dataSource = UICollectionViewDiffableDataSource<MissionSection, MissionItem>(collectionView: mainView.collectionView) { collectionView, indexPath, itemIdentifier in
+            switch itemIdentifier {
+            case .activatedMission(let mission):
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ActivatedMissionCell.id, for: indexPath) as? ActivatedMissionCell else { return UICollectionViewCell() }
+                cell.config(mission: mission)
+                return cell
+                
+            case .customMission(let mission):
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomMissionCell.id, for: indexPath) as? CustomMissionCell else { return UICollectionViewCell() }
+                let mission = mission
+                cell.config(mission: mission)
+                cell.startButtonTapped
+                    .map { mission }
+                    .bind(to: self.activatedMissionSubject )
+                    .disposed(by: cell.disposeBag)
+                return cell
+            }
+        }
+        dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
+            guard let sectionType = self.dataSource.sectionIdentifier(for: indexPath.section) else { return UICollectionReusableView() }
+            guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: MissionHeaderView.id, for: indexPath) as? MissionHeaderView else { return UICollectionReusableView() }
+            header.config(title: sectionType.title)
+            return header
+        }
+        return dataSource
+    }()
     
     let coreDataManager: CoreDataManager
     
@@ -68,7 +101,7 @@ extension MissionViewController {
         output.missions
             .subscribe(onNext: { [weak self] missions in
                 self?.missions = missions
-                self?.mainView.collectionView.reloadData()
+                self?.setSnapshot()
             })
             .disposed(by: disposeBag)
         
@@ -80,7 +113,7 @@ extension MissionViewController {
         timerOutput.activatedMissions
             .subscribe(onNext: { [weak self] activatedMissions in
                 self?.activatedMissions = activatedMissions
-                self?.mainView.collectionView.reloadData()
+                self?.setSnapshot()
             })
             .disposed(by: disposeBag)
     }
@@ -90,7 +123,6 @@ extension MissionViewController {
 extension MissionViewController {
     private func setDelegate() {
         mainView.collectionView.delegate = self
-        mainView.collectionView.dataSource = self
         mainView.collectionView.register(ActivatedMissionCell.self, forCellWithReuseIdentifier: ActivatedMissionCell.id)
         mainView.collectionView.register(CustomMissionCell.self, forCellWithReuseIdentifier: CustomMissionCell.id)
         mainView.collectionView.register(MissionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: MissionHeaderView.id)
@@ -101,46 +133,18 @@ extension MissionViewController: UICollectionViewDelegate {
     
 }
 
-extension MissionViewController: UICollectionViewDataSource {
+extension MissionViewController {
     
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let sectionType = MissionSection.allCases[indexPath.section]
-        guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: MissionHeaderView.id, for: indexPath) as? MissionHeaderView else { return UICollectionReusableView() }
-        header.config(title: sectionType.title)
-        return header
-    }
-    
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        MissionSection.allCases.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        let sectionType = MissionSection.allCases[section]
+    private func setSnapshot() {
+        var snapshot = NSDiffableDataSourceSnapshot<MissionSection, MissionItem>()
+        snapshot.appendSections(MissionSection.allCases)
+        snapshot.appendItems(activatedMissions.map { .activatedMission($0)}, toSection: .activatedMission)
+        snapshot.appendItems(missions.map { .customMission($0)}, toSection: .customMission)
         
-        switch sectionType {
-        case .activatedMission:
-            return activatedMissions.count
-        case .customMission:
-            return missions.count
+        if activatedMissions.isEmpty {
+            snapshot.deleteSections([.activatedMission])
         }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let sectionType = MissionSection.allCases[indexPath.section]
         
-        switch sectionType {
-        case .activatedMission:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ActivatedMissionCell.id, for: indexPath) as? ActivatedMissionCell else { return UICollectionViewCell() }
-            cell.config(mission: activatedMissions[indexPath.item])
-            return cell
-        case .customMission:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomMissionCell.id, for: indexPath) as? CustomMissionCell else { return UICollectionViewCell() }
-            cell.config(mission: missions[indexPath.item])
-            cell.startButtonTapped
-                .map { self.missions[indexPath.item] }
-                .bind(to: self.activatedMissionSubject)
-                .disposed(by: disposeBag)
-            return cell
-        }
+        dataSource.apply(snapshot, animatingDifferences: true)
     }
 }
