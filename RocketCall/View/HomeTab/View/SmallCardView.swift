@@ -10,6 +10,7 @@ import SnapKit
 import Then
 
 class SmallCardView: BaseCardView {
+    //MARK: Category Enum
     enum CardCategory: String {
         case totalTime = "총 시간"
         case leftTime = "남은 항행 시간"
@@ -53,6 +54,7 @@ class SmallCardView: BaseCardView {
         }
     }
     
+    //MARK: set Attributes
     let valueLabel = UILabel(text: "5시간", config: .homeViewHeader)
     let detailLabel = UILabel(text: "300분", config: .subTitle)
     
@@ -75,7 +77,6 @@ extension SmallCardView {
         }
         
         let titleStackView = SymbolLabelStack(symbol: type.symbol, symbolColor: type.titleColor, label: title)
-        
         
         addSubview(titleStackView)
         addSubview(valueLabel)

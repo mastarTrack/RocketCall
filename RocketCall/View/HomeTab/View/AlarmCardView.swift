@@ -9,6 +9,13 @@ import SnapKit
 import Then
 
 class AlarmCardView: BaseCardView {
+    //MARK: set Attributes
+    
+    let colorChip = UIView().then {
+        $0.backgroundColor = .subPoint
+        $0.clipsToBounds = true
+    }
+    
     let repeatDaysLabel = UILabel().then {
         $0.textColor = .subLabel
         $0.font = .systemFont(ofSize: 12, weight: .medium)
@@ -21,11 +28,26 @@ class AlarmCardView: BaseCardView {
         $0.text = "기상"
     }
     
+    let bar = UIView().then {
+        $0.backgroundColor = UIColor(red: 201/255.0, green: 209/255.0, blue: 232/255.0, alpha: 0.3) // cardView border와 동일
+        $0.snp.makeConstraints {
+            $0.height.equalTo(1)
+        }
+    }
+    
+    let timeTitle = UILabel().then {
+        $0.textColor = .subLabel
+        $0.font = .systemFont(ofSize: 12, weight: .medium)
+        $0.text = "알람 시간"
+    }
+    
     let timeLabel = UILabel().then {
         $0.textColor = .mainLabel
         $0.font = .systemFont(ofSize: 16, weight: .medium)
         $0.text = "07:00"
     }
+    
+    
     
     override init(frame: CGRect) {
         super.init(frame: .zero)
@@ -40,26 +62,9 @@ class AlarmCardView: BaseCardView {
 
 extension AlarmCardView {
     func setLayout() {
-        let colorChip = UIView().then {
-            $0.backgroundColor = .subPoint
-            $0.clipsToBounds = true
-        }
-     
+        
         let repeatDaysStackView = SymbolLabelStack(symbol: "calendar", symbolColor: .subPoint, label: repeatDaysLabel)
-        
-        let bar = UIView().then {
-            $0.backgroundColor = UIColor(red: 201/255.0, green: 209/255.0, blue: 232/255.0, alpha: 0.3) // cardView border와 동일
-            $0.snp.makeConstraints {
-                $0.height.equalTo(1)
-            }
-        }
-        
-        let timeTitle = UILabel().then {
-            $0.textColor = .subLabel
-            $0.font = .systemFont(ofSize: 12, weight: .medium)
-            $0.text = "알람 시간"
-        }
-        
+  
         addSubview(colorChip)
         addSubview(repeatDaysStackView)
         addSubview(titleLabel)
