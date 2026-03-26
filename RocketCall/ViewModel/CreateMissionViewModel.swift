@@ -114,8 +114,12 @@ class CreateMissionViewModel: ViewModelProtocol {
                     try self.coreDataManager.createMissionEntity(mission: mission)
                     print("저장 성공.\n title: \(missionName), concentrateTime: \(studyTime), breakTime: \(restTime), cycle: \(cycleCount)")
                     return .just(())
-                } catch let error as CoreDataManager.CoreDataError {
-                    self.errorSubject.onNext(error)
+                } catch {
+                    if let coreDataError = error as? CoreDataManager.CoreDataError {
+                        self.errorSubject.onNext(coreDataError)
+                    } else {
+                        self.errorSubject.onNext(.saveFailed)
+                    }
                     return .empty()
                 }
             }
