@@ -54,6 +54,7 @@ extension HomeMainViewController {
         
         let output = viewModel.transform(input)
         
+        // 알람 카드뷰 업데이트
         output.alarm
             .subscribe(onNext: { [cardView = homeMainView.alarmCardView] result in
                 switch result {
@@ -71,6 +72,7 @@ extension HomeMainViewController {
             })
             .disposed(by: disposeBag)
         
+        // 통계 카드뷰 업데이트
         output.total
             .compactMap { result in
                 if case .success(let result) = result { return result }
@@ -82,6 +84,5 @@ extension HomeMainViewController {
                 homeMainView.missionCardView.valueLabel.text = "\(total.complete)회"
             })
             .disposed(by: disposeBag)
-
     }
 }

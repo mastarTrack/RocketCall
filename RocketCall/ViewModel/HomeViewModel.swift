@@ -164,12 +164,13 @@ extension HomeViewModel {
         }
     }
     
-    
     struct TotalResult {
         var complete: Int // 누적 완료 미션 횟수
         var totalTime: Int // 누적 집중 시간 (분)
         var streak: Int // 미션 연속 성공 일수
         var target: TargetPlanet? // 다음 목표 행성
+        
+        var weeklyResult: [Int: Int] // 주간 기록
     }
     
     private func fetchTotalResult() -> Observable<TotalResult> {
@@ -179,19 +180,21 @@ extension HomeViewModel {
                 let results = try self.coreDataManager.fetchAllMissionResult()
                 
                 if results.isEmpty {
-                    let total = TotalResult(complete: 0, totalTime: 0, streak: 0, target: TargetPlanet.moon)
+                    let total = TotalResult(complete: 0, totalTime: 0, streak: 0, target: TargetPlanet.moon, weeklyResult: [:])
                     observer.onNext(total)
                     observer.onCompleted()
                 } else {
                     let calculation = calculateTotal(of: results)
-                    
                     let targetPlanet = TargetPlanet.allCases.filter { ($0.rawValue * 60) >= calculation.totalTime }.first
+                    
+                    let weeklyResult = calculateWeeklyTotal(of: results)
                     
                     let total = TotalResult(
                         complete: calculation.complete,
                         totalTime: calculation.totalTime,
                         streak: calculation.streak,
-                        target: targetPlanet
+                        target: targetPlanet,
+                        weeklyResult: weeklyResult
                     )
                     
                     observer.onNext(total)
@@ -236,5 +239,32 @@ extension HomeViewModel {
         }
         
         return (result.complete, result.totalTime, result.streak)
+    }
+    
+    // 주간 누적 기록을 계산하는 메서드
+    private func calculateWeeklyTotal(of results: [MissionResultPayload]) -> [Int: Int] {
+        let calendar = Calendar.current
+        let date = Date.now
+        let todayWeekday = calendar.dateComponents(in: .current, from: date).weekday ?? -1
+        
+        let start = calendar.startOfDay(for: date).advanced(by: TimeInterval(-86400 * (todayWeekday - 2))) // 월요일 00:00
+        let end = calendar.startOfDay(for: date).addingTimeInterval(TimeInterval(86400 * (9 - todayWeekday)) - 1) // 일요일 23:59
+        
+        let filtered = results.filter {
+            $0.isCompleted == true
+            && $0.start >= start
+            && $0.end <= end
+        }
+        
+        var weeklyRecord: [Int: Int] = [:]
+        
+        for result in filtered {
+            let rawWeekday = calendar.dateComponents(in: .current, from: result.start).weekday ?? -1
+            let weekday = rawWeekday == 1 ? 6 : rawWeekday - 2
+        
+            weeklyRecord[weekday, default: 0] += result.studyTime
+        }
+        
+        return weeklyRecord
     }
 }
