@@ -16,6 +16,7 @@ class MissionViewController: UIViewController {
     private let viewModel: MissionViewModel
     
     private var missions: [MissionPayload] = []
+    private let initialLoadSubject = PublishSubject<Void>()
     
     let coreDataManager: CoreDataManager
     
@@ -31,6 +32,11 @@ class MissionViewController: UIViewController {
     
     override func loadView() {
         self.view = mainView
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        initialLoadSubject.onNext(())
     }
     
     override func viewDidLoad() {
@@ -51,7 +57,7 @@ extension MissionViewController {
                 self.navigationController?.pushViewController(nextVC, animated: true)
             }).disposed(by: disposeBag)
         
-        let input = MissionViewModel.Input(initialze: Observable.just(()))
+        let input = MissionViewModel.Input(initialze: initialLoadSubject.asObservable())
         let output = viewModel.transform(input)
         
         output.missions
