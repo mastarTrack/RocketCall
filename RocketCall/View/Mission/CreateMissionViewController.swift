@@ -41,6 +41,7 @@ extension CreateMissionViewController {
             studyTime: mainView.studyStepper.value.asObservable(),
             restTime: mainView.restStepper.value.asObservable(),
             cycleCount: mainView.cycleStepper.value.asObservable(),
+            quickItemSelected: mainView.quickItemTapped.asObservable(),
             createButtonTapped: mainView.createButton.rx.tap.asObservable()
         )
         
@@ -52,6 +53,12 @@ extension CreateMissionViewController {
         
         output.intervalText
             .bind(to: mainView.intervalValueLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        output.selectedQuickItem
+            .bind(onNext: { [weak self] index in
+                self?.mainView.updateQuickItem(selectedIndex: index)
+            })
             .disposed(by: disposeBag)
         
         output.isCreateButtonEnabled

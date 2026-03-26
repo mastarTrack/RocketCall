@@ -24,12 +24,16 @@ class CreateMissionViewModel {
         let studyTime: Observable<Int>
         let restTime: Observable<Int>
         let cycleCount: Observable<Int>
+        let quickItemSelected: Observable<Int>
         let createButtonTapped: Observable<Void>
     }
     
     struct Output {
         let totalTime: Observable<String>
         let intervalText: Observable<String>
+        let selectedQuickItem: Observable<Int?>
+        let quickStudyTime: Observable<Int>
+        let quickRestTime: Observable<Int>
         let isCreateButtonEnabled: Observable<Bool>
         let success: Observable<Void>
         let error: Observable<CoreDataManager.CoreDataError>
@@ -39,7 +43,7 @@ class CreateMissionViewModel {
         
         let time = Observable
             .combineLatest(input.studyTime, input.restTime, input.cycleCount)
-        
+        // 총 소요 시간
         let totalTime = time
             .map { studyTime, restTime, cycleCount in
                 let total = (studyTime + restTime) * cycleCount
@@ -52,17 +56,38 @@ class CreateMissionViewModel {
                 }
             }
         
+        // 반복 주기
         let intervalText = time
             .map { studyTime, restTime, cycleCount in
                 return "\(studyTime + restTime) x \(cycleCount)회 반복" // 정하고 수정 필요
             }
         
+        let quickItem: [(studyTime: Int, restTime: Int)] = [
+            (25, 5), (50, 10), (90, 20), (120, 20)
+        ]
+        // 빠른 선택 아이템의 Index 가져오기, 다시 선택 시 취소
+        let selectedQuickItem: Observable<Int?> = input.quickItemSelected
+            .scan(nil as Int?) { current, selected in
+                current == selected ? nil : selected
+            }
+            .share() // quickStudyTime, quickRestTime에서 사용 -> 공유
+        
+        let quickStudyTime = selectedQuickItem
+            .compactMap { $0 }
+            .map { quickItem[$0].studyTime }
+        
+        let quickRestTime = selectedQuickItem
+            .compactMap { $0 }
+            .map { quickItem[$0].restTime }
+        
+        // 버튼 활성화 비활성화
         let isCreatedButtonEnabled = Observable
             .combineLatest(input.missionName, input.studyTime, input.cycleCount)
             .map { missionName, studyTime, cycleCount in
                 !missionName.isEmpty && studyTime >= 1 && cycleCount >= 1
             }
         
+        // 저장 성공, 실패
         let success = input.createButtonTapped
             .flatMap {
                 Observable.combineLatest(
@@ -94,9 +119,12 @@ class CreateMissionViewModel {
         return Output(
             totalTime: totalTime,
             intervalText: intervalText,
+            selectedQuickItem: selectedQuickItem,
+            quickStudyTime: quickStudyTime,
+            quickRestTime: quickRestTime,
             isCreateButtonEnabled: isCreatedButtonEnabled,
             success: success,
-            error: errorSubject.asObserver()
+            error: errorSubject.asObservable()
         )
     }
 }

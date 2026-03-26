@@ -7,8 +7,13 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class CreateMissionView: UIView {
+    
+    let quickItemTapped = PublishSubject<Int>()
+    private let disposeBag = DisposeBag()
     
     private let titleView = TitleView(title: "미션 계획", subTitle: "커스텀 뽀모도로를 설정하세요.", hasButton: false)
     
@@ -17,6 +22,7 @@ class CreateMissionView: UIView {
     
     private let quickTitleLabel = UILabel()
     private let quickGridStackView = UIStackView()
+    private var quickCardViews: [BaseCardView] = []
     private let quickItems: [(icon: String, title: String, subtitle: String)] = [
         ("moon.stars.fill", "25분 미션", "25분 집중 / 5분 휴식"),
         ("moon.stars.fill", "50분 미션", "50분 집중 / 10분 휴식"),
@@ -196,13 +202,33 @@ extension CreateMissionView {
                 stackView.spacing = 8
                 
                 view.addSubview(stackView)
+                quickCardViews.append(view)
                 stackView.snp.makeConstraints {
                     $0.top.leading.trailing.equalToSuperview().inset(20)
                     $0.bottom.lessThanOrEqualToSuperview().inset(20)
                 }
+                
+                // 각 View 생성 시 이벤트 적용
+                let tap = UITapGestureRecognizer()
+                view.addGestureRecognizer(tap)
+                view.isUserInteractionEnabled = true
+                tap.rx.event
+                    .map { _ in row * 2 + column }
+                    .bind(to: quickItemTapped)
+                    .disposed(by: disposeBag)
+                
                 rowStack.addArrangedSubview(view)
             }
             quickGridStackView.addArrangedSubview(rowStack)
+        }
+    }
+}
+
+extension CreateMissionView {
+    // 같은 카드 누를 경우 nil 방출 -> 옵셔널로 처리
+    func updateQuickItem(selectedIndex: Int?) {
+        quickCardViews.enumerated().forEach { index, card in
+            card.isOn = index == selectedIndex
         }
     }
 }
