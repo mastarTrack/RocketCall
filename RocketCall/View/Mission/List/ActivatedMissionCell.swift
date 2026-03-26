@@ -26,9 +26,10 @@ class ActivatedMissionCell: UICollectionViewCell {
 //    private let progressBar = UIProgressView()
     
     private let buttonStackView = UIStackView()
-    private let startButton = RectangleButton(title: "발사",image: UIImage(systemName: "play"), backgroundColor: .mainPoint.withAlphaComponent(0.2), tintColor: .mainPoint)
+    private let startButton = RectangleButton(image: UIImage(systemName: ""), backgroundColor: .mainPoint.withAlphaComponent(0.2), tintColor: .mainPoint)
     var pauseResumeButtonTapped: Observable<Void> { startButton.rx.tap.asObservable() }
-    private let resetButton = RectangleButton(image: UIImage(systemName: "arrow.trianglehead.counterclockwise.rotate.90"), backgroundColor: .mainLabel.withAlphaComponent(0.1), tintColor: .mainLabel)
+    private let stopButton = RectangleButton(image: UIImage(systemName: "stop"), backgroundColor: .mainLabel.withAlphaComponent(0.1), tintColor: .mainLabel)
+    var stopButtonTapped: Observable<Void> { stopButton.rx.tap.asObservable() }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -67,16 +68,16 @@ extension ActivatedMissionCell {
         startConfig?.background.strokeWidth = 1
         startButton.configuration = startConfig
         
-        var resetConfig = resetButton.configuration
+        var resetConfig = stopButton.configuration
         resetConfig?.background.strokeColor = .white
         resetConfig?.background.strokeWidth = 1
-        resetButton.configuration = resetConfig
+        stopButton.configuration = resetConfig
         
     }
     private func setLayout() {
         contentView.addSubview(containerView)
         
-        [startButton, resetButton].forEach { buttonStackView.addArrangedSubview($0) }
+        [startButton, stopButton].forEach { buttonStackView.addArrangedSubview($0) }
         [stateLabel, titleLabel, timeLabel, buttonStackView].forEach { containerView.addSubview($0) }
         
         containerView.snp.makeConstraints {
@@ -105,11 +106,11 @@ extension ActivatedMissionCell {
         }
         
         startButton.snp.makeConstraints {
-            $0.width.equalTo(resetButton).multipliedBy(5)
-            $0.height.equalTo(resetButton.snp.height)
+            $0.width.equalTo(stopButton).multipliedBy(5)
+            $0.height.equalTo(stopButton.snp.height)
         }
-        resetButton.snp.makeConstraints {
-            $0.height.equalTo(resetButton.snp.width)
+        stopButton.snp.makeConstraints {
+            $0.height.equalTo(stopButton.snp.width)
         }
         
     }

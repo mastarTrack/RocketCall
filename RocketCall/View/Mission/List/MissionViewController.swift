@@ -28,6 +28,7 @@ class MissionViewController: UIViewController {
     private let activatedMissionSubject = PublishSubject<MissionPayload>()
     
     private let pauseResumeMissionSubject = PublishSubject<UUID>()
+    private let stopMissionSubject = PublishSubject<UUID>()
     
     private lazy var dataSource: UICollectionViewDiffableDataSource<MissionSection, MissionItem> = {
         let dataSource = UICollectionViewDiffableDataSource<MissionSection, MissionItem>(collectionView: mainView.collectionView) { collectionView, indexPath, itemIdentifier in
@@ -38,6 +39,10 @@ class MissionViewController: UIViewController {
                 cell.pauseResumeButtonTapped
                     .map { mission.id }
                     .bind(to: self.pauseResumeMissionSubject)
+                    .disposed(by: cell.disposeBag)
+                cell.stopButtonTapped
+                    .map { mission.id }
+                    .bind(to: self.stopMissionSubject)
                     .disposed(by: cell.disposeBag)
                 return cell
                 
@@ -113,8 +118,10 @@ extension MissionViewController {
         
         let timerInput = TimerViewModel.Input(
             activatedMission: activatedMissionSubject.asObservable(),
-            pauseResumeButtonTapped: pauseResumeMissionSubject.asObservable()
+            pauseResumeButtonTapped: pauseResumeMissionSubject.asObservable(),
+            stopButtonTapped: stopMissionSubject.asObservable()
         )
+        
         let timerOutput = timerViewModel.transform(timerInput)
         
         timerOutput.activatedMissions
@@ -123,7 +130,6 @@ extension MissionViewController {
                 self?.setSnapshot(animated: animated)
             })
             .disposed(by: disposeBag)
-        
         timerOutput.error
             .subscribe(onNext: { [weak self] error in
                 self?.showErrorAlert(error: error)
@@ -132,6 +138,7 @@ extension MissionViewController {
     }
 }
 
+// Model 구현안됨 -> 추후 Diffable 변경 예정
 extension MissionViewController {
     private func setDelegate() {
         mainView.collectionView.delegate = self

@@ -23,6 +23,7 @@ class TimerViewModel: ViewModelProtocol {
     struct Input {
         let activatedMission: Observable<MissionPayload>
         let pauseResumeButtonTapped: Observable<UUID>
+        let stopButtonTapped: Observable<UUID>
     }
     
     struct Output {
@@ -95,6 +96,16 @@ class TimerViewModel: ViewModelProtocol {
             })
             .disposed(by: disposeBag)
         
+        input.stopButtonTapped
+            .subscribe(onNext: { [weak self] uuid in
+                guard let self else { return }
+                guard let mission = self.activatedMissionRelay.value.first(where: { $0.id == uuid }) else { return }
+                saveMission(mission: mission, isCompleted: false)
+                let updated = self.activatedMissionRelay.value.filter { $0.id != uuid }
+                self.activatedMissionRelay.accept(updated)
+            })
+            .disposed(by: disposeBag)
+        
         return Output(
             activatedMissions: Observable.merge(activatedMissions, timerUpdate),
             error: errorSubject.asObservable()
@@ -137,7 +148,7 @@ class TimerViewModel: ViewModelProtocol {
         )
         do {
             try coreDataManager.createMissionResultEntity(result: result)
-            print("저장 완료, 공부 시간 : \(result.studyTime)")
+            print("저장 완료, 공부 시간 :\(result.studyTime)")
         } catch {
             if let coreDataError = error as? CoreDataManager.CoreDataError {
                 errorSubject.onNext(coreDataError)
