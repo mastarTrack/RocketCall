@@ -13,17 +13,22 @@ import RxRelay
 /// StopWatch ViewModel
 class StopWatchViewModel {
     
-    enum state {
-        case idle
+    enum State {
         case run
         case pause
+        case reset
+    }
+    
+    enum timerAction {
+        case tick
+        case reset
     }
     
     private var temptime = 0
     
     /// View -> ViewModel Action
     struct Input {
-        let startPause: Observable<Bool>
+        let startPause: Observable<State>
         //let stop: Observable<Void>
     }
     
@@ -35,16 +40,24 @@ class StopWatchViewModel {
     /// RxSwif t변환 메소드
     func transform(_ input: Input) -> Output {
         let timer = input.startPause
-            .flatMapLatest{ isRun -> Observable<Int> in
-                if isRun {
+            .flatMapLatest{ state -> Observable<timerAction> in
+                switch state {
+                case .run:
                     return Observable<Int>.interval(.milliseconds(10), scheduler: MainScheduler.asyncInstance)
-                        .map{ _ in 1 }
-                } else {
+                        .map{ _ in .tick }
+                case .pause:
                     return .empty()
+                case .reset:
+                    return .just(.reset)
                 }
             }
-            .scan(0) { cumulative, newValue in
-                cumulative + newValue
+            .scan(into: 0) { cumulative, action in
+                switch action {
+                case .tick:
+                    return cumulative += 1
+                case .reset:
+                    return cumulative = 0
+                }
             }
             .startWith(0)
             .map { [weak self] time in

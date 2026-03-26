@@ -30,7 +30,7 @@ class StopWatchViewController: UIViewController {
     /// StopWatch 상단 타임 뷰
     private let stopWatchHeaderView = StopWatchHeaderView()
     
-    /// StopWatch 하단 레코드 뷰
+    /// StopWatch 하단 레코드 뷰  
     private let stopWatchRecordView = StopWatchRecordView()
     
     
@@ -48,14 +48,26 @@ class StopWatchViewController: UIViewController {
 extension StopWatchViewController {
     func bind() {
         let startPause = stopWatchHeaderView.startButton.rx.tap
-            .map { [weak self] _ -> Bool in
-                guard let self else { return false }
+            .map { [weak self] _ -> StopWatchViewModel.State in
+                guard let self else { return .pause }
                 self.stopWatchHeaderView.startButton.isSelected.toggle()
-                return self.stopWatchHeaderView.startButton.isSelected
+                if self.stopWatchHeaderView.startButton.isSelected {
+                    return .run
+                }
+                else {
+                    return .pause
+                }
+            }
+        
+        let reset = stopWatchHeaderView.resetButton.rx.tap
+            .map {[weak self] _ -> StopWatchViewModel.State in
+                guard let self else { return .reset }
+                self.stopWatchHeaderView.startButton.isSelected = false
+                return  .reset
             }
         
         let input = StopWatchViewModel.Input(
-            startPause: startPause
+            startPause: Observable.merge(startPause,reset)
         )
         
         let output = vm.transform(input)
