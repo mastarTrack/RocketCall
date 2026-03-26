@@ -22,7 +22,7 @@ extension MainController {
     private func configure() {
         let firstVC = UINavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
         let secondVC = UINavigationController(rootViewController: AlarmListViewController(coreDataManager: coreDataManager))
-        let thirdVC = UINavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
+        let thirdVC = UINavigationController(rootViewController: MissionViewController(coreDataManager: coreDataManager))
         let fourthVC = UINavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
         
         firstVC.tabBarItem = UITabBarItem(title: "홈", image: UIImage(systemName: "house"), tag: 0)

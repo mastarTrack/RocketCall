@@ -94,7 +94,7 @@ extension StopWatchHeaderView {
             $0.axis = .vertical
             $0.distribution = .fillProportionally
             $0.alignment = .center
-            $0.spacing = 40
+            $0.spacing = 32
         }
         
         let timerStack = UIStackView().then {
@@ -133,7 +133,7 @@ extension StopWatchHeaderView {
 
         
         mainStack.snp.makeConstraints {
-            $0.center.equalToSuperview()
+            $0.centerX.equalToSuperview()
         }
         
         timerStack.snp.makeConstraints {

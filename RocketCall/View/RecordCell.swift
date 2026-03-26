@@ -30,6 +30,7 @@ class RecordCell: UICollectionViewCell {
     ).then {
         $0.textColor = .thirdPoint
     }
+
     
     
     //MARK: - Init

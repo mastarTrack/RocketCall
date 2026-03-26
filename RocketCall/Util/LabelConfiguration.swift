@@ -36,6 +36,17 @@ extension LabelConfiguration {
         color: .subLabel,
         lines: 1
     )
+    
+    static let missionTime = LabelConfiguration(
+        font: .systemFont(ofSize: 36, weight: .thin),
+        color: .mainLabel,
+        lines: 1
+    )
+    static let missionLabel = LabelConfiguration(
+        font: .systemFont(ofSize: 16, weight: .medium),
+        color: .mainLabel,
+        lines: 1
+    )
 }
 
 extension LabelConfiguration {
@@ -71,12 +82,6 @@ extension LabelConfiguration {
 
     static let main24Bold = LabelConfiguration(
         font: .systemFont(ofSize: 24, weight: .bold),
-        color: .mainLabel,
-        lines: 1
-    )
-    
-    static let main30Bold = LabelConfiguration(
-        font: .systemFont(ofSize: 30, weight: .bold),
         color: .mainLabel,
         lines: 1
     )
