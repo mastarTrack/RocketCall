@@ -36,8 +36,7 @@ final class AlarmListViewCell: UICollectionViewCell {
     private let alarmIcon = UIImageView()
     
     private let titleLabel = UILabel().then {
-        $0.textColor = .mainLabel
-        $0.font = .systemFont(ofSize: 16)
+        $0.apply(.missionLabel)
     }
     
     private let dateStackView = UIStackView().then {
@@ -79,7 +78,7 @@ final class AlarmListViewCell: UICollectionViewCell {
         
         containerView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.verticalEdges.equalToSuperview().inset(8)
+            $0.verticalEdges.equalToSuperview().inset(6)
             $0.height.equalTo(184)
         }
         
