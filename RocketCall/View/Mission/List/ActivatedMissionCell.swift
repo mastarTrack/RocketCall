@@ -7,11 +7,14 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class ActivatedMissionCell: UICollectionViewCell {
     
     static let id = "ActivatedMissionCell"
     
+    var disposeBag = DisposeBag()
     
     private let containerView = BaseCardView()
     
@@ -24,12 +27,18 @@ class ActivatedMissionCell: UICollectionViewCell {
     
     private let buttonStackView = UIStackView()
     private let startButton = RectangleButton(title: "발사",image: UIImage(systemName: "play"), backgroundColor: .mainPoint.withAlphaComponent(0.2), tintColor: .mainPoint)
+    var pauseResumeButtonTapped: Observable<Void> { startButton.rx.tap.asObservable() }
     private let resetButton = RectangleButton(image: UIImage(systemName: "arrow.trianglehead.counterclockwise.rotate.90"), backgroundColor: .mainLabel.withAlphaComponent(0.1), tintColor: .mainLabel)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setAttributes()
         setLayout()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        disposeBag = DisposeBag()
     }
     
     required init?(coder: NSCoder) {

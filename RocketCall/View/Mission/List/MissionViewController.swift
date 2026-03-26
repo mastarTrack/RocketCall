@@ -27,12 +27,18 @@ class MissionViewController: UIViewController {
     private var activatedMissions: [ActivatedMissionPayload] = []
     private let activatedMissionSubject = PublishSubject<MissionPayload>()
     
+    private let pauseResumeMissionSubject = PublishSubject<UUID>()
+    
     private lazy var dataSource: UICollectionViewDiffableDataSource<MissionSection, MissionItem> = {
         let dataSource = UICollectionViewDiffableDataSource<MissionSection, MissionItem>(collectionView: mainView.collectionView) { collectionView, indexPath, itemIdentifier in
             switch itemIdentifier {
             case .activatedMission(let mission):
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ActivatedMissionCell.id, for: indexPath) as? ActivatedMissionCell else { return UICollectionViewCell() }
                 cell.config(mission: mission)
+                cell.pauseResumeButtonTapped
+                    .map { mission.id }
+                    .bind(to: self.pauseResumeMissionSubject)
+                    .disposed(by: cell.disposeBag)
                 return cell
                 
             case .customMission(let mission):
@@ -106,7 +112,8 @@ extension MissionViewController {
             .disposed(by: disposeBag)
         
         let timerInput = TimerViewModel.Input(
-            activatedMission: activatedMissionSubject.asObservable()
+            activatedMission: activatedMissionSubject.asObservable(),
+            pauseResumeButtonTapped: pauseResumeMissionSubject.asObservable()
         )
         let timerOutput = timerViewModel.transform(timerInput)
         

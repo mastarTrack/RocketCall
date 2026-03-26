@@ -21,6 +21,7 @@ class TimerViewModel: ViewModelProtocol {
     
     struct Input {
         let activatedMission: Observable<MissionPayload>
+        let pauseResumeButtonTapped: Observable<UUID>
     }
     
     struct Output {
@@ -65,6 +66,19 @@ class TimerViewModel: ViewModelProtocol {
         // 타이머 업데이트 -> 애니메이션 제거
         let timerUpdate = activatedMissionRelay
             .map { ($0, false) }
+        
+        input.pauseResumeButtonTapped
+            .subscribe(onNext: { [weak self] uuid in
+                guard let self else { return }
+                let updated = self.activatedMissionRelay.value.map { mission -> ActivatedMissionPayload in
+                    guard mission.id == uuid else { return mission }
+                    var updated = mission
+                    updated.isPaused.toggle()
+                    return updated
+                }
+                self.activatedMissionRelay.accept(updated)
+            })
+            .disposed(by: disposeBag)
         
         return Output(activatedMissions: Observable.merge(activatedMissions, timerUpdate))
     }
