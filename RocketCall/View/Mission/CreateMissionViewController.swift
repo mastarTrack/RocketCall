@@ -54,6 +54,10 @@ extension CreateMissionViewController {
             .bind(to: mainView.intervalValueLabel.rx.text)
             .disposed(by: disposeBag)
         
+        output.isCreateButtonEnabled
+            .bind(to: mainView.createButton.rx.isEnabled)
+            .disposed(by: disposeBag)
+        
         output.success
             .subscribe(onNext: { [weak self] in
                 self?.navigationController?.popViewController(animated: true)

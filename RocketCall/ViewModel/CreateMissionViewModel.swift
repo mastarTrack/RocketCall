@@ -30,6 +30,7 @@ class CreateMissionViewModel {
     struct Output {
         let totalTime: Observable<String>
         let intervalText: Observable<String>
+        let isCreateButtonEnabled: Observable<Bool>
         let success: Observable<Void>
         let error: Observable<CoreDataManager.CoreDataError>
     }
@@ -56,11 +57,17 @@ class CreateMissionViewModel {
                 return "\(studyTime + restTime) x \(cycleCount)회 반복" // 정하고 수정 필요
             }
         
+        let isCreatedButtonEnabled = Observable
+            .combineLatest(input.missionName, input.studyTime, input.cycleCount)
+            .map { missionName, studyTime, cycleCount in
+                !missionName.isEmpty && studyTime >= 1 && cycleCount >= 1
+            }
+        
         let success = input.createButtonTapped
             .flatMap {
                 Observable.combineLatest(
                     input.missionName,
-                    input.restTime,
+                    input.studyTime,
                     input.restTime,
                     input.cycleCount
                 ).take(1)
@@ -87,6 +94,7 @@ class CreateMissionViewModel {
         return Output(
             totalTime: totalTime,
             intervalText: intervalText,
+            isCreateButtonEnabled: isCreatedButtonEnabled,
             success: success,
             error: errorSubject.asObserver()
         )
