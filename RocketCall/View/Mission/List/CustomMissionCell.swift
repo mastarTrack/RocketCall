@@ -95,7 +95,12 @@ extension CustomMissionCell {
         let hour = (mission.concentrateTime + mission.breakTime) * mission.cycle / 60
         let minute = (mission.concentrateTime + mission.breakTime) * mission.cycle % 60
         
-        timeLabel.text = "\(hour)h \(minute)m"
+        // 필요한가? 
+        if hour > 0 {
+            timeLabel.text = "\(hour)h \(minute)m"
+        } else {
+            timeLabel.text = "\(minute)m"
+        }
     }
 }
 
