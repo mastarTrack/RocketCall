@@ -101,7 +101,7 @@ extension MissionViewController {
         output.missions
             .subscribe(onNext: { [weak self] missions in
                 self?.missions = missions
-                self?.setSnapshot()
+                self?.setSnapshot(animated: true)
             })
             .disposed(by: disposeBag)
         
@@ -111,9 +111,9 @@ extension MissionViewController {
         let timerOutput = timerViewModel.transform(timerInput)
         
         timerOutput.activatedMissions
-            .subscribe(onNext: { [weak self] activatedMissions in
+            .subscribe(onNext: { [weak self] (activatedMissions, animated) in
                 self?.activatedMissions = activatedMissions
-                self?.setSnapshot()
+                self?.setSnapshot(animated: animated)
             })
             .disposed(by: disposeBag)
     }
@@ -134,7 +134,7 @@ extension MissionViewController: UICollectionViewDelegate {
 
 extension MissionViewController {
     
-    private func setSnapshot() {
+    private func setSnapshot(animated: Bool) {
         var snapshot = NSDiffableDataSourceSnapshot<MissionSection, MissionItem>()
         snapshot.appendSections(MissionSection.allCases)
         snapshot.appendItems(activatedMissions.map { .activatedMission($0)}, toSection: .activatedMission)
@@ -144,6 +144,6 @@ extension MissionViewController {
             snapshot.deleteSections([.activatedMission])
         }
         
-        dataSource.apply(snapshot, animatingDifferences: true)
+        dataSource.apply(snapshot, animatingDifferences: animated)
     }
 }

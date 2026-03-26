@@ -24,7 +24,7 @@ class TimerViewModel: ViewModelProtocol {
     }
     
     struct Output {
-        let activatedMissions: Observable<[ActivatedMissionPayload]>
+        let activatedMissions: Observable<([ActivatedMissionPayload], Bool)>
     }
     
     func transform(_ input: Input) -> Output {
@@ -57,7 +57,16 @@ class TimerViewModel: ViewModelProtocol {
             })
             .disposed(by: disposeBag)
         
-        return Output(activatedMissions: activatedMissionRelay.asObservable())
+        // 목록 추가/제거 -> 애니메이션 적용
+        let activatedMissions = activatedMissionRelay
+            .distinctUntilChanged { $0.count == $1.count }
+            .map{ ($0, true) }
+        
+        // 타이머 업데이트 -> 애니메이션 제거
+        let timerUpdate = activatedMissionRelay
+            .map { ($0, false) }
+        
+        return Output(activatedMissions: Observable.merge(activatedMissions, timerUpdate))
     }
     
     // 미션 상태 변경 로직
