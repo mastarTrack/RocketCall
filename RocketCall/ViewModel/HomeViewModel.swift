@@ -17,13 +17,22 @@ final class HomeViewModel: ViewModelProtocol {
         
     }
     
+    //MARK: 속성 선언
     let coreDataManager: CoreDataManager
+    let disposeBag = DisposeBag()
     
+    //MARK: init
     init(coreDataManager: CoreDataManager) {
         self.coreDataManager = coreDataManager
     }
     
     func transform(_ input: Input) -> Output {
+        input.fetchData
+            .subscribe(onNext: {
+                print("fetch Data")
+            })
+            .disposed(by: disposeBag)
+        
         return Output()
     }
 }

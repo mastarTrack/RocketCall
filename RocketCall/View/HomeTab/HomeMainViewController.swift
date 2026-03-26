@@ -14,6 +14,8 @@ class HomeMainViewController: UIViewController {
     let homeMainView = HomeMainView()
     let viewModel: HomeViewModel
     
+    let disposeBag = DisposeBag()
+    
     let refreshRelay: PublishRelay<Void> = PublishRelay()
     
     override func loadView() {
@@ -26,6 +28,8 @@ class HomeMainViewController: UIViewController {
         
         addChild(homeMainView.chartHostingController) // UIHostingVC와 현재 VC의 생명주기 동기화
         homeMainView.chartHostingController.didMove(toParent: self) // 자식 VC(hostingVC)에게 VC 계층에 추가되었음을 알림
+        
+        bind()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -41,5 +45,15 @@ class HomeMainViewController: UIViewController {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+extension HomeMainViewController {
+    private func bind() {
+        let input = HomeViewModel.Input(
+            fetchData: refreshRelay
+        )
+        
+        viewModel.transform(input)
     }
 }
