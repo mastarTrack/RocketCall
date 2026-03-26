@@ -19,6 +19,7 @@ class StopWatchViewModel {
         case pause
     }
     
+    private var temptime = 0
     
     /// View -> ViewModel Action
     struct Input {
@@ -34,17 +35,22 @@ class StopWatchViewModel {
     /// RxSwif t변환 메소드
     func transform(_ input: Input) -> Output {
         let timer = input.startPause
-            .flatMapLatest{ isRun -> Observable<String> in
+            .flatMapLatest{ isRun -> Observable<Int> in
                 if isRun {
                     return Observable<Int>.interval(.milliseconds(10), scheduler: MainScheduler.asyncInstance)
-                        .map{ [weak self] in
-                            guard let self else { return "" }
-                            return self.formatTime($0 + 1)
-                        }
+                        .map{ _ in 1 }
                 } else {
                     return .empty()
                 }
-            }.startWith("00:00.00")
+            }
+            .scan(0) { cumulative, newValue in
+                cumulative + newValue
+            }
+            .startWith(0)
+            .map { [weak self] time in
+                guard let self else { return "00:00.00" }
+                return self.formatTime(time)
+            }
         
         return Output(timer: timer)
     }
