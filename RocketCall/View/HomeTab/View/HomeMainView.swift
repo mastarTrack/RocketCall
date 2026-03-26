@@ -15,7 +15,7 @@ final class HomeMainView: UIView {
     private let titleView = TitleView(title: "항행일지", subTitle: "우주 탐사 대시보드", hasButton: false)
     
     private let alarmCardTitle = UILabel(text: "다가오는 알람", config: .homeViewHeader)
-    private let alarmCardView = AlarmCardView()
+    let alarmCardView = AlarmCardView()
     
     private let chartBaseCardView = BaseCardView()
     

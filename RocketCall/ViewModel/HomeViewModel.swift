@@ -15,8 +15,9 @@ final class HomeViewModel: ViewModelProtocol {
     }
     
     struct Output {
-        let alarm: Observable<Result<Alarm?, Error>>
+        let alarm: Observable<Result<(Alarm?, Bool), Error>> // (alarm: 알람, isExist: 존재 여부)
         let total: Observable<Result<TotalResult, Error>>
+//        let error: PublishSubject<Error>
     }
     
     //MARK: 속성 선언
@@ -32,7 +33,7 @@ final class HomeViewModel: ViewModelProtocol {
         let fetch = input.fetchData
             .share()
         
-        let alarm: Observable<Result<Alarm?, Error>> = fetch
+        let alarm: Observable<Result<(Alarm?, Bool), Error>> = fetch
             .withUnretained(self)
             .flatMap { `self`, _ in
                 self.fetchNearestAlarm()
@@ -43,6 +44,18 @@ final class HomeViewModel: ViewModelProtocol {
                         .just(.failure($0))
                     }
             }
+        
+//        let fetchAlarm = fetch
+//            .withUnretained(self)
+//            .flatMap { `self`, _ in
+//                self.fetchNearestAlarm()
+//                    .map {
+//                        $0
+//                    }
+//                    .catch {
+//                        .just(())
+//                    }
+//            }
         
         let total: Observable<Result<TotalResult, Error>> = fetch
             .withUnretained(self)
@@ -65,7 +78,7 @@ final class HomeViewModel: ViewModelProtocol {
 
 //MARK: 가장 가까운 알람 가져오기
 extension HomeViewModel {
-    private func fetchNearestAlarm() -> Observable<Alarm?> {
+    private func fetchNearestAlarm() -> Observable<(Alarm?, Bool)> {
         Observable.create { [weak self] observer in
             do {
                 let payload = try self?.fetchNearestAlarmPayload()
@@ -80,10 +93,10 @@ extension HomeViewModel {
                         isOn: payload.isOn
                     )
                     
-                    observer.on(.next(result))
+                    observer.on(.next((result, true)))
                     observer.onCompleted()
                 } else {
-                    observer.onNext(nil)
+                    observer.onNext((nil, false))
                     observer.onCompleted()
                 }
             } catch {

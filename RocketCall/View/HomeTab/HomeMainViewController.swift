@@ -54,9 +54,16 @@ extension HomeMainViewController {
         
         let output = viewModel.transform(input)
         
+        // 성공 시
         output.alarm
-            .subscribe(onNext: {
-                let alarm = $0
-            })
+            .compactMap { result -> (Alarm?, Bool)? in
+                if case .success(let alarm) = result { return alarm }
+                return nil
+            }
+            .bind { [homeMainView] alarm in
+                if alarm.1 == false {
+                    
+                }
+            }
     }
 }
