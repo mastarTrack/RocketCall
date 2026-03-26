@@ -61,6 +61,18 @@ extension CreateMissionViewController {
             })
             .disposed(by: disposeBag)
         
+        output.quickStudyTime
+            .bind(onNext: { [weak self] studyTime in
+                self?.mainView.studyStepper.value.accept(studyTime)
+            })
+            .disposed(by: disposeBag)
+        
+        output.quickRestTime
+            .bind(onNext: { [weak self] restTime in
+                self?.mainView.restStepper.value.accept(restTime)
+            })
+            .disposed(by: disposeBag)
+        
         output.isCreateButtonEnabled
             .bind(to: mainView.createButton.rx.isEnabled)
             .disposed(by: disposeBag)

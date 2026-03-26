@@ -73,12 +73,16 @@ class CreateMissionViewModel {
             .share() // quickStudyTime, quickRestTime에서 사용 -> 공유
         
         let quickStudyTime = selectedQuickItem
-            .compactMap { $0 }
-            .map { quickItem[$0].studyTime }
+            .map { index -> Int in
+                guard let index else { return 0 }
+                return quickItem[index].studyTime
+            }
         
         let quickRestTime = selectedQuickItem
-            .compactMap { $0 }
-            .map { quickItem[$0].restTime }
+            .map { index -> Int in
+                guard let index else { return 0 }
+                return quickItem[index].restTime
+            }
         
         // 버튼 활성화 비활성화
         let isCreatedButtonEnabled = Observable
