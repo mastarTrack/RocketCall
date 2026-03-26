@@ -148,7 +148,7 @@ final class AlarmListViewController: UIViewController {
         
         
         // MARK:  Input -> VM
-        let output = viewModel.transform(input: input)
+        let output = viewModel.transform(input)
         
         
         // MARK: VM -> Output

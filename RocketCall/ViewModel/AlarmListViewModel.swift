@@ -9,7 +9,7 @@ import RxSwift
 import RxCocoa
 import Foundation
 
-final class AlarmListViewModel {
+final class AlarmListViewModel: ViewModelProtocol {
     
     private let coreDataManager: CoreDataManager
     private let disposeBag = DisposeBag()
@@ -38,7 +38,7 @@ final class AlarmListViewModel {
     
     
     // MARK: - transform
-    func transform(input: Input) -> Output {
+    func transform(_ input: Input) -> Output {
         // 알람 데이터 담을 주머니
         let alarmsRelay = BehaviorRelay<[Alarm]>(value: [])
         
