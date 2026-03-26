@@ -70,6 +70,7 @@ class StopWatchHeaderView: UIView {
         tintColor: .mainLabel
     ).then {
         $0.backgroundColor = .cardBackground
+        $0.isEnabled = false
     }
     /// 초기화 버튼
     let resetButton = CircleButton(

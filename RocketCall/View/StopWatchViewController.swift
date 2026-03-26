@@ -37,7 +37,6 @@ class StopWatchViewController: UIViewController {
     //MARK: - Init
     override func viewDidLoad() {
         super.viewDidLoad()
-        //description = "스톱워치 기능으로 원하는 시간까지 카운트하세요."
         view.backgroundColor = .background
         configureUI()
         bind()
@@ -47,33 +46,61 @@ class StopWatchViewController: UIViewController {
 //MARK: - Binding
 extension StopWatchViewController {
     func bind() {
+        
+        // View Action Setting
+        // 시작/일시정지 버튼 탭 이벤트 설정
         let startPause = stopWatchHeaderView.startButton.rx.tap
             .map { [weak self] _ -> StopWatchViewModel.State in
                 guard let self else { return .pause }
                 self.stopWatchHeaderView.startButton.isSelected.toggle()
                 if self.stopWatchHeaderView.startButton.isSelected {
+                    if !self.stopWatchHeaderView.recordButton.isEnabled {
+                        self.stopWatchHeaderView.recordButton.isEnabled = true
+                    }
                     return .run
                 }
                 else {
+                    if self.stopWatchHeaderView.recordButton.isEnabled {
+                        self.stopWatchHeaderView.recordButton.isEnabled = false
+                    }
                     return .pause
                 }
             }
-        
+        // 리셋 버튼 탭 이벤트 설정
         let reset = stopWatchHeaderView.resetButton.rx.tap
             .map {[weak self] _ -> StopWatchViewModel.State in
                 guard let self else { return .reset }
                 self.stopWatchHeaderView.startButton.isSelected = false
+                self.stopWatchHeaderView.recordButton.isEnabled = false
                 return  .reset
             }
         
+        // 레코드 버튼 탭 이벤트 설정
+        let record = stopWatchHeaderView.recordButton.rx.tap
+            .map { return }
+        
+        // ViewModel 액션 전달 Input 세팅
         let input = StopWatchViewModel.Input(
-            startPause: Observable.merge(startPause,reset)
+            stopwatchAction: Observable.merge(startPause,reset),
+            record: record
         )
         
+        // View Action -> ViewModel
         let output = vm.transform(input)
         
-        output.timer
+        
+        // ViewModel -> View Binding
+        // 스탑워치 메인 시간 텍스트 바인딩
+        output.mainTimer
             .bind(to: stopWatchHeaderView.timerLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        // 레코드 바인딩
+        output.record
+            .bind(onNext: { [weak self] datas in
+                guard let self else { return }
+                self.stopWatchRecordView.applySnapshot(with: datas)
+            })
             .disposed(by: disposeBag)
     }
 }

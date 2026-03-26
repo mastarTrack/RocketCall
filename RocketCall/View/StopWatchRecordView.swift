@@ -10,8 +10,17 @@ import RxSwift
 import SnapKit
 import Then
 
+
+
 /// 스탑워치 하단 레코드 뷰
 class StopWatchRecordView: UIView {
+   
+    //MARK: - Enum
+    enum RecordSection {
+        case main
+    }
+
+    
     //MARK: - Components
     private let titleLabel = UILabel(
         text: "Checkpoint Records",
@@ -34,7 +43,6 @@ class StopWatchRecordView: UIView {
         backgroundColor = .background
         configureUI()
         configureDataSource()
-        binding()
     }
     
     required init?(coder: NSCoder) {
@@ -42,14 +50,14 @@ class StopWatchRecordView: UIView {
     }
 }
 
-//MARK: - Binding
-extension StopWatchRecordView {
-    /// Binding 메소드
-    private func binding() {
-        //TODO: 한주헌 - 목업데이터 테스트 코드
-        applySnapshot(with: mockRecords)
-    }
-}
+////MARK: - Binding
+//extension StopWatchRecordView {
+//    /// Binding 메소드
+//    private func binding() {
+//        //TODO: 한주헌 - 목업데이터 테스트 코드
+//        applySnapshot(with: mockRecords)
+//    }
+//}
 
 //MARK: - CollectionView Configure
 extension StopWatchRecordView {
@@ -58,7 +66,7 @@ extension StopWatchRecordView {
         var snapShot = NSDiffableDataSourceSnapshot<RecordSection,RecordData>()
         snapShot.appendSections([.main])
         snapShot.appendItems(recordDatas)
-        dataSource.apply(snapShot,animatingDifferences: true)
+        dataSource.apply(snapShot,animatingDifferences: false)
     }
     
     
@@ -77,8 +85,11 @@ extension StopWatchRecordView {
                     withReuseIdentifier: RecordCell.id,
                     for: indexPath) as? RecordCell
                 else { return UICollectionViewCell() }
-                
-                cell.setRecord(count: item.count, time: formatTime(item.time), location: item.location)
+                                
+                cell.updateRecord(count: item.count,
+                                  time: item.time,
+                                  location: item.location,
+                                  isLive: item.isLive)
                 return cell
             }
         }
@@ -122,36 +133,6 @@ extension StopWatchRecordView {
             $0.leading.trailing.bottom.equalToSuperview()
         }
     }
-}
-
-//MARK: -
-//TODO: - 한주헌 - ViewModel로 이관 예정
-struct RecordData: Hashable {
-    var count : Int
-    var time : Double
-    var location : String
-}
-
-enum RecordSection {
-    case main
-}
-
-let mockRecords: [RecordData] = [
-    RecordData(count: 1, time: 12.34, location: "Launch Pad"),
-    RecordData(count: 2, time: 28.91, location: "Troposphere"),
-    RecordData(count: 3, time: 45.72, location: "Stratosphere"),
-    RecordData(count: 4, time: 63.18, location: "Mesosphere"),
-    RecordData(count: 5, time: 98.44, location: "Thermosphere"),
-    RecordData(count: 6, time: 132.76, location: "Exosphere"),
-    RecordData(count: 7, time: 215.30, location: "Moon Orbit")
-]
-
-func formatTime(_ time: Double) -> String {
-    let minutes = Int(time) / 60
-    let seconds = Int(time) % 60
-    let centiseconds = Int((time - floor(time)) * 100)
-    
-    return String(format: "%02d:%02d.%02d", minutes, seconds, centiseconds)
 }
 
 
