@@ -21,5 +21,6 @@ class AlarmEntity: NSManagedObject {
         static let minute = "minute"
         static let isRepeat = "isRepeat"
         static let repeatDays = "repeatDays"
+        static let isOn = "isOn"
     }
 }
