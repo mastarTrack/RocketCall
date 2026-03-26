@@ -17,9 +17,7 @@ final class HomeMainView: UIView {
     private let alarmCardTitle = UILabel(text: "다가오는 알람", config: .homeViewHeader)
     private let alarmCardView = AlarmCardView()
     
-    private let chartBaseCardView = BaseCardView().then {
-        $0.isOn = true
-    }
+    private let chartBaseCardView = BaseCardView()
     
     // SwiftUI로 생성된 ChartView를 UIKit에서 사용하기 위한 HostingController
     let chartHostingController = UIHostingController(rootView: ChartView()).then {
