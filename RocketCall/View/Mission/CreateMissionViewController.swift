@@ -45,7 +45,7 @@ extension CreateMissionViewController {
             createButtonTapped: mainView.createButton.rx.tap.asObservable()
         )
         
-        let output = viewModel.transform(input: input)
+        let output = viewModel.transform(input)
         
         output.totalTime
             .bind(to: mainView.totalTimeValueLabel.rx.text)
@@ -83,11 +83,19 @@ extension CreateMissionViewController {
             })
             .disposed(by: disposeBag)
         
-        // Alert 연결 필요
+        //TODO: Alert 연결 필요 -> Error 메시지 정의 필요
         output.error
-            .subscribe(onNext: { error in
-                print("error: \(error)")
+            .subscribe(onNext: { [weak self] error in
+                self?.showErrorAlert(message: "오류 발생 ")
             })
             .disposed(by: disposeBag)
+    }
+}
+
+extension CreateMissionViewController {
+    private func showErrorAlert(message: String) {
+        let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: nil))
+        present(alert, animated: true)
     }
 }

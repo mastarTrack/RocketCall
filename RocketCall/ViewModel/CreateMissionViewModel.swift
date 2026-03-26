@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class CreateMissionViewModel {
+class CreateMissionViewModel: ViewModelProtocol {
     
     private let disposeBag = DisposeBag()
     private let coreDataManager: CoreDataManager
@@ -39,7 +39,7 @@ class CreateMissionViewModel {
         let error: Observable<CoreDataManager.CoreDataError>
     }
     
-    func transform(input: Input) -> Output {
+    func transform(_ input: Input) -> Output {
         
         let time = Observable
             .combineLatest(input.studyTime, input.restTime, input.cycleCount)
