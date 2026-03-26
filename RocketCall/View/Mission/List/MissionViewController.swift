@@ -119,7 +119,6 @@ extension MissionViewController {
     }
 }
 
-// Model 구현안됨 -> 추후 Diffable 변경 예정
 extension MissionViewController {
     private func setDelegate() {
         mainView.collectionView.delegate = self
