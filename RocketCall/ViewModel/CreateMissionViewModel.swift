@@ -85,7 +85,7 @@ class CreateMissionViewModel: ViewModelProtocol {
             }
         
         // 버튼 활성화 비활성화
-        let isCreatedButtonEnabled = Observable
+        let isCreateButtonEnabled = Observable
             .combineLatest(input.missionName, input.studyTime, input.cycleCount)
             .map { missionName, studyTime, cycleCount in
                 !missionName.isEmpty && studyTime >= 1 && cycleCount >= 1
@@ -126,7 +126,7 @@ class CreateMissionViewModel: ViewModelProtocol {
             selectedQuickItem: selectedQuickItem,
             quickStudyTime: quickStudyTime,
             quickRestTime: quickRestTime,
-            isCreateButtonEnabled: isCreatedButtonEnabled,
+            isCreateButtonEnabled: isCreateButtonEnabled,
             success: success,
             error: errorSubject.asObservable()
         )
