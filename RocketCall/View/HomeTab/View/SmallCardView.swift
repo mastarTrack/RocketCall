@@ -23,7 +23,6 @@ class SmallCardView: BaseCardView {
             case .leftTime: "hourglass"
             case .totalCount: "medal"
             case .streak: "bolt"
-                
             }
         }
         

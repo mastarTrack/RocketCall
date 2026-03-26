@@ -10,7 +10,6 @@ import Then
 
 class AlarmCardView: BaseCardView {
     //MARK: set Attributes
-    
     let colorChip = UIView().then {
         $0.backgroundColor = .subPoint
         $0.clipsToBounds = true
@@ -46,8 +45,6 @@ class AlarmCardView: BaseCardView {
         $0.font = .systemFont(ofSize: 16, weight: .medium)
         $0.text = "07:00"
     }
-    
-    
     
     override init(frame: CGRect) {
         super.init(frame: .zero)

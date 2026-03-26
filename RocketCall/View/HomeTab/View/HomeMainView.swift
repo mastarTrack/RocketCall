@@ -24,6 +24,9 @@ final class HomeMainView: UIView {
     // SwiftUI로 생성된 ChartView를 UIKit에서 사용하기 위한 HostingController
     let chartHostingController = UIHostingController(rootView: ChartView()).then {
         $0.view.backgroundColor = .clear
+        
+        $0.sizingOptions = .intrinsicContentSize
+        $0.view.setContentHuggingPriority(UILayoutPriority(249), for: .vertical)
     }
     
     init() {
@@ -73,7 +76,6 @@ final class HomeMainView: UIView {
         chartBaseCardView.snp.makeConstraints {
             $0.top.equalTo(chartViewTitle.snp.bottom).offset(10)
             $0.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
-            $0.height.equalTo(255).priority(.low) // hugging 우선순위를 낮게 조정
         }
         
         chartHostingController.view.snp.makeConstraints {
@@ -105,6 +107,10 @@ extension HomeMainView {
             
             chartViewTitle.setContentHuggingPriority(.required, for: .horizontal)
             chartViewTitle.setContentCompressionResistancePriority(.required, for: .horizontal)
+            
+            $0.snp.makeConstraints {
+                $0.height.equalTo(chartViewTitle.snp.height)
+            }
         }
         
         return stackView
