@@ -37,11 +37,21 @@ extension LabelConfiguration {
         lines: 1
     )
     
+}
+
+extension LabelConfiguration {
+    static let homeViewHeader = LabelConfiguration(
+        font: .systemFont(ofSize: 20, weight: .bold),
+        color: .mainLabel,
+        lines: 1
+    )
+  
     static let missionTime = LabelConfiguration(
         font: .systemFont(ofSize: 36, weight: .thin),
         color: .mainLabel,
         lines: 1
     )
+  
     static let missionLabel = LabelConfiguration(
         font: .systemFont(ofSize: 16, weight: .medium),
         color: .mainLabel,
