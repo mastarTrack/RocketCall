@@ -12,7 +12,10 @@ import CoreData
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        
+        // 앱 켜지자 마자 알림 권한 요청
+        NotificationManager.shared.requestAuthorization()
+        
         return true
     }
 
