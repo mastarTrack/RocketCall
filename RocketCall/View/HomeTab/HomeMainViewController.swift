@@ -54,16 +54,34 @@ extension HomeMainViewController {
         
         let output = viewModel.transform(input)
         
-        // 성공 시
         output.alarm
-            .compactMap { result -> (Alarm?, Bool)? in
-                if case .success(let alarm) = result { return alarm }
+            .subscribe(onNext: { [cardView = homeMainView.alarmCardView] result in
+                switch result {
+                case .success(let alarm):
+                    if let alarm {
+                        cardView.emptyAlarmImage.isHidden ? nil : cardView.toggleIsHidden()
+                        
+                        cardView.configure(alarm: alarm)
+                    } else {
+                        cardView.emptyAlarmImage.isHidden ? cardView.toggleIsHidden() : nil
+                    }
+                case .failure(let error):
+                    print(error) // 추후 처리 필요
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        output.total
+            .compactMap { result in
+                if case .success(let result) = result { return result }
                 return nil
             }
-            .bind { [homeMainView] alarm in
-                if alarm.1 == false {
-                    
-                }
-            }
+            .subscribe(onNext: { [homeMainView] total in
+                homeMainView.totalTimeCardView.valueLabel.text = "\(total.totalTime / 60)시간"
+                homeMainView.totalTimeCardView.detailLabel.text = "\(total.totalTime)분"
+                homeMainView.missionCardView.valueLabel.text = "\(total.complete)회"
+            })
+            .disposed(by: disposeBag)
+
     }
 }

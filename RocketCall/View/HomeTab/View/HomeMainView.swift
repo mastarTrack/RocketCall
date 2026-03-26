@@ -27,6 +27,9 @@ final class HomeMainView: UIView {
         $0.view.setContentHuggingPriority(UILayoutPriority(249), for: .vertical)
     }
     
+    let totalTimeCardView = SmallCardView(type: .totalTime)
+    let missionCardView = SmallCardView(type: .totalCount)
+    
     init() {
         super.init(frame: .zero)
         backgroundColor = .background
@@ -39,7 +42,11 @@ final class HomeMainView: UIView {
     
     private func setLayout() {
         let chartViewTitle = generateChartTitleStack()
-        let smallCardStackView = generateSmallCardStack()
+        let smallCardStackView = UIStackView(arrangedSubviews: [totalTimeCardView, missionCardView]).then {
+            $0.axis = .horizontal
+            $0.spacing = 8
+            $0.distribution = .fillEqually
+        }
         
         addSubview(titleView)
         
@@ -112,16 +119,5 @@ extension HomeMainView {
         }
         
         return stackView
-    }
-    
-    private func generateSmallCardStack() -> UIStackView {
-        let totalTimeCardView = SmallCardView(type: .totalTime)
-        let missionCardView = SmallCardView(type: .totalCount)
-        
-        return UIStackView(arrangedSubviews: [totalTimeCardView, missionCardView]).then {
-            $0.axis = .horizontal
-            $0.spacing = 8
-            $0.distribution = .fillEqually
-        }
     }
 }

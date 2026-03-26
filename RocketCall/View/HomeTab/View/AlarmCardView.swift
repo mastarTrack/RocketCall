@@ -10,21 +10,28 @@ import Then
 
 class AlarmCardView: BaseCardView {
     //MARK: set Attributes
+    // - 알람 존재 시
     let colorChip = UIView().then {
         $0.backgroundColor = .subPoint
         $0.clipsToBounds = true
     }
     
+//    let repeatDaysStackView = SymbolLabelStack(
+//        symbol: "calendar",
+//        symbolColor: .subPoint,
+//        label: UILabel(text: "", config: LabelConfiguration.sub12)
+//    )
+    
     let repeatDaysLabel = UILabel().then {
         $0.textColor = .subLabel
         $0.font = .systemFont(ofSize: 12, weight: .medium)
-        $0.text = "월 화 수 목 금"
     }
+    
+    private lazy var repeatDaysStackView = SymbolLabelStack(symbol: "calendar", symbolColor: .subPoint, label: repeatDaysLabel)
     
     let titleLabel = UILabel().then {
         $0.textColor = .mainLabel
         $0.font = .systemFont(ofSize: 20, weight: .semibold)
-        $0.text = "기상"
     }
     
     let bar = UIView().then {
@@ -37,13 +44,23 @@ class AlarmCardView: BaseCardView {
     let timeTitle = UILabel().then {
         $0.textColor = .subLabel
         $0.font = .systemFont(ofSize: 12, weight: .medium)
-        $0.text = "알람 시간"
     }
     
     let timeLabel = UILabel().then {
         $0.textColor = .mainLabel
         $0.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.text = "07:00"
+    }
+    
+    // - 알람이 없을 시
+    let emptyAlarmImage = UIImageView().then {
+        let config = UIImage.SymbolConfiguration(weight: .medium)
+        $0.image = UIImage(systemName: "bell.slash", withConfiguration: config)
+        $0.tintColor = .subPoint.withAlphaComponent(0.4)
+        $0.isHidden = true
+    }
+    
+    let emptyAlarmLabel = UILabel(text: "활성화 된 알람이 없습니다", config: LabelConfiguration.sub14).then {
+        $0.isHidden = true
     }
     
     override init(frame: CGRect) {
@@ -60,8 +77,6 @@ class AlarmCardView: BaseCardView {
 extension AlarmCardView {
     func setLayout() {
         
-        let repeatDaysStackView = SymbolLabelStack(symbol: "calendar", symbolColor: .subPoint, label: repeatDaysLabel)
-  
         addSubview(colorChip)
         addSubview(repeatDaysStackView)
         addSubview(titleLabel)
@@ -103,5 +118,37 @@ extension AlarmCardView {
             $0.trailing.equalToSuperview().inset(10)
             $0.bottom.equalToSuperview().offset(-15)
         }
+        
+        addSubview(emptyAlarmImage)
+        addSubview(emptyAlarmLabel)
+        
+        emptyAlarmImage.snp.makeConstraints {
+            $0.width.height.equalTo(50)
+            $0.top.equalToSuperview().offset(44)
+            $0.centerX.equalToSuperview()
+        }
+        
+        emptyAlarmLabel.snp.makeConstraints {
+            $0.top.equalTo(emptyAlarmImage.snp.bottom).offset(12)
+            $0.centerX.equalToSuperview()
+            $0.bottom.equalToSuperview().offset(-44)
+        }
+    }
+    
+    func toggleIsHidden() {
+        repeatDaysStackView.isHidden.toggle()
+        titleLabel.isHidden.toggle()
+        bar.isHidden.toggle()
+        timeTitle.isHidden.toggle()
+        timeLabel.isHidden.toggle()
+        
+        emptyAlarmImage.isHidden.toggle()
+        emptyAlarmLabel.isHidden.toggle()
+    }
+
+    func configure(alarm: Alarm) {
+        repeatDaysLabel.text = alarm.repeatDays.map { $0.koreanName }.joined(separator: " ")
+        titleLabel.text = alarm.title
+        timeLabel.text = "\(alarm.hour):\(alarm.minute)"
     }
 }

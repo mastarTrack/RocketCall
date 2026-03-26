@@ -15,7 +15,7 @@ final class HomeViewModel: ViewModelProtocol {
     }
     
     struct Output {
-        let alarm: Observable<Result<(Alarm?, Bool), Error>> // (alarm: 알람, isExist: 존재 여부)
+        let alarm: Observable<Result<Alarm?, Error>> // (alarm: 알람, isExist: 존재 여부)
         let total: Observable<Result<TotalResult, Error>>
 //        let error: PublishSubject<Error>
     }
@@ -33,7 +33,7 @@ final class HomeViewModel: ViewModelProtocol {
         let fetch = input.fetchData
             .share()
         
-        let alarm: Observable<Result<(Alarm?, Bool), Error>> = fetch
+        let alarm: Observable<Result<Alarm?, Error>> = fetch
             .withUnretained(self)
             .flatMap { `self`, _ in
                 self.fetchNearestAlarm()
@@ -44,18 +44,6 @@ final class HomeViewModel: ViewModelProtocol {
                         .just(.failure($0))
                     }
             }
-        
-//        let fetchAlarm = fetch
-//            .withUnretained(self)
-//            .flatMap { `self`, _ in
-//                self.fetchNearestAlarm()
-//                    .map {
-//                        $0
-//                    }
-//                    .catch {
-//                        .just(())
-//                    }
-//            }
         
         let total: Observable<Result<TotalResult, Error>> = fetch
             .withUnretained(self)
@@ -78,7 +66,7 @@ final class HomeViewModel: ViewModelProtocol {
 
 //MARK: 가장 가까운 알람 가져오기
 extension HomeViewModel {
-    private func fetchNearestAlarm() -> Observable<(Alarm?, Bool)> {
+    private func fetchNearestAlarm() -> Observable<Alarm?> {
         Observable.create { [weak self] observer in
             do {
                 let payload = try self?.fetchNearestAlarmPayload()
@@ -93,10 +81,10 @@ extension HomeViewModel {
                         isOn: payload.isOn
                     )
                     
-                    observer.on(.next((result, true)))
+                    observer.on(.next(result))
                     observer.onCompleted()
                 } else {
-                    observer.onNext((nil, false))
+                    observer.onNext(nil)
                     observer.onCompleted()
                 }
             } catch {
@@ -106,6 +94,7 @@ extension HomeViewModel {
         }
     }
     
+    //TODO: 로직 바꿔야함!!!
     private func fetchNearestAlarmPayload() throws -> AlarmPayload? {
         let calendar = Calendar.current
         let dateComp = calendar.dateComponents(in: .current, from: Date.now) // 현재 날짜의 dateComponents
@@ -118,18 +107,32 @@ extension HomeViewModel {
         
         do {
             let alarms = try coreDataManager.fetchAllAlarm()
-            
+            print(alarms)
             let filtered = alarms.filter {
                 $0.isOn == true // 활성화 된 알람
                 && ($0.repeatDays.isEmpty || $0.repeatDays.contains(weekday)) // 반복 요일이 없거나, 반복 요일에 현재 요일이 포함된 경우
                 && time <= ($0.hour * 60 + $0.minute) // 현재 시간보다 뒤로 설정된 알람만
             }
-            
+            print(filtered)
             return filtered.first
             
         } catch {
             throw error
         }
+    }
+    
+    private func time(hour: Int, minute: Int) {
+        let calendar = Calendar.current
+        let dateComp = calendar.dateComponents(in: .current, from: Date.now)
+        
+        guard let todayHour = dateComp.hour,
+              let todayMinute = dateComp.minute else { return }
+        
+        if (todayHour * 60 + todayMinute) < (hour * 60 + minute) { // (동일 날짜의 경우) 현재 시간이 알람 시간보다 빠를 때
+            
+        }
+        
+//        calendar.date(from: dateComp) - calendar.date(from:)
     }
 }
 
