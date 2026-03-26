@@ -28,6 +28,16 @@ struct MissionPayload {
     var cycle: Int // 사이클 수
 }
 
+struct ActivatedMissionPayload {
+    var id: UUID
+    var mission: MissionPayload // 미션 정보
+    var currentCycle: Int // 현재 사이클
+    var remainingTime: Int // 남은 시간
+    var isConcentrating: Bool // 현재 상태 (집중? 휴식?)
+    var startDate: Date // 시작 시간
+    var isPaused: Bool // 일시정지 여부
+}
+
 // 미션 결과 - 뽀모도로
 struct MissionResultPayload {
     var id: UUID
