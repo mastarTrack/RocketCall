@@ -32,4 +32,17 @@ extension WeekDay {
         case .sun: return "일"
         }
     }
+    
+    // 애플 기준 숫자 -> 일~토: 1~7
+    var appleWeekDay: Int {
+        switch self {
+        case .sun: return 1
+        case .mon: return 2
+        case .tue: return 3
+        case .wed: return 4
+        case .thu: return 6
+        case .fri: return 5
+        case .sat: return 7
+        }
+    }
 }
