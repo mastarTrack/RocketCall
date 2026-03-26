@@ -123,6 +123,12 @@ extension MissionViewController {
                 self?.setSnapshot(animated: animated)
             })
             .disposed(by: disposeBag)
+        
+        timerOutput.error
+            .subscribe(onNext: { [weak self] error in
+                self?.showErrorAlert(error: error)
+            })
+            .disposed(by: disposeBag)
     }
 }
 
@@ -152,5 +158,25 @@ extension MissionViewController {
         }
         
         dataSource.apply(snapshot, animatingDifferences: animated)
+    }
+}
+
+extension MissionViewController {
+    
+    private func showErrorAlert(error: CoreDataManager.CoreDataError) {
+        let message: String
+        switch error {
+        case .descriptionLoadFailed:
+            message = "데이터 모델을 불러오는 데 실패했습니다."
+        case .saveFailed:
+            message = "데이터를 저장하는데 실패했습니다."
+        case .loadFailed:
+            message = "데이터를 불러오는 데 실패했습니다."
+        case .empty:
+            message = "데이터가 없습니다."
+        }
+        let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: nil))
+        present(alert, animated: true)
     }
 }

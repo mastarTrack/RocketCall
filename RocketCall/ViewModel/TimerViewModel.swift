@@ -14,6 +14,7 @@ class TimerViewModel: ViewModelProtocol {
     private let disposeBag = DisposeBag()
     private let coreDataManager: CoreDataManager
     private let activatedMissionRelay = BehaviorRelay<[ActivatedMissionPayload]>(value: [])
+    private let errorSubject = PublishSubject<CoreDataManager.CoreDataError>()
     
     init(coreDataManager: CoreDataManager) {
         self.coreDataManager = coreDataManager
@@ -26,6 +27,7 @@ class TimerViewModel: ViewModelProtocol {
     
     struct Output {
         let activatedMissions: Observable<([ActivatedMissionPayload], Bool)>
+        let error: Observable<CoreDataManager.CoreDataError>
     }
     
     func transform(_ input: Input) -> Output {
@@ -41,7 +43,9 @@ class TimerViewModel: ViewModelProtocol {
                     remainingTime: mission.concentrateTime * 60,
                     isConcentrating: true,
                     startDate: Date(),
-                    isPaused: false
+                    isPaused: false,
+                    studyTime: 0,
+                    pausedTime: 0
                 )
                 var current = self.activatedMissionRelay.value
                 current.append(activatedMission)
@@ -53,7 +57,18 @@ class TimerViewModel: ViewModelProtocol {
         Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance)
             .subscribe(onNext: { [weak self] _ in
                 guard let self else { return }
-                let updated = self.activatedMissionRelay.value.compactMap { self.updateMission($0) }
+                let updated = self.activatedMissionRelay.value.compactMap { mission -> ActivatedMissionPayload? in
+                    if mission.isPaused {
+                        var updated = mission
+                        updated.pausedTime += 1
+                        return updated
+                    }
+                    var updated = self.updateMission(mission)
+                    if mission.isConcentrating {
+                        updated?.studyTime += 1
+                    }
+                    return updated
+                }
                 self.activatedMissionRelay.accept(updated) // 수정된 배열 다시 넣기
             })
             .disposed(by: disposeBag)
@@ -80,13 +95,15 @@ class TimerViewModel: ViewModelProtocol {
             })
             .disposed(by: disposeBag)
         
-        return Output(activatedMissions: Observable.merge(activatedMissions, timerUpdate))
+        return Output(
+            activatedMissions: Observable.merge(activatedMissions, timerUpdate),
+            error: errorSubject.asObservable()
+        )
     }
     
     // 미션 상태 변경 로직
     private func updateMission(_ mission: ActivatedMissionPayload) -> ActivatedMissionPayload? {
         
-        guard !mission.isPaused else { return mission } // 일시정지 미션은 건너뛰기
         var updated = mission
         updated.remainingTime -= 1 // 1초 감소
         
@@ -104,7 +121,29 @@ class TimerViewModel: ViewModelProtocol {
             updated.isConcentrating = true
             return updated
         }
-        // 모든 사이클 종료 -> nil 반환 -> 배열에서 제거
+        // 모든 사이클 종료 -> CoreData저장 -> nil 반환 -> 배열에서 제거
+        saveMission(mission: mission, isCompleted: true)
         return nil
+    }
+    
+    private func saveMission(mission: ActivatedMissionPayload, isCompleted: Bool) {
+        let result = MissionResultPayload(
+            id: UUID(),
+            title: mission.mission.title,
+            start: mission.startDate,
+            end: Date(),
+            studyTime: mission.studyTime,
+            isCompleted: isCompleted
+        )
+        do {
+            try coreDataManager.createMissionResultEntity(result: result)
+            print("저장 완료, 공부 시간 : \(result.studyTime)")
+        } catch {
+            if let coreDataError = error as? CoreDataManager.CoreDataError {
+                errorSubject.onNext(coreDataError)
+            } else {
+                errorSubject.onNext(.saveFailed)
+            }
+        }
     }
 }

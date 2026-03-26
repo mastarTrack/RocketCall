@@ -36,6 +36,8 @@ struct ActivatedMissionPayload: Hashable {
     var isConcentrating: Bool // 현재 상태 (집중? 휴식?)
     var startDate: Date // 시작 시간
     var isPaused: Bool // 일시정지 여부
+    var studyTime: Int // 순 공부 시간
+    var pausedTime: Int // 일시 정지 시간
 }
 
 // 미션 결과 - 뽀모도로
