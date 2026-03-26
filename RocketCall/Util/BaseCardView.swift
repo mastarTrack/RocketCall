@@ -12,11 +12,11 @@
 
 import UIKit
 
-final class BaseCardView: UIView {
+class BaseCardView: UIView {
     
     var isOn: Bool = false {
         didSet {
-            let activeColor = UIColor(red: 108/255.0, green: 92/255.0, blue: 231/255.0, alpha: 0.3).cgColor
+            let activeColor = UIColor(red: 108/255.0, green: 92/255.0, blue: 231/255.0, alpha: 0.8).cgColor
             let inactiveColor = UIColor(red: 201/255.0, green: 209/255.0, blue: 232/255.0, alpha: 0.3).cgColor
             
             self.layer.borderColor = isOn ? activeColor : inactiveColor
