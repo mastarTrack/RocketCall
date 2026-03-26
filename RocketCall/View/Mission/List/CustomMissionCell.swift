@@ -87,11 +87,15 @@ extension CustomMissionCell {
 }
 
 extension CustomMissionCell {
-    func config(title: String, subtitle: String, cycle: String, time: String) {
-        titleLabel.text = title
-        subtitleLabel.text = subtitle
-        cycleLabel.text = cycle
-        timeLabel.text = time
+    func config(mission: MissionPayload) {
+        titleLabel.text = mission.title
+        subtitleLabel.text = "\(mission.concentrateTime)분 집중 / \(mission.breakTime)분 휴식"
+        cycleLabel.text = "\(mission.cycle)사이클"
+        
+        let hour = (mission.concentrateTime + mission.breakTime) * mission.cycle / 60
+        let minute = (mission.concentrateTime + mission.breakTime) * mission.cycle % 60
+        
+        timeLabel.text = "\(hour)h \(minute)m"
     }
 }
 

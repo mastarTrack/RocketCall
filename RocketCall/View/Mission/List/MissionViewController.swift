@@ -13,11 +13,15 @@ class MissionViewController: UIViewController {
     
     private let mainView = MissionView()
     private let disposeBag = DisposeBag()
+    private let viewModel: MissionViewModel
+    
+    private var missions: [MissionPayload] = []
     
     let coreDataManager: CoreDataManager
     
     init(coreDataManager: CoreDataManager) {
         self.coreDataManager = coreDataManager
+        self.viewModel = MissionViewModel(coreDataManager: coreDataManager)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -46,6 +50,16 @@ extension MissionViewController {
                 let nextVC = CreateMissionViewController(viewModel: nextVM)
                 self.navigationController?.pushViewController(nextVC, animated: true)
             }).disposed(by: disposeBag)
+        
+        let input = MissionViewModel.Input(initialze: Observable.just(()))
+        let output = viewModel.transform(input)
+        
+        output.missions
+            .subscribe(onNext: { [weak self] missions in
+                self?.missions = missions
+                self?.mainView.collectionView.reloadData()
+            })
+            .disposed(by: disposeBag)
     }
 }
 
@@ -84,7 +98,7 @@ extension MissionViewController: UICollectionViewDataSource {
         case .activatedMission:
             return 2
         case .customMission:
-            return 3
+            return missions.count
         }
     }
     
@@ -98,7 +112,7 @@ extension MissionViewController: UICollectionViewDataSource {
             return cell
         case .customMission:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomMissionCell.id, for: indexPath) as? CustomMissionCell else { return UICollectionViewCell() }
-            cell.config(title: "25분 미션", subtitle: "25분 집중/ 5분 휴식", cycle: "4사이클", time: "1h 40m")
+            cell.config(mission: missions[indexPath.item])
             return cell
         }
     }
