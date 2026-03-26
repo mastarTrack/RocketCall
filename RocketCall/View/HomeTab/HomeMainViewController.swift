@@ -15,9 +15,7 @@ class HomeMainViewController: UIViewController {
     let viewModel: HomeViewModel
     
     let disposeBag = DisposeBag()
-    
-//    let refreshRelay: PublishRelay<Void> = PublishRelay()
-    
+        
     override func loadView() {
         view = homeMainView
     }
@@ -31,11 +29,6 @@ class HomeMainViewController: UIViewController {
         
         bind()
     }
-    
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//        refreshRelay.accept(Void())
-//    }
     
     //MARK: init
     init(viewModel: HomeViewModel) {
