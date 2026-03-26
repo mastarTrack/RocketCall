@@ -11,7 +11,7 @@ import Foundation
 
 final class HomeViewModel: ViewModelProtocol {
     struct Input {
-        let fetchData: PublishRelay<Void>
+        let fetchData: Observable<Void>
     }
     
     struct Output {
@@ -44,6 +44,8 @@ final class HomeViewModel: ViewModelProtocol {
             }
         
         
+        
+        
         return Output(
             alarm: alarm
         )
@@ -54,6 +56,7 @@ extension HomeViewModel {
     private func fetchNearestAlarm() -> Observable<Alarm?> {
         Observable.create { [weak self] observer in
             do {
+                        print("fetch DatA")
                 let payload = try self?.fetchNearestAlarmPayload()
                 
                 if let payload {
@@ -69,7 +72,7 @@ extension HomeViewModel {
                     observer.on(.next(result))
                     observer.onCompleted()
                 } else {
-                    observer.on(.next(nil))
+                    observer.onNext(nil)
                     observer.onCompleted()
                 }
             } catch {

@@ -16,7 +16,7 @@ class HomeMainViewController: UIViewController {
     
     let disposeBag = DisposeBag()
     
-    let refreshRelay: PublishRelay<Void> = PublishRelay()
+//    let refreshRelay: PublishRelay<Void> = PublishRelay()
     
     override func loadView() {
         view = homeMainView
@@ -32,10 +32,10 @@ class HomeMainViewController: UIViewController {
         bind()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        refreshRelay.accept(Void())
-    }
+//    override func viewWillAppear(_ animated: Bool) {
+//        super.viewWillAppear(animated)
+//        refreshRelay.accept(Void())
+//    }
     
     //MARK: init
     init(viewModel: HomeViewModel) {
@@ -50,10 +50,20 @@ class HomeMainViewController: UIViewController {
 
 extension HomeMainViewController {
     private func bind() {
+        let viewWillAppear = rx.viewWillAppear
+        let didBecomeActive = NotificationCenter.default.rx.notification(UIApplication.didBecomeActiveNotification)
+            .map { _ in }
+            .skip(until: rx.viewDidAppear)
+        
         let input = HomeViewModel.Input(
-            fetchData: refreshRelay
+            fetchData: Observable.merge(viewWillAppear, didBecomeActive)
         )
         
-        viewModel.transform(input)
+        let output = viewModel.transform(input)
+        
+        output.alarm
+            .subscribe(onNext: {
+                let alarm = $0
+            })
     }
 }
