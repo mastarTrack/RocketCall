@@ -16,6 +16,7 @@ final class HomeViewModel: ViewModelProtocol {
     
     struct Output {
         let alarm: Observable<Result<Alarm?, Error>>
+        let total: Observable<Result<TotalResult, Error>>
     }
     
     //MARK: 속성 선언
@@ -43,20 +44,30 @@ final class HomeViewModel: ViewModelProtocol {
                     }
             }
         
-        
-        
+        let total: Observable<Result<TotalResult, Error>> = fetch
+            .withUnretained(self)
+            .flatMap { `self`, _ in
+                self.fetchTotalResult()
+                    .map {
+                        .success($0)
+                    }
+                    .catch {
+                        .just(.failure($0))
+                    }
+            }
         
         return Output(
-            alarm: alarm
+            alarm: alarm,
+            total: total
         )
     }
 }
 
+//MARK: 가장 가까운 알람 가져오기
 extension HomeViewModel {
     private func fetchNearestAlarm() -> Observable<Alarm?> {
         Observable.create { [weak self] observer in
             do {
-                        print("fetch DatA")
                 let payload = try self?.fetchNearestAlarmPayload()
                 
                 if let payload {
@@ -97,14 +108,117 @@ extension HomeViewModel {
             
             let filtered = alarms.filter {
                 $0.isOn == true // 활성화 된 알람
-                && ($0.repeatDays.isEmpty || $0.repeatDays.contains(weekday)) // 반복 요일이 없거나, 반복 요일에 현재 요일이 포함된 경우 - repeatDays Set타입이 낫나?
+                && ($0.repeatDays.isEmpty || $0.repeatDays.contains(weekday)) // 반복 요일이 없거나, 반복 요일에 현재 요일이 포함된 경우
                 && time <= ($0.hour * 60 + $0.minute) // 현재 시간보다 뒤로 설정된 알람만
             }
             
             return filtered.first
-
+            
         } catch {
             throw error
         }
+    }
+}
+
+//MARK: Total 기록
+extension HomeViewModel {
+    enum TargetPlanet: Int, CaseIterable {
+        case moon = 2 // 시간 기준! 달은 2시간
+        case mars = 10 // 10시간
+        case venus = 25 // ...
+        case mercury = 55
+        case sun = 100
+        case jupiter = 250
+        case saturn = 500
+        case uranus = 1000
+        case neptune = 2000
+        
+        var title: String {
+            switch self {
+            case .moon: "달"
+            case .mars: "화성"
+            case .venus: "금성"
+            case .mercury: "수성"
+            case .sun: "태양"
+            case .jupiter: "목성"
+            case .saturn: "토성"
+            case .uranus: "천왕성"
+            case .neptune: "해왕성"
+            }
+        }
+    }
+    
+    
+    struct TotalResult {
+        var complete: Int // 누적 완료 미션 횟수
+        var totalTime: Int // 누적 집중 시간 (분)
+        var streak: Int // 미션 연속 성공 일수
+        var target: TargetPlanet? // 다음 목표 행성
+    }
+    
+    private func fetchTotalResult() -> Observable<TotalResult> {
+        Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            do {
+                let results = try self.coreDataManager.fetchAllMissionResult()
+                
+                if results.isEmpty {
+                    let total = TotalResult(complete: 0, totalTime: 0, streak: 0, target: TargetPlanet.moon)
+                    observer.onNext(total)
+                    observer.onCompleted()
+                } else {
+                    let calculation = calculateTotal(of: results)
+                    
+                    let targetPlanet = TargetPlanet.allCases.filter { ($0.rawValue * 60) >= calculation.totalTime }.first
+                    
+                    let total = TotalResult(
+                        complete: calculation.complete,
+                        totalTime: calculation.totalTime,
+                        streak: calculation.streak,
+                        target: targetPlanet
+                    )
+                    
+                    observer.onNext(total)
+                    observer.onCompleted()
+                }
+            } catch {
+                observer.onError(error)
+            }
+            return Disposables.create()
+        }
+    }
+    
+    // 총 집중 시간, 성공 미션 횟수, 연속 기록 일수를 계산하는 메서드
+    private func calculateTotal(of results: [MissionResultPayload]) -> (complete: Int, totalTime: Int, streak: Int) {
+        let calendar = Calendar.current
+        
+        let sortedByStartDate = results.sorted(by: { $0.start > $1.start }) // 미션 결과 start 날짜 기준 최근순 정렬
+        
+        let result = sortedByStartDate.reduce(into: (complete: 0, totalTime: 0, streak: 0, benchmark: Date.now)) {
+            guard $1.isCompleted else { return } // 성공 미션일 경우에만 코드 진행
+            
+            if $0.streak >= 0 // 연속 기록이 유효하고
+                && $1.start >= calendar.startOfDay(for: $0.benchmark) // result의 시작 시간이 기준일 범위 내에 있을 경우
+                && $1.start <= calendar.startOfDay(for: $0.benchmark + 86399) {
+                
+                $0 = (
+                    $0.complete + 1,
+                    $0.totalTime + $1.studyTime,
+                    $0.streak + 1,
+                    $1.start
+                )
+            } else {
+                // 연속 기록이 유효하지 않을 경우 (streak == -1)
+                // 혹은 result의 시작 시간이 기준일 범위 밖에 있을 경우 (== 연속 기록이 아닌 경우)
+                $0 = (
+                    $0.complete + 1,
+                    $0.totalTime + $1.studyTime,
+                    -1,
+                    $0.benchmark
+                )
+            }
+        }
+        
+        return (result.complete, result.totalTime, result.streak)
     }
 }
