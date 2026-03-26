@@ -5,7 +5,7 @@
 //  Created by Hanjuheon on 3/26/26.
 //
 
-protocol ViewModelProtocol {
+protocol ViewModelProtocol: AnyObject {
     associatedtype Input
     associatedtype Output
     
