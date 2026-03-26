@@ -41,7 +41,10 @@ extension MissionViewController {
     private func bind() {
         mainView.titleView.addButton.rx.tap
             .subscribe(onNext: { [weak self] in
-                self?.navigationController?.pushViewController(CreateMissionViewController(), animated: true)
+                guard let self else { return }
+                let nextVM = CreateMissionViewModel(coreDataManager: self.coreDataManager)
+                let nextVC = CreateMissionViewController(viewModel: nextVM)
+                self.navigationController?.pushViewController(nextVC, animated: true)
             }).disposed(by: disposeBag)
     }
 }
