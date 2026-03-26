@@ -9,7 +9,7 @@ import SnapKit
 
 class MainController: UITabBarController {
     let coreDataManager = CoreDataManager()
-    
+    lazy var timerViewModel = TimerViewModel(coreDataManager: coreDataManager)
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
@@ -22,7 +22,7 @@ extension MainController {
     private func configure() {
         let firstVC = UINavigationController(rootViewController: HomeMainViewController())
         let secondVC = UINavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
-        let thirdVC = UINavigationController(rootViewController: MissionViewController(coreDataManager: coreDataManager))
+        let thirdVC = UINavigationController(rootViewController: MissionViewController(coreDataManager: coreDataManager, timerViewModel: timerViewModel))
         let fourthVC = UINavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
         
         firstVC.tabBarItem = UITabBarItem(title: "홈", image: UIImage(systemName: "house"), tag: 0)

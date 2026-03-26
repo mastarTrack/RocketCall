@@ -108,9 +108,22 @@ extension ActivatedMissionCell {
 
 // 나중에 모델로 통합
 extension ActivatedMissionCell {
-    func config(cycleText: String, title: String, time: String) {
-        stateLabel.text = cycleText
-        titleLabel.text = title
-        timeLabel.text = time
+    func config(mission: ActivatedMissionPayload) {
+        let state = mission.isConcentrating ? "집중" : "휴식"
+        stateLabel.text = "\(mission.currentCycle)/\(mission.mission.cycle) 사이클 · \(state)"
+        titleLabel.text = mission.mission.title
+        
+        let minutes = mission.remainingTime / 60
+        let sescond = mission.remainingTime % 60
+        
+        timeLabel.text = String(format: "%02d:%02d", minutes, sescond)
+        
+        let image = mission.isPaused ? UIImage(systemName: "play") : UIImage(systemName: "pause")
+        let title = mission.isPaused ? "재개" : "일시정지"
+        var config = startButton.configuration
+        config?.image = image
+        config?.title = title
+        config?.imagePadding = 10
+        startButton.configuration = config
     }
 }

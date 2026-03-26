@@ -14,15 +14,20 @@ class MissionViewController: UIViewController {
     private let mainView = MissionView()
     private let disposeBag = DisposeBag()
     private let viewModel: MissionViewModel
+    private let timerViewModel: TimerViewModel
     
     private var missions: [MissionPayload] = []
     private let initialLoadSubject = PublishSubject<Void>()
     
+    private var activatedMissions: [ActivatedMissionPayload] = []
+    private let activatedMissionSubject = PublishSubject<MissionPayload>()
+    
     let coreDataManager: CoreDataManager
     
-    init(coreDataManager: CoreDataManager) {
+    init(coreDataManager: CoreDataManager, timerViewModel: TimerViewModel) {
         self.coreDataManager = coreDataManager
         self.viewModel = MissionViewModel(coreDataManager: coreDataManager)
+        self.timerViewModel = timerViewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -66,6 +71,18 @@ extension MissionViewController {
                 self?.mainView.collectionView.reloadData()
             })
             .disposed(by: disposeBag)
+        
+        let timerInput = TimerViewModel.Input(
+            activatedMission: activatedMissionSubject.asObservable()
+        )
+        let timerOutput = timerViewModel.transform(timerInput)
+        
+        timerOutput.activatedMissions
+            .subscribe(onNext: { [weak self] activatedMissions in
+                self?.activatedMissions = activatedMissions
+                self?.mainView.collectionView.reloadData()
+            })
+            .disposed(by: disposeBag)
     }
 }
 
@@ -102,7 +119,7 @@ extension MissionViewController: UICollectionViewDataSource {
         
         switch sectionType {
         case .activatedMission:
-            return 2
+            return activatedMissions.count
         case .customMission:
             return missions.count
         }
@@ -114,11 +131,15 @@ extension MissionViewController: UICollectionViewDataSource {
         switch sectionType {
         case .activatedMission:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ActivatedMissionCell.id, for: indexPath) as? ActivatedMissionCell else { return UICollectionViewCell() }
-            cell.config(cycleText: "1/4사이클", title: "25분 미션", time: "05:10")
+            cell.config(mission: activatedMissions[indexPath.item])
             return cell
         case .customMission:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomMissionCell.id, for: indexPath) as? CustomMissionCell else { return UICollectionViewCell() }
             cell.config(mission: missions[indexPath.item])
+            cell.startButtonTapped
+                .map { self.missions[indexPath.item] }
+                .bind(to: self.activatedMissionSubject)
+                .disposed(by: disposeBag)
             return cell
         }
     }
