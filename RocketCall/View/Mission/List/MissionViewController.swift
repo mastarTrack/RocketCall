@@ -106,7 +106,7 @@ extension MissionViewController {
                 self.navigationController?.pushViewController(nextVC, animated: true)
             }).disposed(by: disposeBag)
         
-        let input = MissionViewModel.Input(initialze: initialLoadSubject.asObservable())
+        let input = MissionViewModel.Input(initialize: initialLoadSubject.asObservable())
         let output = viewModel.transform(input)
         
         output.missions

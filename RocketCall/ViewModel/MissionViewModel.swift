@@ -21,7 +21,7 @@ class MissionViewModel: ViewModelProtocol {
     }
     
     struct Input {
-        let initialze: Observable<Void>
+        let initialize: Observable<Void>
     }
     
     struct Output {
@@ -31,7 +31,7 @@ class MissionViewModel: ViewModelProtocol {
     
     func transform(_ input: Input) -> Output {
         
-        let missions = input.initialze
+        let missions = input.initialize
             .map { [weak self] _ -> [MissionPayload] in
                 guard let self else { return [] }
                 do {
