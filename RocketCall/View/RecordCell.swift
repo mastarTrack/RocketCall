@@ -38,7 +38,7 @@ class RecordCell: UICollectionViewCell {
         super.init(frame: frame)
         backgroundColor = .cardBackground
         contentView.backgroundColor = .mainPoint
-        contentView.layer.cornerRadius = 14
+        contentView.layer.cornerRadius = 16
         configureUI()
     }
     
