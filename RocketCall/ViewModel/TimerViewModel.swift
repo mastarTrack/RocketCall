@@ -179,25 +179,25 @@ class TimerViewModel: ViewModelProtocol {
     func enterForeGround() {
         guard let backgroundEnterTime else { return }
         let elapsed = Int(Date().timeIntervalSince(backgroundEnterTime))
-            self.backgroundEnterTime = nil
-            
-            let updated = activatedMissionRelay.value.compactMap { mission -> ActivatedMissionPayload? in
-                guard !mission.isPaused else {
-                    var updated = mission
-                    updated.pausedTime += elapsed
-                    return updated
-                }
-                return (0..<elapsed).reduce(Optional(mission)) { current, _ in
-                    guard let current else { return nil }
-                    let isConcentrating = current.isConcentrating
-                    var updated = updateMission(current)
-                    if isConcentrating {
-                        updated?.studyTime += 1
-                    }
-                    return updated
-                }
+        self.backgroundEnterTime = nil
+        
+        let updated = activatedMissionRelay.value.compactMap { mission -> ActivatedMissionPayload? in
+            guard !mission.isPaused else {
+                var updated = mission
+                updated.pausedTime += elapsed
+                return updated
             }
-            activatedMissionRelay.accept(updated)
+            return (0..<elapsed).reduce(Optional(mission)) { current, _ in
+                guard let current else { return nil }
+                let isConcentrating = current.isConcentrating
+                var updated = updateMission(current)
+                if isConcentrating {
+                    updated?.studyTime += 1
+                }
+                return updated
+            }
+        }
+        activatedMissionRelay.accept(updated)
     }
     
     
