@@ -42,6 +42,7 @@ final class DetailCollectionView: UICollectionView {
         super.init(frame: frame, collectionViewLayout: UICollectionViewLayout())
         collectionViewLayout = makeCompositionalLayout()
         layoutMargins = .init(top: 0, left: 20, bottom: 0, right: 20)
+        backgroundColor = .background
     }
     
     required init?(coder: NSCoder) {
