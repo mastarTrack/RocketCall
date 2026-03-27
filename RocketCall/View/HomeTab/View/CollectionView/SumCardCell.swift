@@ -9,8 +9,7 @@ import UIKit
 import SnapKit
 
 final class SumCardCell: UICollectionViewCell {
-    static let id = "SumCardCell"
-    private var cardView = SmallCardView(type: .totalCount)
+    private let cardView = SmallCardView(type: .totalCount)
     
     override init(frame: CGRect) {
         super.init(frame: frame)

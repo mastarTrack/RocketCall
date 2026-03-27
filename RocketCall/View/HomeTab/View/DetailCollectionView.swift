@@ -16,29 +16,31 @@ final class DetailCollectionView: UICollectionView {
         case result
     }
     
-        enum Item: Hashable {
-            case sum(SmallCardView.CardCategory, String, String) // 카테고리, value, detail
-            case chart([Int: Int])
-            case progress
-            case result
-    
-            func hash(into hasher: inout Hasher) {
-                switch self {
-                case .sum(let category, let value, let detail):
-                    hasher.combine("total")
-                    hasher.combine(value)
-                case .chart(let rawData):
-                    hasher.combine("chart")
-                    hasher.combine(rawData)
-                case .progress:
-                    hasher.combine("progress")
-                case .result:
-                    hasher.combine("result")
-                }
+    enum Item: Hashable {
+        case sum(SmallCardView.CardCategory, String, String) // 카테고리, value, detail
+        case chart([Int: Int])
+        case progress
+        case result(MissionResultPayload)
+        
+        func hash(into hasher: inout Hasher) {
+            switch self {
+            case .sum(let category, let value, let detail):
+                hasher.combine("total")
+                hasher.combine(category)
+                hasher.combine(value)
+                hasher.combine(detail)
+            case .chart(let rawData):
+                hasher.combine("chart")
+                hasher.combine(rawData)
+            case .progress:
+                hasher.combine("progress")
+            case .result:
+                hasher.combine("result")
             }
-            
-            static let weeklyData = WeeklyData()
         }
+        
+        static let weeklyData = WeeklyData()
+    }
     
     override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
         super.init(frame: frame, collectionViewLayout: UICollectionViewLayout())

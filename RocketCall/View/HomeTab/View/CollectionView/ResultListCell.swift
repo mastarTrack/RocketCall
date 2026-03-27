@@ -10,23 +10,23 @@ import SnapKit
 import Then
 
 final class ResultListCell: UICollectionViewCell {
-    let cardView = BaseCardView()
+    private let cardView = BaseCardView()
     
-    let titleLabel = UILabel(text: "미션", config: .sub14).then {
+    private let titleLabel = UILabel(text: "미션", config: .sub14).then {
         $0.font = .systemFont(ofSize: 14, weight: .semibold)
     }
-    let timeLabel = UILabel(
+    private let timeLabel = UILabel(
         text: "시간",
         config: LabelConfiguration(font: .boldSystemFont(ofSize: 18), color: .mainLabel, lines: 1)).then {
         $0.textAlignment = .right
     }
     
-    let dateLabel = UILabel(text: "날짜", config: .sub12)
-    let cycleLabel = UILabel(text: "사이클", config: .sub12).then {
+    private let dateLabel = UILabel(text: "날짜", config: .sub12)
+    private let cycleLabel = UILabel(text: "사이클", config: .sub12).then {
         $0.textAlignment = .right
     }
     
-    let stateLabel = StateLabel(text: "✔️ 성공", config: .success)
+    private let stateLabel = StateLabel(text: "✔️ 성공", config: .success)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
