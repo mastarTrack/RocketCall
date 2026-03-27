@@ -14,8 +14,8 @@ final class TimerAnimationViewController: UIViewController {
     private var progressTimer: Timer?
     
     // 샘플데이터
-    private let sampleTotalDuration: TimeInterval = 5 * 60
-    private var sampleRemainingTime: TimeInterval = 5 * 60
+    private let sampleTotalDuration: TimeInterval = 2 * 60
+    private var sampleRemainingTime: TimeInterval = 2 * 60
     
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -28,7 +28,6 @@ final class TimerAnimationView: UIView {
     
     private let shipImageView = UIImageView().then {
         $0.image = UIImage(named: "spaceShip")
-        $0.contentMode = .scaleAspectFit
         $0.clipsToBounds = true
     }
     
