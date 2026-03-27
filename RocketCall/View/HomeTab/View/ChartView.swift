@@ -10,13 +10,14 @@ import Charts
 import Combine
 
 class WeeklyData: ObservableObject {
+    // 차트에서 사용할 데이터소스 타입
     struct WeeklyResult: Identifiable {
-        let id: Int
+        let id: Int // WeekDay rawValue로 사용
         let weekDay: String
         let studyTime: Int
     }
     
-    @Published var weeklyResult: [WeeklyResult] = []
+    @Published var weeklyResult: [WeeklyResult] = [] // 변화 시 차트뷰에 자동으로 알림
     
     // weeklyResult 업데이트용 외부 호출 함수
     func newValue(_ rawData: [Int: Int]) {
@@ -47,7 +48,7 @@ class WeeklyData: ObservableObject {
 }
 
 struct ChartView: View {
-    @ObservedObject var data: WeeklyData
+    @ObservedObject var data: WeeklyData // data(WeeklyData)에 변화가 있을 시 자동으로 뷰 갱신
         
     var body: some View {
         Chart {
