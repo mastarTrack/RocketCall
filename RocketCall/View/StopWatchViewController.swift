@@ -37,6 +37,7 @@ class StopWatchViewController: UIViewController {
     //MARK: - Init
     override func viewDidLoad() {
         super.viewDidLoad()
+        //description = "스톱워치 기능으로 원하는 시간까지 카운트하세요."
         view.backgroundColor = .background
         configureUI()
         bind()
@@ -46,32 +47,32 @@ class StopWatchViewController: UIViewController {
 //MARK: - Binding
 extension StopWatchViewController {
     func bind() {
-        
         // View Action Setting
         // 시작/일시정지 버튼 탭 이벤트 설정
         let startPause = stopWatchHeaderView.startButton.rx.tap
-            .map { [weak self] _ -> StopWatchViewModel.State in
-                guard let self else { return .pause }
+            .do(onNext: { [weak self] _ in
+                guard let self = self else { return }
+                // UI 상태를 직접 변경
                 self.stopWatchHeaderView.startButton.isSelected.toggle()
                 if self.stopWatchHeaderView.startButton.isSelected {
-                    if !self.stopWatchHeaderView.recordButton.isEnabled {
-                        self.stopWatchHeaderView.recordButton.isEnabled = true
-                    }
-                    return .run
+                    self.stopWatchHeaderView.recordButton.isEnabled = true
+                } else {
+                    self.stopWatchHeaderView.recordButton.isEnabled = false
                 }
-                else {
-                    if self.stopWatchHeaderView.recordButton.isEnabled {
-                        self.stopWatchHeaderView.recordButton.isEnabled = false
-                    }
-                    return .pause
-                }
+            })
+            .map { [weak self] _ -> StopWatchViewModel.State in
+                guard let self = self else { return .pause }
+                return self.stopWatchHeaderView.startButton.isSelected ? .run : .pause
             }
+            .share()
+        
         // 리셋 버튼 탭 이벤트 설정
         let reset = stopWatchHeaderView.resetButton.rx.tap
-            .map {[weak self] _ -> StopWatchViewModel.State in
-                guard let self else { return .reset }
+            .do(onNext: {
                 self.stopWatchHeaderView.startButton.isSelected = false
                 self.stopWatchHeaderView.recordButton.isEnabled = false
+            })
+            .map { _ -> StopWatchViewModel.State in
                 return  .reset
             }
         

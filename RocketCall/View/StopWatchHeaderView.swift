@@ -15,9 +15,6 @@ import Then
 /// 스탑워치 상단 타이머 관련 뷰
 class StopWatchHeaderView: UIView {
     
-    //MARK: - Properties
-    private let disposeBag = DisposeBag()
-    
     //MARK: - Components
     /// 타이머 원형 뷰
     private let mainCircleView = UIView().then {
