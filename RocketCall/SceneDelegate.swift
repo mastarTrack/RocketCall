@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import RxRelay
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
