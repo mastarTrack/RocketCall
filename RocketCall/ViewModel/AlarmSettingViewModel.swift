@@ -43,17 +43,26 @@ final class AlarmSettingViewModel: ViewModelProtocol {
                 
         // MARK: 스트림
         // 시간 스트림 (Date -> 시, 분)
+        
+        // 기존 알람 있으면 그 시간으로, 없으면 현 시간
+        let initialHour = existingAlarm?.hour ?? Calendar.current.component(.hour, from: Date())
+        let initialMinute = existingAlarm?.minute ?? Calendar.current.component(.minute, from: Date())
+        
         let timeStream = input.timeSelected
+            .skip(1)    // 현재시간 무시
             .map { date -> (Int, Int) in
                 let calendar = Calendar.current
                 return (calendar.component(.hour, from: date), calendar.component(.minute, from: date))
             }
-            .startWith((existingAlarm?.hour ?? 0, existingAlarm?.minute ?? 0))
-        
+            .startWith((initialHour, initialMinute))
+                
         // 타이틀 스트림
+        let initialTitle = existingAlarm?.title ?? ""
+
         let titleStream = input.titleText
+            .skip(1)
             .map { $0 ?? "" }
-            .startWith(existingAlarm?.title ?? "")
+            .startWith(initialTitle)
         
         // 요일 스트림
         let initialDays = Set<Int>(existingAlarm?.repeatDays ?? [])
@@ -78,7 +87,6 @@ final class AlarmSettingViewModel: ViewModelProtocol {
             .bind(with: self) { owner, data in
                 let (time, title, days) = data // 묶여온 데이터 풀기
                 let (hour, minute) = time
-                
                 let isRepeat = !days.isEmpty
                 let finalTitle = title.isEmpty ? "알람" : title
                 
@@ -90,16 +98,35 @@ final class AlarmSettingViewModel: ViewModelProtocol {
                     minute: minute,
                     isRepeat: isRepeat,
                     repeatDays: Array(days).sorted(),
-                    isOn: owner.existingAlarm?.isOn ?? true
+                    isOn: true // 저장하면 무조건 on
                 )
                 
-                // 코어데이터 저장
+                // 알람 에약에 쓸 모델
+                let alarmForNoti = Alarm(
+                    id: payload.id,
+                    hour: payload.hour,
+                    minute: payload.minute,
+                    title: payload.title,
+                    repeatDays: payload.repeatDays.compactMap { WeekDay(rawValue: $0) },
+                    isOn: payload.isOn
+                )
+                
+                // 코어데이터 저장 및 알람 예약
                 do {
-                    if owner.existingAlarm != nil {
+                    if let oldPayload = owner.existingAlarm {
                         try owner.coreDataManager.updateAlarmEntity(of: payload)
+                        
+                        // 기존 알람 예약 취소
+                        let oldAlarm = Alarm(id: oldPayload.id, hour: oldPayload.hour, minute: oldPayload.minute, title: oldPayload.title, repeatDays: oldPayload.repeatDays.compactMap { WeekDay(rawValue: $0) }, isOn: oldPayload.isOn
+                        )
+                        NotificationManager.shared.cancelAlarm(oldAlarm.id)
                     } else {
                         try owner.coreDataManager.createAlarmEntity(alarm: payload)
                     }
+                    
+                    // 알람 예약하기
+                    NotificationManager.shared.addAlarm(alarmForNoti)
+
                     saveSuccess.accept(()) // 성공 트리거 발사
                 } catch {
                     print("저장 실패: \(error)")
