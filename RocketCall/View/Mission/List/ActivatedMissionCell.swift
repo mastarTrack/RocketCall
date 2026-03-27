@@ -124,9 +124,9 @@ extension ActivatedMissionCell {
         titleLabel.text = mission.mission.title
         
         let minutes = mission.remainingTime / 60
-        let sescond = mission.remainingTime % 60
+        let second = mission.remainingTime % 60
         
-        timeLabel.text = String(format: "%02d:%02d", minutes, sescond)
+        timeLabel.text = String(format: "%02d:%02d", minutes, second)
         
         let image = mission.isPaused ? UIImage(systemName: "play") : UIImage(systemName: "pause")
         let title = mission.isPaused ? "재개" : "일시정지"
