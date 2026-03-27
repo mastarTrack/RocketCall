@@ -31,7 +31,8 @@ class MissionViewController: UIViewController {
     private let stopMissionSubject = PublishSubject<UUID>()
     
     private lazy var dataSource: UICollectionViewDiffableDataSource<MissionSection, MissionItem> = {
-        let dataSource = UICollectionViewDiffableDataSource<MissionSection, MissionItem>(collectionView: mainView.collectionView) { collectionView, indexPath, itemIdentifier in
+        let dataSource = UICollectionViewDiffableDataSource<MissionSection, MissionItem>(collectionView: mainView.collectionView) {[weak self] collectionView, indexPath, itemIdentifier in
+            guard let self else { return UICollectionViewCell() }
             switch itemIdentifier {
             case .activatedMission(let mission):
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ActivatedMissionCell.id, for: indexPath) as? ActivatedMissionCell else { return UICollectionViewCell() }
