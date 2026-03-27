@@ -17,16 +17,17 @@ final class HomeViewModel: ViewModelProtocol {
     struct Output {
         let alarm: Observable<Result<Alarm?, Error>> // (alarm: 알람, isExist: 존재 여부)
         let total: Observable<Result<TotalResult, Error>>
-//        let error: PublishSubject<Error>
     }
     
     //MARK: 속성 선언
     let coreDataManager: CoreDataManager
     let disposeBag = DisposeBag()
+    private(set) var weeklyData: WeeklyData // ChartView 바인딩용
     
     //MARK: init
     init(coreDataManager: CoreDataManager) {
         self.coreDataManager = coreDataManager
+        self.weeklyData = WeeklyData()
     }
     
     func transform(_ input: Input) -> Output {
@@ -170,7 +171,7 @@ extension HomeViewModel {
         var streak: Int // 미션 연속 성공 일수
         var target: TargetPlanet? // 다음 목표 행성
         
-        var weeklyResult: [Int: Int] // 주간 기록
+//        var weeklyResult: [Int: Int] // 주간 기록
     }
     
     private func fetchTotalResult() -> Observable<TotalResult> {
@@ -180,21 +181,24 @@ extension HomeViewModel {
                 let results = try self.coreDataManager.fetchAllMissionResult()
                 
                 if results.isEmpty {
-                    let total = TotalResult(complete: 0, totalTime: 0, streak: 0, target: TargetPlanet.moon, weeklyResult: [:])
+                    let total = TotalResult(complete: 0, totalTime: 0, streak: 0, target: TargetPlanet.moon,
+//                                            weeklyResult: [:]
+                    )
                     observer.onNext(total)
                     observer.onCompleted()
                 } else {
                     let calculation = calculateTotal(of: results)
                     let targetPlanet = TargetPlanet.allCases.filter { ($0.rawValue * 60) >= calculation.totalTime }.first
                     
-                    let weeklyResult = calculateWeeklyTotal(of: results)
+                    let rawData = calculateWeeklyTotal(of: results)
+                    self.weeklyData.newValue(rawData)
                     
                     let total = TotalResult(
                         complete: calculation.complete,
                         totalTime: calculation.totalTime,
                         streak: calculation.streak,
                         target: targetPlanet,
-                        weeklyResult: weeklyResult
+//                        weeklyResult: weeklyResult
                     )
                     
                     observer.onNext(total)

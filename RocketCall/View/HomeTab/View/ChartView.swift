@@ -7,33 +7,53 @@
 
 import SwiftUI
 import Charts
+import Combine
 
-struct ChartView: View {
-    
+class WeeklyData: ObservableObject {
     struct WeeklyResult: Identifiable {
         let id: Int
         let weekDay: String
         let studyTime: Int
     }
-        
-    // 목업 데이터
-    func missionResult() -> [WeeklyResult] {
-        let weeklyResults: [WeeklyResult] = [
-            WeeklyResult(id: 0, weekDay: "월", studyTime: 150),
-            WeeklyResult(id: 1, weekDay: "화", studyTime: 120),
-            WeeklyResult(id: 2, weekDay: "수", studyTime: 45),
-            WeeklyResult(id: 3, weekDay: "목", studyTime: 150),
-            WeeklyResult(id: 4, weekDay: "금", studyTime: 1000),
-            WeeklyResult(id: 5, weekDay: "토", studyTime: 30),
-            WeeklyResult(id: 6, weekDay: "일", studyTime: 90)
-        ]
-        
-        return weeklyResults
+    
+    @Published var weeklyResult: [WeeklyResult] = []
+    
+//    init(rawData: [Int: Int]) {
+//        self.weeklyResult = convertToWeeklyResult(from: rawData)
+//    }
+    
+    func newValue(_ rawData: [Int: Int]) {
+        weeklyResult = convertToWeeklyResult(from: rawData)
     }
     
+    private func convertToWeeklyResult(from rawData: [Int: Int]) -> [WeeklyResult] {
+        let sorted = rawData.sorted(by: { $0.key < $1.key })
+        
+        var results = Array(repeating: 0, count: 7)
+        
+        for data in sorted {
+            results[data.key] = data.value
+        }
+        
+        return results.enumerated().reduce(into: [WeeklyResult]()) {
+            guard let weekday = WeekDay(rawValue: $1.offset) else { return }
+            
+            $0.append(
+                WeeklyResult(
+                id: weekday.rawValue,
+                weekDay: weekday.koreanName,
+                studyTime: $1.element
+            ))
+        }
+    }
+}
+
+struct ChartView: View {
+    @ObservedObject var data: WeeklyData
+        
     var body: some View {
         Chart {
-            ForEach(missionResult()) { result in
+            ForEach(data.weeklyResult) { result in
                 BarMark( // 바 마크 생성
                     x: .value("요일", result.weekDay),
                     y: .value("집중 시간", result.studyTime),
