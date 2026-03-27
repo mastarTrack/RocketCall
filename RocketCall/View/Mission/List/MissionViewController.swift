@@ -32,10 +32,10 @@ class MissionViewController: UIViewController {
     
     private lazy var dataSource: UICollectionViewDiffableDataSource<MissionSection, MissionItem> = {
         let dataSource = UICollectionViewDiffableDataSource<MissionSection, MissionItem>(collectionView: mainView.collectionView) {[weak self] collectionView, indexPath, itemIdentifier in
-            guard let self else { return UICollectionViewCell() }
+            guard let self else { fatalError("Error: self is nil") }
             switch itemIdentifier {
             case .activatedMission(let mission):
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ActivatedMissionCell.id, for: indexPath) as? ActivatedMissionCell else { return UICollectionViewCell() }
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ActivatedMissionCell.id, for: indexPath) as? ActivatedMissionCell else { fatalError("ActivatedMissionCell dequeueReusableCell error") }
                 cell.config(mission: mission)
                 cell.pauseResumeButtonTapped
                     .map { mission.id }
@@ -48,7 +48,7 @@ class MissionViewController: UIViewController {
                 return cell
                 
             case .customMission(let mission):
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomMissionCell.id, for: indexPath) as? CustomMissionCell else { return UICollectionViewCell() }
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomMissionCell.id, for: indexPath) as? CustomMissionCell else { fatalError("CustomMissionCell dequeueReusableCell error") }
                 let mission = mission
                 cell.config(mission: mission)
                 cell.startButtonTapped
@@ -60,7 +60,7 @@ class MissionViewController: UIViewController {
         }
         dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
             guard let sectionType = self.dataSource.sectionIdentifier(for: indexPath.section) else { return UICollectionReusableView() }
-            guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: MissionHeaderView.id, for: indexPath) as? MissionHeaderView else { return UICollectionReusableView() }
+            guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: MissionHeaderView.id, for: indexPath) as? MissionHeaderView else { fatalError("MissionHeaderView dequeueReusableSupplementaryView error")}
             header.config(title: sectionType.title)
             return header
         }
