@@ -87,15 +87,27 @@ extension HomeMainViewController {
             .disposed(by: disposeBag)
         
         // 알람 카드 뷰 제스처
-        let tapGesture = UITapGestureRecognizer()
-        homeMainView.alarmCardView.addGestureRecognizer(tapGesture) // 제스처 추가
+        let alarmCardTapGesture = UITapGestureRecognizer()
+        homeMainView.alarmCardView.addGestureRecognizer(alarmCardTapGesture) // 제스처 추가
         
-        tapGesture.rx.event // 탭 이벤트
+        alarmCardTapGesture.rx.event // 탭 이벤트
             .debounce(.milliseconds(500), scheduler: MainScheduler.instance)
             .map { _ in }
             .subscribe(onNext: { [weak self] in
                 self?.mainController.selectedIndex = 1 // 이벤트가 들어오면 tabBarController의 선택된 인덱스를 알람탭으로 변경
                 
+            })
+            .disposed(by: disposeBag)
+        
+        // 차트 뷰 제스처
+        let chartTapGesture = UITapGestureRecognizer()
+        homeMainView.chartBaseCardView.addGestureRecognizer(chartTapGesture) // 제스처 추가
+        
+        chartTapGesture.rx.event // 탭 이벤트
+            .debounce(.milliseconds(500), scheduler: MainScheduler.instance)
+            .map { _ in }
+            .subscribe(onNext: { [weak self] in
+                self?.navigationController?.pushViewController(HomeDetailViewController(), animated: true)
             })
             .disposed(by: disposeBag)
     }
