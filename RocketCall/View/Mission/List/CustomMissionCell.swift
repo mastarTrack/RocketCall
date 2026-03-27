@@ -7,10 +7,14 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class CustomMissionCell: UICollectionViewCell {
     
     static let id = "CustomMissionCell"
+    
+    var disposeBag = DisposeBag()
     
     private let containerView = BaseCardView()
     
@@ -22,11 +26,17 @@ class CustomMissionCell: UICollectionViewCell {
     private let rightStackView = UIStackView()
     private let timeLabel = UILabel()
     private let startButton = CircleButton(size: 50, backgroundColor: .mainPoint.withAlphaComponent(0.2), image: UIImage(systemName: "play"), tintColor: .mainPoint)
+    var startButtonTapped: Observable<Void> { startButton.rx.tap.asObservable() }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setAttributes()
         setLayout()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        disposeBag = DisposeBag() // 이전 구독 해제 후 새로운 구독 추가 -> reuse 방지
     }
     
     required init?(coder: NSCoder) {
@@ -87,11 +97,19 @@ extension CustomMissionCell {
 }
 
 extension CustomMissionCell {
-    func config(title: String, subtitle: String, cycle: String, time: String) {
-        titleLabel.text = title
-        subtitleLabel.text = subtitle
-        cycleLabel.text = cycle
-        timeLabel.text = time
+    func config(mission: MissionPayload) {
+        titleLabel.text = mission.title
+        subtitleLabel.text = "\(mission.concentrateTime)분 집중 / \(mission.breakTime)분 휴식"
+        cycleLabel.text = "\(mission.cycle)사이클"
+        
+        let hour = (mission.concentrateTime + mission.breakTime) * mission.cycle / 60
+        let minute = (mission.concentrateTime + mission.breakTime) * mission.cycle % 60
+        
+        // 필요한가?
+        if hour > 0 {
+            timeLabel.text = "\(hour)h \(minute)m"
+        } else {
+            timeLabel.text = "\(minute)m"
+        }
     }
 }
-

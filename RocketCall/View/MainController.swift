@@ -9,6 +9,7 @@ import SnapKit
 
 class MainController: UITabBarController {
     let coreDataManager = CoreDataManager()
+    lazy var timerViewModel = TimerViewModel(coreDataManager: coreDataManager)
     
     override var childForStatusBarStyle: UIViewController? {
         selectedViewController
@@ -23,10 +24,10 @@ class MainController: UITabBarController {
 }
 
 extension MainController {
-    private func configure() {
+    private func configure()
         let firstVC = CustomNavigationController(rootViewController: HomeMainViewController(mainController: self, viewModel: HomeViewModel(coreDataManager: coreDataManager)))
         let secondVC = CustomNavigationController(rootViewController: AlarmListViewController(coreDataManager: coreDataManager))
-        let thirdVC = CustomNavigationController(rootViewController: MissionViewController(coreDataManager: coreDataManager))
+        let thirdVC = UINavigationController(rootViewController: MissionViewController(coreDataManager: coreDataManager, timerViewModel: timerViewModel))
         let fourthVC = CustomNavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
         
         firstVC.tabBarItem = UITabBarItem(title: "홈", image: UIImage(systemName: "house"), tag: 0)

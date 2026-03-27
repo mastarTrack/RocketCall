@@ -7,15 +7,18 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class ActivatedMissionCell: UICollectionViewCell {
     
     static let id = "ActivatedMissionCell"
     
+    var disposeBag = DisposeBag()
     
     private let containerView = BaseCardView()
     
-    private let stateLabel = StateLabel(text: "1/4 사이클", config: .success) //수정 필요
+    private let stateLabel = StateLabel(text: "", config: .success)
     private let titleLabel = UILabel()
     private let timeLabel = UILabel()
     
@@ -23,13 +26,20 @@ class ActivatedMissionCell: UICollectionViewCell {
 //    private let progressBar = UIProgressView()
     
     private let buttonStackView = UIStackView()
-    private let startButton = RectangleButton(title: "발사",image: UIImage(systemName: "play"), backgroundColor: .mainPoint.withAlphaComponent(0.2), tintColor: .mainPoint)
-    private let resetButton = RectangleButton(image: UIImage(systemName: "arrow.trianglehead.counterclockwise.rotate.90"), backgroundColor: .mainLabel.withAlphaComponent(0.1), tintColor: .mainLabel)
+    private let startButton = RectangleButton(image: UIImage(systemName: ""), backgroundColor: .mainPoint.withAlphaComponent(0.2), tintColor: .mainPoint)
+    var pauseResumeButtonTapped: Observable<Void> { startButton.rx.tap.asObservable() }
+    private let stopButton = RectangleButton(image: UIImage(systemName: "stop"), backgroundColor: .mainLabel.withAlphaComponent(0.1), tintColor: .mainLabel)
+    var stopButtonTapped: Observable<Void> { stopButton.rx.tap.asObservable() }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setAttributes()
         setLayout()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        disposeBag = DisposeBag()
     }
     
     required init?(coder: NSCoder) {
@@ -58,16 +68,16 @@ extension ActivatedMissionCell {
         startConfig?.background.strokeWidth = 1
         startButton.configuration = startConfig
         
-        var resetConfig = resetButton.configuration
+        var resetConfig = stopButton.configuration
         resetConfig?.background.strokeColor = .white
         resetConfig?.background.strokeWidth = 1
-        resetButton.configuration = resetConfig
+        stopButton.configuration = resetConfig
         
     }
     private func setLayout() {
         contentView.addSubview(containerView)
         
-        [startButton, resetButton].forEach { buttonStackView.addArrangedSubview($0) }
+        [startButton, stopButton].forEach { buttonStackView.addArrangedSubview($0) }
         [stateLabel, titleLabel, timeLabel, buttonStackView].forEach { containerView.addSubview($0) }
         
         containerView.snp.makeConstraints {
@@ -96,11 +106,11 @@ extension ActivatedMissionCell {
         }
         
         startButton.snp.makeConstraints {
-            $0.width.equalTo(resetButton).multipliedBy(5)
-            $0.height.equalTo(resetButton.snp.height)
+            $0.width.equalTo(stopButton).multipliedBy(5)
+            $0.height.equalTo(stopButton.snp.height)
         }
-        resetButton.snp.makeConstraints {
-            $0.height.equalTo(resetButton.snp.width)
+        stopButton.snp.makeConstraints {
+            $0.height.equalTo(stopButton.snp.width)
         }
         
     }
@@ -108,9 +118,22 @@ extension ActivatedMissionCell {
 
 // 나중에 모델로 통합
 extension ActivatedMissionCell {
-    func config(cycleText: String, title: String, time: String) {
-        stateLabel.text = cycleText
-        titleLabel.text = title
-        timeLabel.text = time
+    func config(mission: ActivatedMissionPayload) {
+        let state = mission.isConcentrating ? "집중" : "휴식"
+        stateLabel.text = "\(mission.currentCycle)/\(mission.mission.cycle) 사이클 · \(state)"
+        titleLabel.text = mission.mission.title
+        
+        let minutes = mission.remainingTime / 60
+        let second = mission.remainingTime % 60
+        
+        timeLabel.text = String(format: "%02d:%02d", minutes, second)
+        
+        let image = mission.isPaused ? UIImage(systemName: "play") : UIImage(systemName: "pause")
+        let title = mission.isPaused ? "재개" : "일시정지"
+        var config = startButton.configuration
+        config?.image = image
+        config?.title = title
+        config?.imagePadding = 10
+        startButton.configuration = config
     }
 }
