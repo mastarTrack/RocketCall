@@ -218,14 +218,14 @@ class TimerViewModel: ViewModelProtocol {
                             // 미션 완료 알림
                             content.body = "미션 완료!"
                             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeOffset), repeats: false)
-                            let request = UNNotificationRequest(identifier: "\(mission.id)-complete", content: content, trigger: trigger)
+                            let request = UNNotificationRequest(identifier: "timer-\(mission.id)-complete", content: content, trigger: trigger)
                             UNUserNotificationCenter.current().add(request)
                             break
                         }
                         // 휴식없이 다음 사이클
                         content.body = "\(currentCycle) 사이클 집중 완료! 다음 사이클을 시작합니다."
                         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeOffset), repeats: false)
-                        let request = UNNotificationRequest(identifier: "\(mission.id)-\(currentCycle)-concentrate", content: content, trigger: trigger)
+                        let request = UNNotificationRequest(identifier: "timer-\(mission.id)-\(currentCycle)-concentrate", content: content, trigger: trigger)
                         UNUserNotificationCenter.current().add(request)
                         currentCycle += 1
                         timeOffset += mission.mission.concentrateTime * 60
@@ -233,7 +233,7 @@ class TimerViewModel: ViewModelProtocol {
                         // 집중 완료 → 휴식 시작 알림
                         content.body = "\(currentCycle) 사이클 집중 완료! 휴식 시간입니다."
                         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeOffset), repeats: false)
-                        let request = UNNotificationRequest(identifier: "\(mission.id)-\(currentCycle)-concentrate", content: content, trigger: trigger)
+                        let request = UNNotificationRequest(identifier: "timer-\(mission.id)-\(currentCycle)-concentrate", content: content, trigger: trigger)
                         UNUserNotificationCenter.current().add(request)
                         isConcentrating = false
                         timeOffset += mission.mission.breakTime * 60
@@ -243,14 +243,14 @@ class TimerViewModel: ViewModelProtocol {
                         // 미션 완료 알림
                         content.body = "미션 완료!"
                         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeOffset), repeats: false)
-                        let request = UNNotificationRequest(identifier: "\(mission.id)-complete", content: content, trigger: trigger)
+                        let request = UNNotificationRequest(identifier: "timer-\(mission.id)-complete", content: content, trigger: trigger)
                         UNUserNotificationCenter.current().add(request)
                         break
                     }
                     // 휴식 완료 → 다음 사이클 알림
                     content.body = "\(currentCycle) 사이클 휴식 완료! 집중 시간입니다."
                     let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeOffset), repeats: false)
-                    let request = UNNotificationRequest(identifier: "\(mission.id)-\(currentCycle)-rest", content: content, trigger: trigger)
+                    let request = UNNotificationRequest(identifier: "timer-\(mission.id)-\(currentCycle)-rest", content: content, trigger: trigger)
                     UNUserNotificationCenter.current().add(request)
                     currentCycle += 1
                     isConcentrating = true
