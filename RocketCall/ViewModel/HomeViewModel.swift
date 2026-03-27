@@ -154,34 +154,7 @@ extension HomeViewModel {
 }
 
 //MARK: Total 기록
-extension HomeViewModel {
-    // 목표 행성
-    enum TargetPlanet: Int, CaseIterable {
-        case moon = 2 // 시간 기준! 달은 2시간
-        case mars = 10 // 10시간
-        case venus = 25 // ...
-        case mercury = 55
-        case sun = 100
-        case jupiter = 250
-        case saturn = 500
-        case uranus = 1000
-        case neptune = 2000
-        
-        var title: String {
-            switch self {
-            case .moon: "달"
-            case .mars: "화성"
-            case .venus: "금성"
-            case .mercury: "수성"
-            case .sun: "태양"
-            case .jupiter: "목성"
-            case .saturn: "토성"
-            case .uranus: "천왕성"
-            case .neptune: "해왕성"
-            }
-        }
-    }
-    
+extension HomeViewModel {    
     struct TotalResult {
         var complete: Int // 누적 완료 미션 횟수
         var totalTime: Int // 누적 집중 시간 (분)
@@ -205,7 +178,7 @@ extension HomeViewModel {
                     observer.onCompleted()
                 } else {
                     let calculation = calculateTotal(of: results)
-                    let targetPlanet = TargetPlanet.allCases.filter { ($0.rawValue * 60) >= calculation.totalTime }.first
+                    let targetPlanet = TargetPlanet.allCases.filter { ($0.targetTime * 60) >= calculation.totalTime }.first
                     let rawData = calculateWeeklyTotal(of: results)
                     
                     let total = TotalResult(
