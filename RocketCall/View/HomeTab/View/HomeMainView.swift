@@ -14,23 +14,27 @@ final class HomeMainView: UIView {
     //MARK: set attributes
     private let titleView = TitleView(title: "항행일지", subTitle: "우주 탐사 대시보드", hasButton: false)
     
-    private let alarmCardTitle = UILabel(text: "다가오는 알람", config: .homeViewHeader)
-    private let alarmCardView = AlarmCardView()
+    private let alarmCardTitle = UILabel(text: "다가오는 알람", config: LabelConfiguration.homeViewHeader)
+    let alarmCardView = AlarmCardView()
     
-    private let chartBaseCardView = BaseCardView().then {
-        $0.isOn = true
-    }
+    private let chartBaseCardView = BaseCardView()
     
     // SwiftUI로 생성된 ChartView를 UIKit에서 사용하기 위한 HostingController
-    let chartHostingController = UIHostingController(rootView: ChartView()).then {
-        $0.view.backgroundColor = .clear
-        
-        $0.sizingOptions = .intrinsicContentSize
-        $0.view.setContentHuggingPriority(UILayoutPriority(249), for: .vertical)
-    }
+    private(set) var chartHostingController: UIHostingController<ChartView>
     
-    init() {
+    let totalTimeCardView = SmallCardView(type: .totalTime)
+    let missionCardView = SmallCardView(type: .totalCount)
+    
+    init(data: WeeklyData) {
+        let chartView = ChartView(data: data)
+        self.chartHostingController = UIHostingController(rootView: chartView).then {
+            $0.view.backgroundColor = .clear
+            
+            $0.sizingOptions = .intrinsicContentSize
+            $0.view.setContentHuggingPriority(UILayoutPriority(1), for: .vertical)
+        }
         super.init(frame: .zero)
+        
         backgroundColor = .background
         setLayout()
     }
@@ -41,7 +45,11 @@ final class HomeMainView: UIView {
     
     private func setLayout() {
         let chartViewTitle = generateChartTitleStack()
-        let smallCardStackView = generateSmallCardStack()
+        let smallCardStackView = UIStackView(arrangedSubviews: [totalTimeCardView, missionCardView]).then {
+            $0.axis = .horizontal
+            $0.spacing = 8
+            $0.distribution = .fillEqually
+        }
         
         addSubview(titleView)
         
@@ -114,16 +122,5 @@ extension HomeMainView {
         }
         
         return stackView
-    }
-    
-    private func generateSmallCardStack() -> UIStackView {
-        let totalTimeCardView = SmallCardView(type: .totalTime)
-        let missionCardView = SmallCardView(type: .totalCount)
-        
-        return UIStackView(arrangedSubviews: [totalTimeCardView, missionCardView]).then {
-            $0.axis = .horizontal
-            $0.spacing = 8
-            $0.distribution = .fillEqually
-        }
     }
 }

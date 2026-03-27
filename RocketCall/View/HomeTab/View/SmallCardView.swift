@@ -54,8 +54,8 @@ class SmallCardView: BaseCardView {
     }
     
     //MARK: set Attributes
-    let valueLabel = UILabel(text: "5시간", config: .homeViewHeader)
-    let detailLabel = UILabel(text: "300분", config: .subTitle)
+    let valueLabel = UILabel(text: "", config: .homeViewHeader)
+    let detailLabel = UILabel(text: "완료", config: .subTitle)
     
     convenience init(type: CardCategory) {
         self.init(frame: .zero)
