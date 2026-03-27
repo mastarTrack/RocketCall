@@ -49,7 +49,6 @@ class MissionViewController: UIViewController {
                 
             case .customMission(let mission):
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomMissionCell.id, for: indexPath) as? CustomMissionCell else { fatalError("CustomMissionCell dequeueReusableCell error") }
-                let mission = mission
                 cell.config(mission: mission)
                 cell.startButtonTapped
                     .map { mission }
