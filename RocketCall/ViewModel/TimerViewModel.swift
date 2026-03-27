@@ -16,6 +16,7 @@ class TimerViewModel: ViewModelProtocol {
     private let coreDataManager: CoreDataManager
     private let activatedMissionRelay = BehaviorRelay<[ActivatedMissionPayload]>(value: [])
     private let errorSubject = PublishSubject<CoreDataManager.CoreDataError>()
+    private let missionResultSubject = PublishSubject<UUID>()
     
     var backgroundEnterTime: Date?
     
@@ -32,6 +33,7 @@ class TimerViewModel: ViewModelProtocol {
     struct Output {
         let activatedMissions: Observable<([ActivatedMissionPayload], Bool)>
         let error: Observable<CoreDataManager.CoreDataError>
+        let missionResult: Observable<UUID>
     }
     
     func transform(_ input: Input) -> Output {
@@ -111,7 +113,8 @@ class TimerViewModel: ViewModelProtocol {
         
         return Output(
             activatedMissions: Observable.merge(activatedMissions, timerUpdate),
-            error: errorSubject.asObservable()
+            error: errorSubject.asObservable(),
+            missionResult: missionResultSubject.asObservable()
         )
     }
     
@@ -162,6 +165,7 @@ class TimerViewModel: ViewModelProtocol {
         )
         do {
             try coreDataManager.createMissionResultEntity(result: result)
+            missionResultSubject.onNext(result.id)
             print("저장 완료, 공부 시간 :\(result.studyTime)")
         } catch {
             if let coreDataError = error as? CoreDataManager.CoreDataError {
