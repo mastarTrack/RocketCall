@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24411" systemVersion="25C56" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24512" systemVersion="25D2128" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="AlarmEntity" representedClassName="AlarmEntity" syncable="YES">
         <attribute name="hour" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isOn" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isRepeat" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="minute" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="repeatDays" attributeType="String" valueTransformerName="" customClassName="[Int]"/>

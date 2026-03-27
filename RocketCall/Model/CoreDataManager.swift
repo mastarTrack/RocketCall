@@ -71,6 +71,7 @@ extension CoreDataManager {
             $0.isEmpty ? "\(String($1))"
             : "\(String($0))" + ",\(String($1))"
         }
+        newEntity.isOn = alarm.isOn
         
         do {
             try context.save()
@@ -139,7 +140,8 @@ extension CoreDataManager {
             hour: Int(entity.hour),
             minute: Int(entity.minute),
             isRepeat: entity.isRepeat,
-            repeatDays: repeatDays
+            repeatDays: repeatDays,
+            isOn: entity.isOn
         )
     }
     
@@ -161,7 +163,8 @@ extension CoreDataManager {
                     hour: Int(entity.hour),
                     minute: Int(entity.minute),
                     isRepeat: entity.isRepeat,
-                    repeatDays: repeatDays
+                    repeatDays: repeatDays,
+                    isOn: entity.isOn
                 )
             }
         } catch {
@@ -260,6 +263,7 @@ extension CoreDataManager {
             $0.isEmpty ? "\(String($1))"
             : "\(String($0))" + ",\(String($1))"
         }
+        entity.isOn = payload.isOn
         
         do {
             try context.save()

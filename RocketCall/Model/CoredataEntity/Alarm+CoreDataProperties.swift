@@ -24,6 +24,7 @@ extension AlarmEntity {
     @NSManaged var minute: Int16
     @NSManaged var isRepeat: Bool
     @NSManaged var repeatDays: String
+    @NSManaged var isOn: Bool
 
 }
 

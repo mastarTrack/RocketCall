@@ -9,10 +9,12 @@ import UIKit
 import SnapKit
 import Then
 
+
 final class AlarmListViewCell: UICollectionViewCell {
     
-    
     static let identifier = "AlarmListViewCell"
+    var onToggleTapped: ((Bool) -> Void)?
+    
     
     // MARK: - UI Components
     private let containerView = BaseCardView()
@@ -34,8 +36,7 @@ final class AlarmListViewCell: UICollectionViewCell {
     private let alarmIcon = UIImageView()
     
     private let titleLabel = UILabel().then {
-        $0.textColor = .mainLabel
-        $0.font = .systemFont(ofSize: 16)
+        $0.apply(.missionLabel)
     }
     
     private let dateStackView = UIStackView().then {
@@ -45,10 +46,23 @@ final class AlarmListViewCell: UICollectionViewCell {
     }
     
     
+    // MARK: - prepareForReuse
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        titleLabel.text = nil
+        timeLabel.text = nil
+        alarmIcon.image = nil
+        onToggleTapped = nil
+        dateStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+    }
+    
+    
     // MARK: - init
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
+        toggle.addTarget(self, action: #selector(toggleChanged), for: .valueChanged)
     }
     
     required init?(coder: NSCoder) { fatalError() }
@@ -64,7 +78,8 @@ final class AlarmListViewCell: UICollectionViewCell {
         
         containerView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.verticalEdges.equalToSuperview().inset(8)
+            $0.verticalEdges.equalToSuperview().inset(6)
+            $0.height.equalTo(184)
         }
         
         timeLabel.snp.makeConstraints {
@@ -90,30 +105,40 @@ final class AlarmListViewCell: UICollectionViewCell {
     
     
     // MARK: - 데이터 입력
-//    func configureAlarmListViewCell(with alarm: Alarm) {
-//        timeLabel.text = String(format: "%02d:%02d", alarm.hour, alarm.minute)
-//        titleLabel.text = alarm.title
-//        
-//        containerView.isOn = alarm.isOn
-//        toggle.isOn = alarm.isOn
-//        alarmIcon.image = alarm.isOn ? UIImage(systemName: "alarm.waves.left.and.right.fill") : UIImage(systemName: "alarm")
-//        alarmIcon.tintColor = alarm.isOn ? .mainPoint : .subLabel
-//        
-//        dateStackView.arrangedSubviews.forEach { $0.removeFromSuperview() } // 셀 재사용 버그 방지
-//        let sortedDays = alarm.repeatDays.sorted { $0.rawValue < $1.rawValue }
-//        
-//        // 7일 모두 선택했을 때
-//        if sortedDays.count == 7 {
-//            let badge = createDateBadge(text: "매일")
-//            dateStackView.addArrangedSubview(badge)
-//            
-//        } else {
-//            for day in sortedDays {
-//                let badge = createDateBadge(text: day.koreanName)
-//                dateStackView.addArrangedSubview(badge)
-//            }
-//        }
-//    }
+    func configureAlarmListViewCell(with alarm: Alarm) {
+        timeLabel.text = String(format: "%02d:%02d", alarm.hour, alarm.minute)
+        titleLabel.text = alarm.title
+        
+        toggle.isOn = alarm.isOn
+        updateUI(isOn: alarm.isOn)
+        
+        dateStackView.arrangedSubviews.forEach { $0.removeFromSuperview() } // 셀 재사용 버그 방지
+        let sortedDays = alarm.repeatDays.sorted { $0.rawValue < $1.rawValue }
+        
+        // 7일 모두 선택했을 때
+        if sortedDays.count == 7 {
+            let badge = createDateBadge(text: "매일")
+            dateStackView.addArrangedSubview(badge)
+            
+        } else {
+            for day in sortedDays {
+                let badge = createDateBadge(text: day.koreanName)
+                dateStackView.addArrangedSubview(badge)
+            }
+        }
+    }
+    
+    private func updateUI(isOn: Bool) {
+        containerView.isOn = isOn
+        alarmIcon.image = isOn ? UIImage(systemName: "alarm.waves.left.and.right.fill") : UIImage(systemName: "alarm")
+        alarmIcon.tintColor = isOn ? .mainPoint : .subLabel
+    }
+    
+    @objc private func toggleChanged() {
+        let isOn = toggle.isOn
+        updateUI(isOn: isOn)
+        onToggleTapped?(isOn)
+    }
     
     
     // MARK: - 뱃지 찍어내는 메서드

@@ -10,6 +10,11 @@ import SnapKit
 class MainController: UITabBarController {
     let coreDataManager = CoreDataManager()
     lazy var timerViewModel = TimerViewModel(coreDataManager: coreDataManager)
+    
+    override var childForStatusBarStyle: UIViewController? {
+        selectedViewController
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
