@@ -11,7 +11,7 @@ import Then
 
 class SmallCardView: BaseCardView {
     //MARK: Category Enum
-    enum CardCategory: String {
+    enum CardCategory: String, Hashable {
         case totalTime = "총 시간"
         case leftTime = "남은 항행 시간"
         case totalCount = "미션"
