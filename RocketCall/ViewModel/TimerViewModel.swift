@@ -121,6 +121,17 @@ class TimerViewModel: ViewModelProtocol {
         guard updated.remainingTime <= 0 else { return updated } // 남은 시간이 있으면 반환
         
         if updated.isConcentrating { // 집중 시간 종료 -> 휴식 시간으로 변경
+            if updated.mission.breakTime == 0 {
+                if updated.currentCycle < updated.mission.cycle { // 집중 시간 -> 집중 시간
+                    updated.currentCycle += 1
+                    updated.remainingTime = updated.mission.concentrateTime * 60
+                    updated.isConcentrating = true
+                    return updated
+                }
+                saveMission(mission: mission, isCompleted: true) // 집중 시간 -> 사이클 종료
+                return nil
+            }
+            
             updated.remainingTime = updated.mission.breakTime * 60
             updated.isConcentrating = false
             return updated
