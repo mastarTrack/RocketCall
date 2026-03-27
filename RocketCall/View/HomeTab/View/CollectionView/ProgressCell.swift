@@ -110,6 +110,11 @@ extension ProgressCell {
 
 extension ProgressCell {
     func configure(target: TargetPlanet) {
+        progressLabel.text = "\(target.title) → \(target.title)"
         
+        startPlanet.image = target.image
+        targetPlanet.image = target.image
+        
+        progressView.setProgress(0.5, animated: true)
     }
 }

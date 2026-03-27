@@ -43,14 +43,19 @@ class GradientProgressView: UIProgressView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        updateBar()
+        updateGradientLayer(progress: self.progress)
     }
 }
 
 extension GradientProgressView {
     // 프로그레스바를 나타내는 gradientLayer의 크기 조정
-    func updateBar() {
+    private func updateGradientLayer(progress: Float) {
         let width = self.bounds.width * CGFloat(progress)
         gradientLayer.frame = CGRect(x: 0, y: 0, width: width, height: self.bounds.height)
+    }
+    
+    override func setProgress(_ progress: Float, animated: Bool) {
+        updateGradientLayer(progress: progress)
+        super.setProgress(progress, animated: animated)
     }
 }

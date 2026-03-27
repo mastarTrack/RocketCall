@@ -62,6 +62,15 @@ extension HomeDetailView {
             }
         }
         
+        let progressCellRegistration = UICollectionView.CellRegistration<ProgressCell, DetailCollectionView.Item> { cell, indexPath, item in
+            switch item {
+            case .progress(let target):
+                cell.configure(target: target)
+            default:
+                break
+            }
+        }
+        
         let resultCellRegistration = UICollectionView.CellRegistration<ResultListCell, DetailCollectionView.Item> { cell, indexPath, item in
             switch item {
             case .result(let payload):
@@ -77,13 +86,27 @@ extension HomeDetailView {
                 return collectionView.dequeueConfiguredReusableCell(using: sumCardCellRegistration, for: indexPath, item: item)
             case .chart:
                 return collectionView.dequeueConfiguredReusableCell(using: chartCellRegistration, for: indexPath, item: item)
+            case .progress:
+                return collectionView.dequeueConfiguredReusableCell(using: progressCellRegistration, for: indexPath, item: item)
             case .result:
                 return collectionView.dequeueConfiguredReusableCell(using: resultCellRegistration, for: indexPath, item: item)
             default:
-                return UICollectionViewCell()
+                fatalError("DetailCollectionView: 유효하지 않은 섹션입니다")
             }
         }
         
         return dataSource
+    }
+    
+    func setSnapshot(with data: [[DetailCollectionView.Item]]) {
+        var snapshot = NSDiffableDataSourceSnapshot<DetailCollectionView.Section, DetailCollectionView.Item>()
+        snapshot.appendSections([.sum, .chart, .progress, .result])
+        
+        snapshot.appendItems(data[DetailCollectionView.Section.sum.rawValue], toSection: .sum)
+        snapshot.appendItems(data[DetailCollectionView.Section.chart.rawValue], toSection: .chart)
+        snapshot.appendItems(data[DetailCollectionView.Section.progress.rawValue], toSection: .progress)
+        snapshot.appendItems(data[DetailCollectionView.Section.result.rawValue], toSection: .result)
+        
+        dataSource.apply(snapshot)
     }
 }
