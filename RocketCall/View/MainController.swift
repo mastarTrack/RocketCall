@@ -24,7 +24,7 @@ class MainController: UITabBarController {
 }
 
 extension MainController {
-    private func configure()
+    private func configure(){
         let firstVC = CustomNavigationController(rootViewController: HomeMainViewController(mainController: self, viewModel: HomeViewModel(coreDataManager: coreDataManager)))
         let secondVC = CustomNavigationController(rootViewController: AlarmListViewController(coreDataManager: coreDataManager))
         let thirdVC = UINavigationController(rootViewController: MissionViewController(coreDataManager: coreDataManager, timerViewModel: timerViewModel))
