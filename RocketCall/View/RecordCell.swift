@@ -59,6 +59,10 @@ extension RecordCell {
             contentView.layer.borderColor = UIColor.mainPoint.cgColor
             contentView.layer.borderWidth = 1
         }
+        else {
+            contentView.backgroundColor = .mainPoint
+            contentView.layer.borderWidth = 0
+        }
     }
 }
 
