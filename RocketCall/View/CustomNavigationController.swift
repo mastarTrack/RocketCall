@@ -11,4 +11,8 @@ final class CustomNavigationController: UINavigationController {
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
+    
+    override var childForStatusBarStyle: UIViewController? {
+        nil
+    }
 }
