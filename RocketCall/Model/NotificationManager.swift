@@ -17,6 +17,8 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     // 알람 울리면 알리기
     let alarmRingingEvent = PublishRelay<(String, UUID)>()
     
+    let timerNotificationTapped = PublishRelay<Void>()
+    
     private override init() {
         super.init()
         UNUserNotificationCenter.current().delegate = self
@@ -143,6 +145,15 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     
     // MARK: - 앱이 꺼져있을때 (백그라운드)
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        
+        // completionHandler는 한번만 호출해야 해서 타이머인지 먼저 확인해야 해요 !
+        let identifier = response.notification.request.identifier
+        if identifier.hasPrefix("timer-") {
+            timerNotificationTapped.accept(())
+            completionHandler()
+            return
+        }
+        
         
         let alarmTitle = response.notification.request.content.body
         let idString = String(response.notification.request.identifier.prefix(36))

@@ -6,10 +6,13 @@
 //
 import UIKit
 import SnapKit
+import RxSwift
 
 class MainController: UITabBarController {
     let coreDataManager = CoreDataManager()
     lazy var timerViewModel = TimerViewModel(coreDataManager: coreDataManager)
+    
+    private let disposeBag = DisposeBag()
     
     override var childForStatusBarStyle: UIViewController? {
         selectedViewController
@@ -20,6 +23,13 @@ class MainController: UITabBarController {
         configure()
         tabBar.tintColor = .mainPoint
         self.view.backgroundColor = .background
+        
+        // 타이머 알림 누르면 MissionViewController로 연결
+        NotificationManager.shared.timerNotificationTapped
+            .subscribe(onNext: { [weak self] in
+                self?.selectedIndex = 2
+            })
+            .disposed(by: disposeBag)
     }
 }
 
