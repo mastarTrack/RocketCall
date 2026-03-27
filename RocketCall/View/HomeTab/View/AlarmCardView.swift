@@ -148,6 +148,6 @@ extension AlarmCardView {
     func configure(alarm: Alarm) {
         repeatDaysLabel.text = alarm.repeatDays.map { $0.koreanName }.joined(separator: " ")
         titleLabel.text = alarm.title
-        timeLabel.text = "\(alarm.hour):\(alarm.minute)"
+        timeLabel.text = String(format: "%02d:%02d", alarm.hour, alarm.minute)
     }
 }
