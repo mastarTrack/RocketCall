@@ -79,7 +79,7 @@ final class AlarmListViewCell: UICollectionViewCell {
         containerView.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.verticalEdges.equalToSuperview().inset(6)
-            $0.height.equalTo(184)
+            $0.height.equalTo(184).priority(999)
         }
         
         timeLabel.snp.makeConstraints {
@@ -168,7 +168,6 @@ final class AlarmListViewCell: UICollectionViewCell {
             }
             $0.height.equalTo(24)
         }
-
         return label
     }
 }

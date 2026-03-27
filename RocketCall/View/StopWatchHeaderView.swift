@@ -8,6 +8,7 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 import SnapKit
 import Then
 
@@ -30,7 +31,7 @@ class StopWatchHeaderView: UIView {
         $0.backgroundColor = .clear
     }
     /// 타이머 라벨
-    private let timerLabel = UILabel(
+    let timerLabel = UILabel(
         text: "00:00.00",
         config: .title
     ).then {
@@ -52,21 +53,24 @@ class StopWatchHeaderView: UIView {
         $0.layer.borderColor = UIColor.darkGray.cgColor
     }
     /// 타이머 시작/일시정지 버튼
-    private let startButton = CircleButton(
+    let startButton = CircleButton(
         size: 64,
         image: UIImage(systemName: "play"),
         tintColor: .mainLabel
-    )
+    ).then {
+        $0.setImage(UIImage(systemName: "pause"), for: .selected)
+    }
     /// 레코드 저장 버튼
-    private let recordButton = CircleButton(
+    let recordButton = CircleButton(
         size: 64,
         image: UIImage(systemName: "flag"),
         tintColor: .mainLabel
     ).then {
         $0.backgroundColor = .cardBackground
+        $0.isEnabled = false
     }
     /// 초기화 버튼
-    private let resetButton = CircleButton(
+    let resetButton = CircleButton(
         size: 64,
         image: UIImage(systemName: "arrow.counterclockwise"),
         tintColor: .mainLabel
@@ -85,7 +89,6 @@ class StopWatchHeaderView: UIView {
         fatalError()
     }
 }
-
 
 //MARK: - Configure UI
 extension StopWatchHeaderView {

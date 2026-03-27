@@ -7,33 +7,52 @@
 
 import SwiftUI
 import Charts
+import Combine
 
-struct ChartView: View {
-    
+class WeeklyData: ObservableObject {
+    // 차트에서 사용할 데이터소스 타입
     struct WeeklyResult: Identifiable {
-        let id: Int
+        let id: Int // WeekDay rawValue로 사용
         let weekDay: String
         let studyTime: Int
     }
-        
-    // 목업 데이터
-    func missionResult() -> [WeeklyResult] {
-        let weeklyResults: [WeeklyResult] = [
-            WeeklyResult(id: 0, weekDay: "월", studyTime: 150),
-            WeeklyResult(id: 1, weekDay: "화", studyTime: 120),
-            WeeklyResult(id: 2, weekDay: "수", studyTime: 45),
-            WeeklyResult(id: 3, weekDay: "목", studyTime: 150),
-            WeeklyResult(id: 4, weekDay: "금", studyTime: 1000),
-            WeeklyResult(id: 5, weekDay: "토", studyTime: 30),
-            WeeklyResult(id: 6, weekDay: "일", studyTime: 90)
-        ]
-        
-        return weeklyResults
+    
+    @Published var weeklyResult: [WeeklyResult] = [] // 변화 시 차트뷰에 자동으로 알림
+    
+    // weeklyResult 업데이트용 외부 호출 함수
+    func newValue(_ rawData: [Int: Int]) {
+        weeklyResult = convertToWeeklyResult(from: rawData)
     }
     
+    // 딕셔너리 -> 차트 사용 데이터로의 변환 베서드
+    private func convertToWeeklyResult(from rawData: [Int: Int]) -> [WeeklyResult] {
+        let sorted = rawData.sorted(by: { $0.key < $1.key })
+        
+        var results = Array(repeating: 0, count: 7)
+        
+        for data in sorted {
+            results[data.key] = data.value
+        }
+        
+        return results.enumerated().reduce(into: [WeeklyResult]()) {
+            guard let weekday = WeekDay(rawValue: $1.offset) else { return }
+            
+            $0.append(
+                WeeklyResult(
+                id: weekday.rawValue,
+                weekDay: weekday.koreanName,
+                studyTime: $1.element
+            ))
+        }
+    }
+}
+
+struct ChartView: View {
+    @ObservedObject var data: WeeklyData // data(WeeklyData)에 변화가 있을 시 자동으로 뷰 갱신
+        
     var body: some View {
         Chart {
-            ForEach(missionResult()) { result in
+            ForEach(data.weeklyResult) { result in
                 BarMark( // 바 마크 생성
                     x: .value("요일", result.weekDay),
                     y: .value("집중 시간", result.studyTime),

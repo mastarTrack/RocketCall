@@ -174,7 +174,21 @@ final class AlarmListViewController: UIViewController {
                 }
             })
             .disposed(by: disposeBag)
+        
+        // 알람 화면 띄우기
+        NotificationManager.shared.alarmRingingEvent
+            .observe(on: MainScheduler.instance)
+            .bind(with: self) { owner, data in
+                let (title, id) = data
+                
+                let ringVC = AlarmRingViewController(title: title, alarmID: id)
+                
+                ringVC.modalPresentationStyle = .fullScreen
+                
+                owner.present(ringVC, animated: true)
+                
+            }
+            .disposed(by: disposeBag)
     }
 }
-
 

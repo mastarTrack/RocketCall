@@ -24,11 +24,11 @@ class MainController: UITabBarController {
 }
 
 extension MainController {
-    private func configure() {
-        let firstVC = UINavigationController(rootViewController: HomeMainViewController())
-        let secondVC = UINavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
+    private func configure()
+        let firstVC = CustomNavigationController(rootViewController: HomeMainViewController(mainController: self, viewModel: HomeViewModel(coreDataManager: coreDataManager)))
+        let secondVC = CustomNavigationController(rootViewController: AlarmListViewController(coreDataManager: coreDataManager))
         let thirdVC = UINavigationController(rootViewController: MissionViewController(coreDataManager: coreDataManager, timerViewModel: timerViewModel))
-        let fourthVC = UINavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
+        let fourthVC = CustomNavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
         
         firstVC.tabBarItem = UITabBarItem(title: "홈", image: UIImage(systemName: "house"), tag: 0)
         secondVC.tabBarItem = UITabBarItem(title: "알람", image: UIImage(systemName: "alarm"), tag: 1)

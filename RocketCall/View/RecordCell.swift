@@ -36,7 +36,9 @@ class RecordCell: UICollectionViewCell {
     //MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .mainPoint
+        backgroundColor = .cardBackground
+        contentView.backgroundColor = .mainPoint
+        contentView.layer.cornerRadius = 16
         configureUI()
     }
     
@@ -45,14 +47,22 @@ class RecordCell: UICollectionViewCell {
     }
 }
 
+//MARK: - Update UI
 extension RecordCell {
-    func setRecord(count: Int, time: String , location: String) {
+    /// Update RecordCell Component Text
+    func updateRecord(count: Int, time: String , location: String, isLive: Bool) {
         countLabel.text = "# \(count)"
         timerLabel.text = time
         locationLabel.text = location
-        backgroundColor = .cardBackground
-        contentView.layer.borderColor = UIColor.mainPoint.cgColor
-        contentView.layer.borderWidth = 1
+        if !isLive {
+            contentView.backgroundColor = .cardBackground
+            contentView.layer.borderColor = UIColor.mainPoint.cgColor
+            contentView.layer.borderWidth = 1
+        }
+        else {
+            contentView.backgroundColor = .mainPoint
+            contentView.layer.borderWidth = 0
+        }
     }
 }
 
@@ -63,7 +73,6 @@ extension RecordCell {
         contentView.addSubview(timerLabel)
         contentView.addSubview(locationLabel)
         
-        contentView.layer.cornerRadius = 14
         
         countLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()

@@ -11,7 +11,7 @@ import Then
 
 class SmallCardView: BaseCardView {
     //MARK: Category Enum
-    enum CardCategory: String {
+    enum CardCategory: String, Hashable {
         case totalTime = "총 시간"
         case leftTime = "남은 항행 시간"
         case totalCount = "미션"
@@ -54,8 +54,8 @@ class SmallCardView: BaseCardView {
     }
     
     //MARK: set Attributes
-    let valueLabel = UILabel(text: "5시간", config: .homeViewHeader)
-    let detailLabel = UILabel(text: "300분", config: .subTitle)
+    let valueLabel = UILabel(text: "", config: .homeViewHeader)
+    let detailLabel = UILabel(text: "완료", config: .subTitle)
     
     convenience init(type: CardCategory) {
         self.init(frame: .zero)
@@ -96,5 +96,15 @@ extension SmallCardView {
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview().inset(15)
         }
+    }
+}
+
+extension SmallCardView {
+    func configure(type: CardCategory, valueText: String, detailText: String) {
+        backgroundColor = type.color.withAlphaComponent(0.2)
+        layer.borderColor = type.color.withAlphaComponent(0.3).cgColor
+        
+        valueLabel.text = valueText
+        detailLabel.text = detailText
     }
 }
