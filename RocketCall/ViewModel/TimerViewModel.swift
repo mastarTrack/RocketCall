@@ -8,6 +8,7 @@
 import Foundation
 import RxSwift
 import RxCocoa
+import UserNotifications
 
 class TimerViewModel: ViewModelProtocol {
     
@@ -15,6 +16,8 @@ class TimerViewModel: ViewModelProtocol {
     private let coreDataManager: CoreDataManager
     private let activatedMissionRelay = BehaviorRelay<[ActivatedMissionPayload]>(value: [])
     private let errorSubject = PublishSubject<CoreDataManager.CoreDataError>()
+    
+    var backgroundEnterTime: Date?
     
     init(coreDataManager: CoreDataManager) {
         self.coreDataManager = coreDataManager
@@ -165,6 +168,94 @@ class TimerViewModel: ViewModelProtocol {
                 errorSubject.onNext(coreDataError)
             } else {
                 errorSubject.onNext(.saveFailed)
+            }
+        }
+    }
+    
+    func enterForeGround() {
+        guard let backgroundEnterTime else { return }
+        let elapsed = Int(Date().timeIntervalSince(backgroundEnterTime))
+            self.backgroundEnterTime = nil
+            
+            let updated = activatedMissionRelay.value.compactMap { mission -> ActivatedMissionPayload? in
+                guard !mission.isPaused else {
+                    var updated = mission
+                    updated.pausedTime += elapsed
+                    return updated
+                }
+                return (0..<elapsed).reduce(Optional(mission)) { current, _ in
+                    guard let current else { return nil }
+                    let isConcentrating = current.isConcentrating
+                    var updated = updateMission(current)
+                    if isConcentrating {
+                        updated?.studyTime += 1
+                    }
+                    return updated
+                }
+            }
+            activatedMissionRelay.accept(updated)
+    }
+    
+    
+    func cycleNotification() {
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        
+        for mission in activatedMissionRelay.value {
+            guard !mission.isPaused else { continue }
+            
+            var timeOffset = mission.remainingTime
+            var currentCycle = mission.currentCycle
+            var isConcentrating = mission.isConcentrating
+            
+            while true {
+                let content = UNMutableNotificationContent()
+                content.sound = .default
+                content.title = mission.mission.title
+                
+                if isConcentrating {
+                    if mission.mission.breakTime == 0 {
+                        if currentCycle == mission.mission.cycle {
+                            // 미션 완료 알림
+                            content.body = "미션 완료!"
+                            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeOffset), repeats: false)
+                            let request = UNNotificationRequest(identifier: "\(mission.id)-complete", content: content, trigger: trigger)
+                            UNUserNotificationCenter.current().add(request)
+                            break
+                        }
+                        // 휴식없이 다음 사이클
+                        content.body = "\(currentCycle) 사이클 집중 완료! 다음 사이클을 시작합니다."
+                        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeOffset), repeats: false)
+                        let request = UNNotificationRequest(identifier: "\(mission.id)-\(currentCycle)-concentrate", content: content, trigger: trigger)
+                        UNUserNotificationCenter.current().add(request)
+                        currentCycle += 1
+                        timeOffset += mission.mission.concentrateTime * 60
+                    } else {
+                        // 집중 완료 → 휴식 시작 알림
+                        content.body = "\(currentCycle) 사이클 집중 완료! 휴식 시간입니다."
+                        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeOffset), repeats: false)
+                        let request = UNNotificationRequest(identifier: "\(mission.id)-\(currentCycle)-concentrate", content: content, trigger: trigger)
+                        UNUserNotificationCenter.current().add(request)
+                        isConcentrating = false
+                        timeOffset += mission.mission.breakTime * 60
+                    }
+                } else {
+                    if currentCycle == mission.mission.cycle {
+                        // 미션 완료 알림
+                        content.body = "미션 완료!"
+                        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeOffset), repeats: false)
+                        let request = UNNotificationRequest(identifier: "\(mission.id)-complete", content: content, trigger: trigger)
+                        UNUserNotificationCenter.current().add(request)
+                        break
+                    }
+                    // 휴식 완료 → 다음 사이클 알림
+                    content.body = "\(currentCycle) 사이클 휴식 완료! 집중 시간입니다."
+                    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeOffset), repeats: false)
+                    let request = UNNotificationRequest(identifier: "\(mission.id)-\(currentCycle)-rest", content: content, trigger: trigger)
+                    UNUserNotificationCenter.current().add(request)
+                    currentCycle += 1
+                    isConcentrating = true
+                    timeOffset += mission.mission.concentrateTime * 60
+                }
             }
         }
     }
