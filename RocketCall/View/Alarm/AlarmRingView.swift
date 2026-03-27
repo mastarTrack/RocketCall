@@ -33,7 +33,7 @@ final class AlarmRingView: UIView {
     
     let timeLabel = UILabel().then {
         $0.textColor = .white
-        $0.font = .systemFont(ofSize: 90, weight: .ultraLight)
+        $0.font = .systemFont(ofSize: 90)
         $0.textAlignment = .center
     }
     
@@ -61,9 +61,8 @@ final class AlarmRingView: UIView {
         $0.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
     }
     
-    let snoozeButton = RectangleButton(title: "다시 알림 (5분)", color: .subLabel).then {
+    let snoozeButton = RectangleButton(title: "다시 알림 (5분)", color: .subLabel.withAlphaComponent(0.2)).then {
         $0.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
-        $0.backgroundColor = UIColor.white.withAlphaComponent(0.1)
     }
     
     private let bottomGuideStackView = UIStackView().then {

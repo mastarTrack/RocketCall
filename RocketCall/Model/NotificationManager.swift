@@ -1,0 +1,156 @@
+//
+//  NotificationManager.swift
+//  RocketCall
+//
+//  Created by 김주희 on 3/26/26.
+//
+
+import Foundation
+import UserNotifications
+import RxSwift
+import RxCocoa
+
+final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
+    
+    static let shared = NotificationManager()
+    
+    // 알람 울리면 알리기
+    let alarmRingingEvent = PublishRelay<(String, UUID)>()
+    
+    private override init() {
+        super.init()
+        UNUserNotificationCenter.current().delegate = self
+    }
+    
+    
+    // MARK: - 알람 권한 요청 메서드
+    func requestAuthorization() {
+        let center = UNUserNotificationCenter.current()
+        let options: UNAuthorizationOptions = [.alert, .sound]
+        
+        center.requestAuthorization(options: options) { granted, error in
+        }
+    }
+    
+    
+    // MARK: - 알람 예약 메서드
+    func addAlarm(_ alarm: Alarm) {
+        let center = UNUserNotificationCenter.current()
+        
+        // 1. 내용
+        let content = UNMutableNotificationContent()
+        content.title = "Rocket Call"
+        content.body = alarm.title // 사용자가 지정한 알람 이름
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("AlarmSound.wav"))
+        content.interruptionLevel = .timeSensitive // 방해 금지여도 알람
+        
+        // 2. 시간 설정
+        // 반복 없음
+        if alarm.repeatDays.isEmpty {
+            for i in 0..<4 {
+                var dateComponents = DateComponents()
+                dateComponents.hour = alarm.hour
+                dateComponents.minute = alarm.minute
+                dateComponents.second = i * 9
+                
+                let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+                let request = UNNotificationRequest(identifier: "\(alarm.id.uuidString)-\(i)", content: content, trigger: trigger)
+                
+                center.add(request) { error in
+                    if let error = error { print("반복 없는 알람 예약 실패: \(error)") }
+                }
+            }
+        } else {
+            // 반복 있음
+            for day in alarm.repeatDays {
+                for i in 0..<4 {
+                    var dateComponents = DateComponents()
+                    dateComponents.hour = alarm.hour
+                    dateComponents.minute = alarm.minute
+                    dateComponents.weekday = day.appleWeekDay
+                    dateComponents.second = i * 8
+                    
+                    let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+                    let identifier = "\(alarm.id.uuidString)-\(day.rawValue)-\(i)" // id가 동일하므로 구분지어주기 위해 뒤에 요일 추가
+                    let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+                    
+                    center.add(request) { error in
+                        if let error = error { print("반복 알람 예약 실패: \(error)") }
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - 알람 취소 메서드
+    func cancelAlarm(_ id: UUID) {
+        let center = UNUserNotificationCenter.current()
+        
+        center.getPendingNotificationRequests { requests in
+            // 예약된 알람 중 해당 UUID가 포함된 알람만 골라내기
+            let identifiersToRemove = requests
+                .filter { $0.identifier.contains(id.uuidString) }
+                .map { $0.identifier }
+            
+            center.removePendingNotificationRequests(withIdentifiers: identifiersToRemove)
+        }
+    }
+    
+    
+    // MARK: - 스누즈 알람 예약 메서드
+    func addSnoozeAlarm(title: String, originalId: UUID) {
+        let center = UNUserNotificationCenter.current()
+        let content = UNMutableNotificationContent()
+        
+        content.title = "Rocket Call (Snooze)"
+        content.body = title
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("AlarmSound.wav"))
+        content.interruptionLevel = .timeSensitive // 방해 금지여도 알람
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 300, repeats: false)
+        
+        let identifier = "\(originalId.uuidString)-Snooze"
+        
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+        
+        center.add(request)
+    }
+    
+    
+    var currentRingingId: UUID? = nil // 현재 울리고 있는 알람의 id값 기억하기
+    
+    // MARK: - 앱이 화면에 켜져있을때
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        
+        // 예약할 때 넣었던 알람 제목 꺼내기
+        let alarmTitle = notification.request.content.body
+        let idString = String(notification.request.identifier.prefix(36))
+        
+        if let uuid = UUID(uuidString: idString) {
+            
+            if currentRingingId == uuid { // 동일한 uuid의 알람이면 알람 화면 또 띄울 필요 없음
+                completionHandler([])
+                return
+            }
+            
+            currentRingingId = uuid
+            alarmRingingEvent.accept((alarmTitle, uuid))
+        }
+        
+        completionHandler([]) // 배너 띄울 필요 없으므로 빈 배열
+    }
+    
+    
+    // MARK: - 앱이 꺼져있을때 (백그라운드)
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        
+        let alarmTitle = response.notification.request.content.body
+        let idString = String(response.notification.request.identifier.prefix(36))
+        
+        if let uuid = UUID(uuidString: idString) {
+            alarmRingingEvent.accept((alarmTitle, uuid))
+        }
+        completionHandler()
+    }
+}
+
