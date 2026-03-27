@@ -16,12 +16,6 @@ class AlarmCardView: BaseCardView {
         $0.clipsToBounds = true
     }
     
-//    let repeatDaysStackView = SymbolLabelStack(
-//        symbol: "calendar",
-//        symbolColor: .subPoint,
-//        label: UILabel(text: "", config: LabelConfiguration.sub12)
-//    )
-    
     let repeatDaysLabel = UILabel().then {
         $0.textColor = .subLabel
         $0.font = .systemFont(ofSize: 12, weight: .medium)
