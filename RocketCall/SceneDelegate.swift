@@ -43,7 +43,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to undo the changes made on entering the background.
         guard let vc = window?.rootViewController as? MainController else { return }
         vc.timerViewModel.enterForeGround()
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            let timerIdentifiers = requests
+                .filter { $0.identifier.hasPrefix("timer") }
+                .map { $0.identifier }
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: timerIdentifiers)
+        }
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {

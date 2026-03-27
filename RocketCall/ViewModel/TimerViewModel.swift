@@ -202,7 +202,12 @@ class TimerViewModel: ViewModelProtocol {
     
     
     func cycleNotification() {
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            let timerIdentifiers = requests
+                .filter { $0.identifier.hasPrefix("timer") }
+                .map { $0.identifier }
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: timerIdentifiers)
+        }
         
         for mission in activatedMissionRelay.value {
             guard !mission.isPaused else { continue }
