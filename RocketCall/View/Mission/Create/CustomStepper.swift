@@ -14,6 +14,7 @@ class CustomStepper: UIView {
     
     private let disposeBag = DisposeBag()
     let value: BehaviorRelay<Int>
+    let isQuickSelected = BehaviorRelay<Bool>(value: false)
     
     private let labelStackView = UIStackView()
     private let titleLabel = UILabel()
@@ -46,15 +47,16 @@ extension CustomStepper {
             .bind(to: valueLabel.rx.text)
             .disposed(by: disposeBag)
         
-        value
-            .map { $0 > 0 }
+        Observable.combineLatest(value, isQuickSelected)
+            .map { value, isQuickSelected in !isQuickSelected && value > 0 }
             .bind(to: minusButton.rx.isEnabled)
             .disposed(by: disposeBag)
         
-        value
-            .map { $0 < 180 }
+        Observable.combineLatest(value, isQuickSelected)
+            .map { value, isQuickSelected in !isQuickSelected && value < 180 }
             .bind(to: plusButton.rx.isEnabled)
             .disposed(by: disposeBag)
+        
         
         plusButton.rx.tap
             .subscribe(onNext: { [weak self] in

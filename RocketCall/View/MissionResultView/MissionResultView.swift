@@ -291,13 +291,14 @@ extension MissionResultView {
     }()
     
     private static func formattedDuration(from start: Date, to end: Date) -> String {
-        let durationInMinutes = max(0, Int(end.timeIntervalSince(start)) / 60)
-        return formattedHourMinute(durationInMinutes)
+        let durationInSeconds = max(0, Int(end.timeIntervalSince(start)))
+        return formattedHourMinute(durationInSeconds)
     }
     
-    private static func formattedHourMinute(_ totalMinutes: Int) -> String {
-        let hours = totalMinutes / 60
-        let minutes = totalMinutes % 60
+    private static func formattedHourMinute(_ totalSeconds: Int) -> String {
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
         
         if hours > 0 && minutes > 0 {
             return "\(hours)시간 \(minutes)분"
@@ -307,6 +308,10 @@ extension MissionResultView {
             return "\(hours)시간"
         }
         
-        return "\(minutes)분"
+        if minutes > 0 {
+            return "\(minutes)분 \(seconds)초"
+        }
+        
+        return "\(seconds)초"
     }
 }

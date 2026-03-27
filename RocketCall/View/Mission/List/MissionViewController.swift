@@ -141,6 +141,13 @@ extension MissionViewController {
                 self?.showErrorAlert(error: error)
             })
             .disposed(by: disposeBag)
+        timerOutput.missionResult
+            .subscribe(onNext: { [weak self] resultId in
+                guard let self else { return }
+                let resultVC = MissionResultViewController(coreDataManager: self.coreDataManager, resultId: resultId)
+                self.navigationController?.pushViewController(resultVC, animated: true)
+            })
+            .disposed(by: disposeBag)
     }
 }
 

@@ -61,6 +61,18 @@ extension CreateMissionViewController {
             })
             .disposed(by: disposeBag)
         
+        let isQuickSelected = output.selectedQuickItem
+            .map { $0 != nil }
+            .share()
+        
+        isQuickSelected
+            .bind(to: mainView.studyStepper.isQuickSelected)
+            .disposed(by: disposeBag)
+        
+        isQuickSelected
+            .bind(to: mainView.restStepper.isQuickSelected)
+            .disposed(by: disposeBag)
+        
         output.quickStudyTime
             .bind(onNext: { [weak self] studyTime in
                 self?.mainView.studyStepper.value.accept(studyTime)
