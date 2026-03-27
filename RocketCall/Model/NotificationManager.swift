@@ -107,7 +107,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         content.sound = UNNotificationSound(named: UNNotificationSoundName("AlarmSound.wav"))
         content.interruptionLevel = .timeSensitive // 방해 금지여도 알람
         
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 300, repeats: false)
         
         let identifier = "\(originalId.uuidString)-Snooze"
         
