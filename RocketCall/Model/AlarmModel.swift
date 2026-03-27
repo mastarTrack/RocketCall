@@ -40,8 +40,8 @@ extension WeekDay {
         case .mon: return 2
         case .tue: return 3
         case .wed: return 4
-        case .thu: return 6
-        case .fri: return 5
+        case .thu: return 5
+        case .fri: return 6
         case .sat: return 7
         }
     }
