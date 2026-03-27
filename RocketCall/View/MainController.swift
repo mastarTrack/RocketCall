@@ -10,6 +10,10 @@ import SnapKit
 class MainController: UITabBarController {
     let coreDataManager = CoreDataManager()
     
+    override var childForStatusBarStyle: UIViewController? {
+        selectedViewController
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
@@ -20,10 +24,10 @@ class MainController: UITabBarController {
 
 extension MainController {
     private func configure() {
-        let firstVC = UINavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
-        let secondVC = UINavigationController(rootViewController: AlarmListViewController(coreDataManager: coreDataManager))
-        let thirdVC = UINavigationController(rootViewController: MissionViewController(coreDataManager: coreDataManager))
-        let fourthVC = UINavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
+        let firstVC = CustomNavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
+        let secondVC = CustomNavigationController(rootViewController: AlarmListViewController(coreDataManager: coreDataManager))
+        let thirdVC = CustomNavigationController(rootViewController: MissionViewController(coreDataManager: coreDataManager))
+        let fourthVC = CustomNavigationController(rootViewController: ViewController(coreDataManager: coreDataManager))
         
         firstVC.tabBarItem = UITabBarItem(title: "홈", image: UIImage(systemName: "house"), tag: 0)
         secondVC.tabBarItem = UITabBarItem(title: "알람", image: UIImage(systemName: "alarm"), tag: 1)
