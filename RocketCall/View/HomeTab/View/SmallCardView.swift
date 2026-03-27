@@ -98,3 +98,13 @@ extension SmallCardView {
         }
     }
 }
+
+extension SmallCardView {
+    func configure(type: CardCategory, valueText: String, detailText: String) {
+        backgroundColor = type.color.withAlphaComponent(0.2)
+        layer.borderColor = type.color.withAlphaComponent(0.3).cgColor
+        
+        valueLabel.text = valueText
+        detailLabel.text = detailText
+    }
+}
