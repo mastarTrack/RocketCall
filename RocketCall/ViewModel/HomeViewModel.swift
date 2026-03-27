@@ -261,8 +261,10 @@ extension HomeViewModel {
         let date = Date.now
         let todayWeekday = calendar.dateComponents(in: .current, from: date).weekday ?? -1
         
-        let start = calendar.startOfDay(for: date).advanced(by: TimeInterval(-86400 * (todayWeekday - 2))) // 월요일 00:00
-        let end = calendar.startOfDay(for: date).addingTimeInterval(TimeInterval(86400 * (9 - todayWeekday)) - 1) // 일요일 23:59
+        let distanceToMonday = (todayWeekday - 2 + 7) % 7 // 오늘 요일에서 월요일까지의 차이, 월요일의 weekday는 1
+        
+        let start = calendar.date(byAdding: .day, value: -distanceToMonday, to: calendar.startOfDay(for: date))! // 월요일 00:00
+        let end = calendar.date(byAdding: .day, value: 7, to: start.addingTimeInterval(-1))! // 일요일 23:59
         
         let filtered = results.filter {
             $0.isCompleted == true

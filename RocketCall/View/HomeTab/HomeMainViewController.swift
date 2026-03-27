@@ -62,13 +62,8 @@ extension HomeMainViewController {
             .subscribe(onNext: { [cardView = homeMainView.alarmCardView] result in
                 switch result {
                 case .success(let alarm):
-                    if let alarm {
-                        cardView.emptyAlarmImage.isHidden ? nil : cardView.toggleIsHidden()
-                        
-                        cardView.configure(alarm: alarm)
-                    } else {
-                        cardView.emptyAlarmImage.isHidden ? cardView.toggleIsHidden() : nil
-                    }
+                    cardView.configure(alarm: alarm)
+                    
                 case .failure(let error):
                     print(error) // 추후 처리 필요
                 }
@@ -77,15 +72,17 @@ extension HomeMainViewController {
         
         // 통계 업데이트
         output.total
-            .compactMap { result in
-                if case .success(let result) = result { return result }
-                return nil
-            }
-            .subscribe(onNext: { [homeMainView] total in
-                // 카드뷰 업데이트
-                homeMainView.totalTimeCardView.valueLabel.text = "\(total.totalTime / 60)시간"
-                homeMainView.totalTimeCardView.detailLabel.text = "\(total.totalTime)분"
-                homeMainView.missionCardView.valueLabel.text = "\(total.complete)회"
+            .subscribe(onNext: { [homeMainView] result in
+                switch result {
+                case .success(let total):
+                    // 카드뷰 업데이트
+                    homeMainView.totalTimeCardView.valueLabel.text = "\(total.totalTime / 60)시간"
+                    homeMainView.totalTimeCardView.detailLabel.text = "\(total.totalTime)분"
+                    homeMainView.missionCardView.valueLabel.text = "\(total.complete)회"
+                    
+                case .failure(let error):
+                    print(error) // 추후 처리 필요
+                }
             })
             .disposed(by: disposeBag)
         

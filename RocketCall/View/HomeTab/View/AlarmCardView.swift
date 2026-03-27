@@ -134,7 +134,7 @@ extension AlarmCardView {
         }
     }
     
-    func toggleIsHidden() {
+    private func toggleIsHidden() {
         repeatDaysStackView.isHidden.toggle()
         titleLabel.isHidden.toggle()
         bar.isHidden.toggle()
@@ -145,9 +145,15 @@ extension AlarmCardView {
         emptyAlarmLabel.isHidden.toggle()
     }
 
-    func configure(alarm: Alarm) {
-        repeatDaysLabel.text = alarm.repeatDays.map { $0.koreanName }.joined(separator: " ")
-        titleLabel.text = alarm.title
-        timeLabel.text = "\(alarm.hour):\(alarm.minute)"
+    func configure(alarm: Alarm?) {
+        if let alarm {
+            emptyAlarmImage.isHidden ? () : toggleIsHidden()
+            
+            repeatDaysLabel.text = alarm.repeatDays.map { $0.koreanName }.joined(separator: " ")
+            titleLabel.text = alarm.title
+            timeLabel.text = "\(alarm.hour):\(alarm.minute)"
+        } else {
+            emptyAlarmImage.isHidden ? toggleIsHidden() : ()
+        }
     }
 }
