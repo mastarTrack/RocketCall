@@ -24,6 +24,11 @@ final class HomeViewModel: ViewModelProtocol {
     let disposeBag = DisposeBag()
     private(set) var weeklyData: WeeklyData // ChartView 바인딩용
     
+    struct TotalResultValue {
+        let value: String
+        let detail: String
+    }
+    
     //MARK: init
     init(coreDataManager: CoreDataManager) {
         self.coreDataManager = coreDataManager

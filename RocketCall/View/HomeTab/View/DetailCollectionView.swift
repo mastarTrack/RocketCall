@@ -26,8 +26,10 @@ final class DetailCollectionView: UICollectionView {
                 switch self {
                 case .sum(let category, let value, let detail):
                     hasher.combine("total")
-                case .chart:
+                    hasher.combine(value)
+                case .chart(let rawData):
                     hasher.combine("chart")
+                    hasher.combine(rawData)
                 case .progress:
                     hasher.combine("progress")
                 case .result:
@@ -140,9 +142,6 @@ extension DetailCollectionView {
     }
     
     private func resultSectionLayout(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        let environmentWidth = environment.container.effectiveContentSize.width
-        let spacing: CGFloat = 8
-        
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
@@ -150,7 +149,6 @@ extension DetailCollectionView {
             )
         )
         
-        // 세로 그룹 - 4개 표시
         let group = NSCollectionLayoutGroup.vertical(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
@@ -160,7 +158,7 @@ extension DetailCollectionView {
         )
         
         let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = spacing
+        section.interGroupSpacing = 8
         
         return section
     }
