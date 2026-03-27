@@ -80,77 +80,77 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
                 }
             }
         }
+    }
+    
+    // MARK: - 알람 취소 메서드
+    func cancelAlarm(_ id: UUID) {
+        let center = UNUserNotificationCenter.current()
         
-        
-        // MARK: - 알람 취소 메서드
-        func cancelAlarm(_ id: UUID) {
-            let center = UNUserNotificationCenter.current()
+        center.getPendingNotificationRequests { requests in
+            // 예약된 알람 중 해당 UUID가 포함된 알람만 골라내기
+            let identifiersToRemove = requests
+                .filter { $0.identifier.contains(id.uuidString) }
+                .map { $0.identifier }
             
-            center.getPendingNotificationRequests { requests in
-                // 예약된 알람 중 해당 UUID가 포함된 알람만 골라내기
-                let identifiersToRemove = requests
-                    .filter { $0.identifier.contains(id.uuidString) }
-                    .map { $0.identifier }
-                
-                center.removePendingNotificationRequests(withIdentifiers: identifiersToRemove)
-            }
-        }
-        
-        
-        // MARK: - 스누즈 알람 예약 메서드
-        func addSnoozeAlarm(title: String, originalId: UUID) {
-            let center = UNUserNotificationCenter.current()
-            let content = UNMutableNotificationContent()
-            
-            content.title = "Rocket Call (Snooze)"
-            content.body = title
-            content.sound = UNNotificationSound(named: UNNotificationSoundName("AlarmSound.wav"))
-            content.interruptionLevel = .timeSensitive // 방해 금지여도 알람
-            
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
-            
-            let identifier = "\(originalId.uuidString)-Snooze"
-            
-            let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-            
-            center.add(request)
-        }
-        
-        
-        var currentRingingId: UUID? = nil // 현재 울리고 있는 알람의 id값 기억하기
-        
-        // MARK: - 앱이 화면에 켜져있을때
-        func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-            
-            // 예약할 때 넣었던 알람 제목 꺼내기
-            let alarmTitle = notification.request.content.body
-            let idString = String(notification.request.identifier.prefix(36))
-            
-            if let uuid = UUID(uuidString: idString) {
-                
-                if currentRingingId == uuid { // 동일한 uuid의 알람이면 알람 화면 또 띄울 필요 없음
-                    completionHandler([])
-                    return
-                }
-                
-                currentRingingId = uuid
-                alarmRingingEvent.accept((alarmTitle, uuid))
-            }
-            
-            completionHandler([]) // 배너 띄울 필요 없으므로 빈 배열
-        }
-        
-        
-        // MARK: - 앱이 꺼져있을때 (백그라운드)
-        func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-            
-            let alarmTitle = response.notification.request.content.body
-            let idString = String(response.notification.request.identifier.prefix(36))
-            
-            if let uuid = UUID(uuidString: idString) {
-                alarmRingingEvent.accept((alarmTitle, uuid))
-            }
-            completionHandler()
+            center.removePendingNotificationRequests(withIdentifiers: identifiersToRemove)
         }
     }
+    
+    
+    // MARK: - 스누즈 알람 예약 메서드
+    func addSnoozeAlarm(title: String, originalId: UUID) {
+        let center = UNUserNotificationCenter.current()
+        let content = UNMutableNotificationContent()
+        
+        content.title = "Rocket Call (Snooze)"
+        content.body = title
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("AlarmSound.wav"))
+        content.interruptionLevel = .timeSensitive // 방해 금지여도 알람
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
+        
+        let identifier = "\(originalId.uuidString)-Snooze"
+        
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+        
+        center.add(request)
+    }
+    
+    
+    var currentRingingId: UUID? = nil // 현재 울리고 있는 알람의 id값 기억하기
+    
+    // MARK: - 앱이 화면에 켜져있을때
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        
+        // 예약할 때 넣었던 알람 제목 꺼내기
+        let alarmTitle = notification.request.content.body
+        let idString = String(notification.request.identifier.prefix(36))
+        
+        if let uuid = UUID(uuidString: idString) {
+            
+            if currentRingingId == uuid { // 동일한 uuid의 알람이면 알람 화면 또 띄울 필요 없음
+                completionHandler([])
+                return
+            }
+            
+            currentRingingId = uuid
+            alarmRingingEvent.accept((alarmTitle, uuid))
+        }
+        
+        completionHandler([]) // 배너 띄울 필요 없으므로 빈 배열
+    }
+    
+    
+    // MARK: - 앱이 꺼져있을때 (백그라운드)
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        
+        let alarmTitle = response.notification.request.content.body
+        let idString = String(response.notification.request.identifier.prefix(36))
+        
+        if let uuid = UUID(uuidString: idString) {
+            alarmRingingEvent.accept((alarmTitle, uuid))
+        }
+        completionHandler()
+    }
 }
+
