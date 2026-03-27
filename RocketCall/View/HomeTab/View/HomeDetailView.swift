@@ -53,6 +53,26 @@ extension HomeDetailView {
             }
         }
         
+        let chartCellRegistration = UICollectionView.CellRegistration<ChartCell, DetailCollectionView.Item> { cell, indexPath, item in
+            switch item {
+            case .chart(let rawData):
+                DetailCollectionView.Item.weeklyData.newValue(rawData) // 차트뷰 데이터 갱신
+            default:
+                break
+            }
+        }
         
+        let dataSource = UICollectionViewDiffableDataSource<DetailCollectionView.Section, DetailCollectionView.Item>(collectionView: collectionView) { collectionView, indexPath, item in
+            switch DetailCollectionView.Section(rawValue: indexPath.section) {
+            case .sum:
+                return collectionView.dequeueConfiguredReusableCell(using: sumCardCellRegistration, for: indexPath, item: item)
+            case .chart:
+                return collectionView.dequeueConfiguredReusableCell(using: chartCellRegistration, for: indexPath, item: item)
+            default:
+                return UICollectionViewCell()
+            }
+        }
+        
+        return dataSource
     }
 }

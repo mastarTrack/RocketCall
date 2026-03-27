@@ -18,7 +18,7 @@ final class DetailCollectionView: UICollectionView {
     
         enum Item: Hashable {
             case sum(SmallCardView.CardCategory, String, String) // 카테고리, value, detail
-            case chart
+            case chart([Int: Int])
             case progress
             case result
     
@@ -34,6 +34,8 @@ final class DetailCollectionView: UICollectionView {
                     hasher.combine("result")
                 }
             }
+            
+            static let weeklyData = WeeklyData()
         }
     
     override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
