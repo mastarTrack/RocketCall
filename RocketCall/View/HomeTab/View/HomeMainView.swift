@@ -31,7 +31,7 @@ final class HomeMainView: UIView {
             $0.view.backgroundColor = .clear
             
             $0.sizingOptions = .intrinsicContentSize
-            $0.view.setContentHuggingPriority(UILayoutPriority(249), for: .vertical)
+            $0.view.setContentHuggingPriority(UILayoutPriority(1), for: .vertical)
         }
         super.init(frame: .zero)
         

@@ -108,11 +108,11 @@ extension HomeViewModel {
         
         do {
             let alarms = try coreDataManager.fetchAllAlarm()
-            print(alarms)
+//            print(alarms)
             let filtered = alarms.filter {
                 $0.isOn == true // 활성화 된 알람
                 && ($0.repeatDays.isEmpty || $0.repeatDays.contains(weekday)) // 반복 요일이 없거나, 반복 요일에 현재 요일이 포함된 경우
-                && time <= ($0.hour * 60 + $0.minute) // 현재 시간보다 뒤로 설정된 알람만
+//                && time <= ($0.hour * 60 + $0.minute)  현재 시간보다 뒤로 설정된 알람만
             }
             print(filtered)
             return filtered.first

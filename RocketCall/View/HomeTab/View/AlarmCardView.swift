@@ -38,6 +38,7 @@ class AlarmCardView: BaseCardView {
     let timeTitle = UILabel().then {
         $0.textColor = .subLabel
         $0.font = .systemFont(ofSize: 12, weight: .medium)
+        $0.text = "알람 시간"
     }
     
     let timeLabel = UILabel().then {
@@ -51,6 +52,11 @@ class AlarmCardView: BaseCardView {
         $0.image = UIImage(systemName: "bell.slash", withConfiguration: config)
         $0.tintColor = .subPoint.withAlphaComponent(0.4)
         $0.isHidden = true
+        
+        $0.setContentHuggingPriority(UILayoutPriority(249), for: .vertical)
+        $0.snp.makeConstraints {
+            $0.width.height.equalTo(40)
+        }
     }
     
     let emptyAlarmLabel = UILabel(text: "활성화 된 알람이 없습니다", config: LabelConfiguration.sub14).then {
@@ -117,15 +123,14 @@ extension AlarmCardView {
         addSubview(emptyAlarmLabel)
         
         emptyAlarmImage.snp.makeConstraints {
-            $0.width.height.equalTo(50)
-            $0.top.equalToSuperview().offset(44)
+            $0.top.equalToSuperview().offset(30)
             $0.centerX.equalToSuperview()
         }
         
         emptyAlarmLabel.snp.makeConstraints {
             $0.top.equalTo(emptyAlarmImage.snp.bottom).offset(12)
             $0.centerX.equalToSuperview()
-            $0.bottom.equalToSuperview().offset(-44)
+            $0.bottom.equalToSuperview().offset(-30)
         }
     }
     

@@ -11,7 +11,7 @@ import RxSwift
 import RxCocoa
 
 class HomeMainViewController: UIViewController {
-    let mainController: MainController
+    let mainController: MainController // 탭바 컨트롤러
     let homeMainView: HomeMainView
     let viewModel: HomeViewModel
     
@@ -35,7 +35,7 @@ class HomeMainViewController: UIViewController {
     init(mainController: MainController, viewModel: HomeViewModel) {
         self.mainController = mainController
         self.viewModel = viewModel
-        self.homeMainView = HomeMainView(data: viewModel.weeklyData)
+        self.homeMainView = HomeMainView(data: viewModel.weeklyData) // viewModel의 weeklyData와 바인딩
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -100,13 +100,13 @@ extension HomeMainViewController {
         
         // 알람 카드 뷰 제스처
         let tapGesture = UITapGestureRecognizer()
-        homeMainView.alarmCardView.addGestureRecognizer(tapGesture)
+        homeMainView.alarmCardView.addGestureRecognizer(tapGesture) // 제스처 추가
         
-        tapGesture.rx.event
+        tapGesture.rx.event // 탭 이벤트
             .debounce(.milliseconds(500), scheduler: MainScheduler.instance)
             .map { _ in }
             .subscribe(onNext: { [weak self] in
-                self?.mainController.selectedIndex = 1
+                self?.mainController.selectedIndex = 1 // 이벤트가 들어오면 tabBarController의 선택된 인덱스를 알람탭으로 변경
                 
             })
             .disposed(by: disposeBag)
