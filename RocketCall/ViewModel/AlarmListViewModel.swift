@@ -62,6 +62,8 @@ final class AlarmListViewModel: ViewModelProtocol {
             .bind(with: self) { owner, alarm in
                 do {
                     try owner.coreDataManager.deleteAlarmEntity(of: alarm.id) // 코어데이터 delete
+                    
+                    NotificationManager.shared.cancelAlarm(alarm.id) // 알람 예약도 삭제
                     fetchTrigger.accept(()) // 삭제 후 리스트 다시 불러오기
                 } catch {
                     print("삭제 실패: \(error)")
@@ -100,6 +102,23 @@ final class AlarmListViewModel: ViewModelProtocol {
                     
                     // 코어데이터 업데이트
                     try owner.coreDataManager.updateAlarmEntity(of: updatedPayload)
+                    
+                    // 알람 예약용 데이터
+                    let toggleAlarm = Alarm(
+                        id: updatedPayload.id,
+                        hour: updatedPayload.hour,
+                        minute: updatedPayload.minute,
+                        title: updatedPayload.title,
+                        repeatDays: updatedPayload.repeatDays.compactMap { WeekDay(rawValue: $0) },
+                        isOn: updatedPayload.isOn)
+                    
+                    // 켜면 예약하기
+                    if isOn {
+                        NotificationManager.shared.addAlarm(toggleAlarm)
+                    } else {
+                        // 끄면 취소하기
+                        NotificationManager.shared.cancelAlarm(toggleAlarm.id)
+                    }
                     
                     // 리스트 다시 불러오기
                     fetchTrigger.accept(())
