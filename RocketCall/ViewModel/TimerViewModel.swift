@@ -100,7 +100,7 @@ class TimerViewModel: ViewModelProtocol {
             .subscribe(onNext: { [weak self] uuid in
                 guard let self else { return }
                 guard let mission = self.activatedMissionRelay.value.first(where: { $0.id == uuid }) else { return }
-                saveMission(mission: mission, isCompleted: false)
+                self.saveMission(mission: mission, isCompleted: false)
                 let updated = self.activatedMissionRelay.value.filter { $0.id != uuid }
                 self.activatedMissionRelay.accept(updated)
             })
