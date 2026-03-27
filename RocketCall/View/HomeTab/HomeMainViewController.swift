@@ -107,10 +107,9 @@ extension HomeMainViewController {
             .debounce(.milliseconds(500), scheduler: MainScheduler.instance)
             .map { _ in }
             .subscribe(onNext: { [weak self] in
-                self?.navigationController?.pushViewController(HomeDetailViewController(), animated: true)
+                guard let self else { return }
+                self.navigationController?.pushViewController(HomeDetailViewController(viewModel: self.viewModel), animated: true)
             })
             .disposed(by: disposeBag)
     }
-    
-    
 }

@@ -17,6 +17,7 @@ final class HomeViewModel: ViewModelProtocol {
     struct Output {
         let alarm: Observable<Result<Alarm?, Error>> // (alarm: 알람, isExist: 존재 여부)
         let total: Observable<Result<TotalResult, Error>>
+        let missionResults: Observable<Result<[MissionResultPayload], Error>>
     }
     
     //MARK: 속성 선언
@@ -74,9 +75,22 @@ final class HomeViewModel: ViewModelProtocol {
         })
         .disposed(by: disposeBag)
         
+        let missionResults: Observable<Result<[MissionResultPayload], Error>> = fetch
+            .withUnretained(self)
+            .flatMap { `self`, _ in
+                self.fetchAllMissionResults()
+                    .map {
+                        .success($0)
+                    }
+                    .catch {
+                        .just(.failure($0))
+                    }
+            }
+        
         return Output(
             alarm: alarm,
-            total: total
+            total: total,
+            missionResults: missionResults
         )
     }
 }
@@ -260,5 +274,21 @@ extension HomeViewModel {
         }
         
         return weeklyRecord
+    }
+}
+
+extension HomeViewModel {
+    private func fetchAllMissionResults() -> Observable<[MissionResultPayload]> {
+        Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            do {
+                let results = try self.coreDataManager.fetchAllMissionResult()
+                observer.onNext(results)
+                observer.onCompleted()
+            } catch {
+                observer.onError(error)
+            }
+            return Disposables.create()
+        }
     }
 }
