@@ -6,8 +6,10 @@
 //
 
 import Foundation
+import UIKit
 import RxSwift
 import RxRelay
+import RxCocoa
 
 // DiffableDataSource용 레코드 구조체
 struct RecordData: Hashable {
@@ -31,13 +33,19 @@ class StopWatchViewModel {
     }
     
     /// 스탑워치 동작액션
-    enum timerAction {
+    enum TimerAction {
         /// 시간 동작 액션
         case tick
         /// 시간 초기화 액션
         case reset
         /// 레코드 생성 액션
         case record
+        /// 동작 유무 액션
+        case isRunning(Bool)
+        /// 백그라운드 액션
+        case background(Date)
+        /// 포어그라운드 액션
+        case foreground(Date)
     }
     
     /// 스탑워치 데이터 구조체
@@ -48,7 +56,12 @@ class StopWatchViewModel {
         var recordTimer = 0
         /// 스탑워치 레코드 정보 배열
         var records: [RecordData] = []
+        /// 스탑워치 동작 유무 체크
+        var isRun = false
+        /// 백그라운드 진입 시간
+        var backgroundEnterTime: Date?
     }
+    
     /// View -> ViewModel Action
     struct Input {
         /// 스탑워치 동작 In
@@ -68,9 +81,20 @@ class StopWatchViewModel {
     /// 변환 메소드
     func transform(_ input: Input) -> Output {
         
+        // 실행 상태 업데이트 액션
+        let runningAction = input.stopwatchAction
+            .map { state -> TimerAction in
+                switch state {
+                case .run:
+                    return .isRunning(true)
+                case .pause, .reset:
+                    return .isRunning(false)
+                }
+            }
+        
         // 스톱워치 동작 액션(timerAction)으로 변환
         let timeAction = input.stopwatchAction
-            .flatMapLatest{ state -> Observable<timerAction> in
+            .flatMapLatest{ state -> Observable<TimerAction> in
                 switch state {
                 case .run:
                     return Observable<Int>.interval(.milliseconds(10), scheduler: MainScheduler.asyncInstance)
@@ -84,33 +108,79 @@ class StopWatchViewModel {
         
         // 레코드 액션 반환
         let recordAction = input.record
-            .map { timerAction.record }
+            .map { TimerAction.record }
+        
+        // NotificationCenter을 이용하여 앱라이프 사이클을 통해 현재 시간 값을 추출
+        // 앱이 활성상태를 잃을때(didEnterBackgroundNotification) 발생 : 홈화면, 전화 및 다른 제어샌터 등으로 이동 시
+        let backgroundAction = NotificationCenter.default.rx
+            .notification(UIApplication.didEnterBackgroundNotification)
+            .map { _ in TimerAction.background(Date()) }
+        
+        // 앱이 다시 활성상태가 되었을때(willEnterForegroundNotification) 발생
+        let foregroundAction = NotificationCenter.default.rx
+            .notification(UIApplication.willEnterForegroundNotification)
+            .map { _ in TimerAction.foreground(Date()) }
+        
         
         // 액션에 따른 스탑워치 동작액션 처리
-        let state = Observable.merge(timeAction, recordAction)
+        let state = Observable.merge(timeAction, recordAction, runningAction, backgroundAction, foregroundAction)
             .scan(StopWatchData()) { [weak self] data, action in
                 guard let self else { return StopWatchData() }
                 var newData = data
                 
                 switch action {
+                // 전체 타이머와 레코드 타이머를 모두 1 증가
                 case .tick:
-                    // 전체 타이머와 레코드 타이머를 모두 1 증가
                     newData.mainTimer = newData.mainTimer + 1
                     newData.recordTimer = newData.recordTimer + 1
+                
+                // 현재 recordTimer 값을 확정 레코드로 저장
                 case .record:
-                    // 현재 recordTimer 값을 확정 레코드로 저장
                     let recordData = RecordData(count: newData.records.count + 1,
                                                 time: formatTime(newData.recordTimer),
                                                 location: "",
                                                 isLive: false)
                     newData.recordTimer = 0
                     newData.records.insert(recordData, at: 0)
+                
+                // 스탑워치 전체 정보 초기화
                 case .reset:
-                    // 스탑워치 전체 정보 초기화
                     newData.mainTimer = 0
                     newData.recordTimer = 0
                     newData.records.removeAll()
+               
+                // 스탑워치 동작 여부 설정
+                case .isRunning(let isRunning):
+                    newData.isRun = isRunning
+                    if !newData.isRun {
+                        newData.backgroundEnterTime = nil
+                    }
+                
+                // 백그라운드 액션 시, 해당 시점 저장
+                case .background(let BackDate):
+                    if newData.isRun{
+                        newData.backgroundEnterTime = BackDate
+                    }
+                
+                // 어플리케이션 재 진입 시, 로직
+                case .foreground(let foreDate):
+                    // 스탑워치 동작여부 체크 및 백그라운드 진입 시간 존재 여부 체크
+                    guard newData.isRun,
+                          let backgroundDate = newData.backgroundEnterTime else {
+                        return newData
+                    }
+
+                    // 현재 값 및 백그라운드 저장 값 차이 계싼 및 밀리초로 변환
+                    let backgroundTime = foreDate.timeIntervalSince(backgroundDate)
+                    let centisecond = Int((backgroundTime * 100).rounded())
+                    newData.backgroundEnterTime = nil
+
+                    // 밀리 초 삽입
+                    guard centisecond > 0 else { return newData }
+                    newData.mainTimer += centisecond
+                    newData.recordTimer += centisecond
                 }
+                
                 return newData
             }
             // 초기값 설정
