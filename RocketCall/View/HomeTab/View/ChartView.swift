@@ -18,14 +18,12 @@ class WeeklyData: ObservableObject {
     
     @Published var weeklyResult: [WeeklyResult] = []
     
-//    init(rawData: [Int: Int]) {
-//        self.weeklyResult = convertToWeeklyResult(from: rawData)
-//    }
-    
+    // weeklyResult 업데이트용 외부 호출 함수
     func newValue(_ rawData: [Int: Int]) {
         weeklyResult = convertToWeeklyResult(from: rawData)
     }
     
+    // 딕셔너리 -> 차트 사용 데이터로의 변환 베서드
     private func convertToWeeklyResult(from rawData: [Int: Int]) -> [WeeklyResult] {
         let sorted = rawData.sorted(by: { $0.key < $1.key })
         

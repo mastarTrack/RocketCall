@@ -75,7 +75,7 @@ class AlarmCardView: BaseCardView {
 }
 
 extension AlarmCardView {
-    func setLayout() {
+    private func setLayout() {
         
         addSubview(colorChip)
         addSubview(repeatDaysStackView)

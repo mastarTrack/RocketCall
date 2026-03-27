@@ -34,6 +34,7 @@ final class HomeViewModel: ViewModelProtocol {
         let fetch = input.fetchData
             .share()
         
+        // 가까운 알람
         let alarm: Observable<Result<Alarm?, Error>> = fetch
             .withUnretained(self)
             .flatMap { `self`, _ in
@@ -46,6 +47,7 @@ final class HomeViewModel: ViewModelProtocol {
                     }
             }
         
+        // 미션 결과 통계
         let total: Observable<Result<TotalResult, Error>> = fetch
             .withUnretained(self)
             .flatMap { `self`, _ in
@@ -57,6 +59,15 @@ final class HomeViewModel: ViewModelProtocol {
                         .just(.failure($0))
                     }
             }
+            .share()
+        
+        // 주간 기록 차트뷰와 바인딩
+        total.subscribe(onNext: { [weak self] result in
+            if case .success(let total) = result {
+                self?.weeklyData.newValue(total.weeklyRawData) // 차트뷰에서 사용하는 주간 기록 업데이트
+            }
+        })
+        .disposed(by: disposeBag)
         
         return Output(
             alarm: alarm,
@@ -65,7 +76,7 @@ final class HomeViewModel: ViewModelProtocol {
     }
 }
 
-//MARK: 가장 가까운 알람 가져오기
+//MARK: 가장 가까운 알람 가져오기 - 로직 수정 필요!
 extension HomeViewModel {
     private func fetchNearestAlarm() -> Observable<Alarm?> {
         Observable.create { [weak self] observer in
@@ -139,6 +150,7 @@ extension HomeViewModel {
 
 //MARK: Total 기록
 extension HomeViewModel {
+    // 목표 행성
     enum TargetPlanet: Int, CaseIterable {
         case moon = 2 // 시간 기준! 달은 2시간
         case mars = 10 // 10시간
@@ -171,7 +183,7 @@ extension HomeViewModel {
         var streak: Int // 미션 연속 성공 일수
         var target: TargetPlanet? // 다음 목표 행성
         
-//        var weeklyResult: [Int: Int] // 주간 기록
+        var weeklyRawData: [Int: Int] // 주간 기록 rawdata
     }
     
     private func fetchTotalResult() -> Observable<TotalResult> {
@@ -182,23 +194,21 @@ extension HomeViewModel {
                 
                 if results.isEmpty {
                     let total = TotalResult(complete: 0, totalTime: 0, streak: 0, target: TargetPlanet.moon,
-//                                            weeklyResult: [:]
+                                            weeklyRawData: [:]
                     )
                     observer.onNext(total)
                     observer.onCompleted()
                 } else {
                     let calculation = calculateTotal(of: results)
                     let targetPlanet = TargetPlanet.allCases.filter { ($0.rawValue * 60) >= calculation.totalTime }.first
-                    
                     let rawData = calculateWeeklyTotal(of: results)
-                    self.weeklyData.newValue(rawData)
                     
                     let total = TotalResult(
                         complete: calculation.complete,
                         totalTime: calculation.totalTime,
                         streak: calculation.streak,
                         target: targetPlanet,
-//                        weeklyResult: weeklyResult
+                        weeklyRawData: rawData
                     )
                     
                     observer.onNext(total)
