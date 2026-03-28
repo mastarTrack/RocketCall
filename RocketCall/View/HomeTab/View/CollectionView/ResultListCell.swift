@@ -62,7 +62,7 @@ extension ResultListCell {
         let firstStack = UIStackView(arrangedSubviews: [titleLabel, timeLabel]).then {
             $0.axis = .horizontal
             $0.alignment = .bottom
-            $0.distribution = .fillEqually
+            $0.spacing = 5
             
             timeLabel.setContentHuggingPriority(.required, for: .horizontal)
             timeLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -70,10 +70,10 @@ extension ResultListCell {
         
         let secondStack = UIStackView(arrangedSubviews: [dateLabel, cycleLabel]).then {
             $0.axis = .horizontal
-            $0.distribution = .fillEqually
+            $0.spacing = 5
             
-            dateLabel.setContentHuggingPriority(.required, for: .horizontal)
-            dateLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+            cycleLabel.setContentHuggingPriority(.required, for: .horizontal)
+            cycleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         }
         
         

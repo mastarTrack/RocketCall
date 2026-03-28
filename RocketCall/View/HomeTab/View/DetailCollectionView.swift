@@ -88,7 +88,7 @@ extension DetailCollectionView {
     private func sumSectionLayout(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
         let environmentWidth = environment.container.effectiveContentSize.width
         let spacing: CGFloat = 8
-        let itemWidth = (environmentWidth / 2) - 8
+        let itemWidth = (environmentWidth - 8) / 2
         
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
