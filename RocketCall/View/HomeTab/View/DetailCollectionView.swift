@@ -20,8 +20,8 @@ final class DetailCollectionView: UICollectionView {
     enum Item: Hashable {
         case sum(HomeViewModel.SumResult)
         case chart([Int: Int])
-        case progress(Planet) // 타입 변경 필요
-        case result(MissionResultPayload) // 타입 변경 필요
+        case progress(HomeViewModel.ProgressStatus)
+        case result(MissionResultPayload)
         
         func hash(into hasher: inout Hasher) {
             switch self {
@@ -31,9 +31,9 @@ final class DetailCollectionView: UICollectionView {
             case .chart(let rawData):
                 hasher.combine("chart")
                 hasher.combine(rawData)
-            case .progress(let target):
+            case .progress(let status):
                 hasher.combine("progress")
-                hasher.combine(target)
+                hasher.combine(status)
             case .result(let payload):
                 hasher.combine("result")
                 hasher.combine(payload.id)

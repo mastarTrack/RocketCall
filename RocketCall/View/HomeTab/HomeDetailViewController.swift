@@ -92,6 +92,23 @@ extension HomeDetailViewController {
             .share()
         
         // Progress Section Item
+        let progress = output.progressStatus
+            .map {
+                switch $0 {
+                case .success(let status):
+                    return status
+                case .failure(let error):
+                    print(error)
+                    return HomeViewModel.ProgressStatus(current: .earth, target: .moon, progress: 0)
+                }
+            }
+            .share()
+        
+        let progressItem = progress
+            .map {
+                return [DetailCollectionView.Item.progress($0)]
+            }
+            .share()
         
         // Result Section Item
         let results = output.missionResults
@@ -115,66 +132,43 @@ extension HomeDetailViewController {
         
         // CollectionView 업데이트
         Observable
-            .combineLatest(sumItems, chartItem, resultItems)
-            .subscribe(onNext: { [weak self] sum, chart, result in
-                guard let self else { return }
-                
-                
-            })
-        
-        
-        Observable
-            .zip(output.total, output.missionResults)
-            .subscribe(onNext: { [weak self] totalResult, fetchResult in
-                guard let self else { return }
-                
-                var total: HomeViewModel.TotalResult?
-                
-                switch totalResult {
-                case .success(let result): total = result
-                case .failure(let error): print(error)
-                }
-                
-                var missionResults: [MissionResultPayload]?
-                switch fetchResult {
-                case .success(let results): missionResults = results
-                case .failure(let error): print(error)
-                }
-                
-                let sum = self.convertToItem(total, section: .sum)
-                let chart = self.convertToItem(total, section: .chart)
-                let progress = self.convertToItem(total, section: .progress)
-                
-                let allResults = missionResults?.compactMap { DetailCollectionView.Item.result($0) } ?? []
-                
-                let results = allResults.count >= 5 ? Array(allResults[0...4]) : allResults
-                
-                detailView.setSnapshot(with: [sum, chart, progress, results])
+            .combineLatest(sumItems, chartItem, progressItem, resultItems)
+            .subscribe(onNext: { [detailView] sum, chart, progress, result in
+                detailView.setSnapshot(with: [sum, chart, progress, result])
             })
             .disposed(by: disposeBag)
         
+//        Observable
+//            .zip(output.total, output.missionResults)
+//            .subscribe(onNext: { [weak self] totalResult, fetchResult in
+//                guard let self else { return }
+//                
+//                var total: HomeViewModel.TotalResult?
+//                
+//                switch totalResult {
+//                case .success(let result): total = result
+//                case .failure(let error): print(error)
+//                }
+//                
+//                var missionResults: [MissionResultPayload]?
+//                switch fetchResult {
+//                case .success(let results): missionResults = results
+//                case .failure(let error): print(error)
+//                }
+//                
+//                let sum = self.convertToItem(total, section: .sum)
+//                let chart = self.convertToItem(total, section: .chart)
+//                let progress = self.convertToItem(total, section: .progress)
+//                
+//                let allResults = missionResults?.compactMap { DetailCollectionView.Item.result($0) } ?? []
+//                
+//                let results = allResults.count >= 5 ? Array(allResults[0...4]) : allResults
+//                
+//                detailView.setSnapshot(with: [sum, chart, progress, results])
+//            })
+//            .disposed(by: disposeBag)
+//        
     }
     
-    private func convertToItem(_ result: [HomeViewModel.SumResult], section: DetailCollectionView.Section) -> [DetailCollectionView.Item] {
-        guard let result else { return [] }
-        
-        switch section {
-        case .sum:
-            let totalTime = DetailCollectionView.Item.sum(result[TotalCardView.CardCategory.totalTime.rawValue])
-            let leftTime = DetailCollectionView.Item.sum(result[TotalCardView.CardCategory.leftTime.rawValue])
-            let complete = DetailCollectionView.Item.sum(result[TotalCardView.CardCategory.totalCount.rawValue])
-            let streak = DetailCollectionView.Item.sum(result[TotalCardView.CardCategory.streak.rawValue])
-
-            return [totalTime, leftTime, complete, streak]
-            
-        case .chart:
-            return [DetailCollectionView.Item.chart(result.weeklyRawData)]
-            
-        case .progress:
-            return [DetailCollectionView.Item.progress(result.target!)]
-            
-        case .result:
-            return []
-        }
-    }
+    
 }

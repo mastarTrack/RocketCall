@@ -127,14 +127,13 @@ extension ProgressCell {
 }
 
 extension ProgressCell {
-    func configure(target: Planet) {
-        guard let start = Planet(rawValue: target.rawValue - 1) else { return }
+    func configure(status: HomeViewModel.ProgressStatus) {
+        progressLabel.text = "\(status.current.title) → \(status.target?.title ?? "")"
+        targetTimeLabel.text = "\(status.target?.targetTime ?? 0)시간"
         
-        progressLabel.text = "\(start.title) → \(target.title)"
+        startPlanet.text = status.current.emoji
+        targetPlanet.text = status.target?.emoji
         
-        startPlanet.text = start.emoji
-        targetPlanet.text = target.emoji
-        
-        progressView.setProgress(0.5, animated: true)
+        progressView.setProgress(status.progress, animated: true)
     }
 }

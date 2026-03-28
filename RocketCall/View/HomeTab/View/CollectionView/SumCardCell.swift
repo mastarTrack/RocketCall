@@ -30,7 +30,7 @@ extension SumCardCell {
         }
     }
     
-    func configure(type: TotalCardView.CardCategory, valueText: String, detailText: String) {
-        cardView.configure(type: type, valueText: valueText, detailText: detailText)
+    func configure(_ data: HomeViewModel.SumResult) {
+        cardView.configure(data)
     }
 }

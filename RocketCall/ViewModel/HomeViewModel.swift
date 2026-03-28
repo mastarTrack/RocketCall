@@ -408,7 +408,7 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
-    struct ProgressStatus {
+    struct ProgressStatus: Hashable {
         let current: Planet
         let target: Planet?
         let progress: Float

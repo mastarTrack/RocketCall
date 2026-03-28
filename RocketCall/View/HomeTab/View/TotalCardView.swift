@@ -125,14 +125,6 @@ extension TotalCardView {
 }
 
 extension TotalCardView {
-    func configure(type: CardCategory, valueText: String, detailText: String) {
-        backgroundColor = type.color.withAlphaComponent(0.2)
-        layer.borderColor = type.color.withAlphaComponent(0.3).cgColor
-        
-        valueLabel.text = valueText
-        detailLabel.text = detailText
-    }
-    
     func configure(_ data: HomeViewModel.SumResult) {
         // 색상 설정
         backgroundColor = data.cardType.color.withAlphaComponent(0.2)

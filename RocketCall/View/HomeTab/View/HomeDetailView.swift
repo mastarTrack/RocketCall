@@ -46,8 +46,8 @@ extension HomeDetailView {
         
         let sumCardCellRegistration = UICollectionView.CellRegistration<SumCardCell, DetailCollectionView.Item> { cell, indexPath, item in
             switch item {
-            case .sum(let type, let value, let detail):
-                cell.configure(type: type, valueText: value, detailText: detail)
+            case .sum(let result):
+                cell.configure(result)
             default:
                 break
             }
@@ -64,8 +64,8 @@ extension HomeDetailView {
         
         let progressCellRegistration = UICollectionView.CellRegistration<ProgressCell, DetailCollectionView.Item> { cell, indexPath, item in
             switch item {
-            case .progress(let target):
-                cell.configure(target: target)
+            case .progress(let status):
+                cell.configure(status: status)
             default:
                 break
             }

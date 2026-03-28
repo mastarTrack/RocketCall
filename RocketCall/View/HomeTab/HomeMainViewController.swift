@@ -117,7 +117,7 @@ extension HomeMainViewController {
             .map { _ in }
             .subscribe(onNext: { [weak self] in
                 guard let self else { return }
-//                self.navigationController?.pushViewController(HomeDetailViewController(viewModel: self.viewModel), animated: true)
+                self.navigationController?.pushViewController(HomeDetailViewController(viewModel: self.viewModel), animated: true)
             })
             .disposed(by: disposeBag)
     }
