@@ -71,17 +71,42 @@ extension HomeMainViewController {
             .disposed(by: disposeBag)
         
         // 통계 업데이트
-        output.total
+//        output.total
+//            .subscribe(onNext: { [homeMainView] result in
+//                switch result {
+//                case .success(let total):
+//                    // 카드뷰 업데이트
+//                    homeMainView.totalTimeCardView.valueLabel.text = "\(total.totalTime / 60)시간"
+//                    homeMainView.totalTimeCardView.detailLabel.text = "\(total.totalTime)분"
+//                    homeMainView.missionCardView.valueLabel.text = "\(total.complete)회"
+//                    
+//                case .failure(let error):
+//                    print(error) // 추후 처리 필요
+//                }
+//            })
+//            .disposed(by: disposeBag)
+        
+        // 통계 카드 업데이트
+        output.sum
             .subscribe(onNext: { [homeMainView] result in
                 switch result {
-                case .success(let total):
-                    // 카드뷰 업데이트
-                    homeMainView.totalTimeCardView.valueLabel.text = "\(total.totalTime / 60)시간"
-                    homeMainView.totalTimeCardView.detailLabel.text = "\(total.totalTime)분"
-                    homeMainView.missionCardView.valueLabel.text = "\(total.complete)회"
-                    
+                case .success(let results):
+                    homeMainView.totalTimeCardView.configure(results[TotalCardView.CardCategory.totalTime.rawValue])
+                    homeMainView.missionCardView.configure(results[TotalCardView.CardCategory.totalCount.rawValue])
                 case .failure(let error):
-                    print(error) // 추후 처리 필요
+                    print(error)
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        // 차트 데이터 업데이트 여부 - 에러 처리용
+        output.chartUpdated
+            .subscribe(onNext: { [weak self] result in
+                switch result {
+                case .success(let bool):
+                    break
+                case .failure(let error):
+                    print(error)
                 }
             })
             .disposed(by: disposeBag)
@@ -108,7 +133,7 @@ extension HomeMainViewController {
             .map { _ in }
             .subscribe(onNext: { [weak self] in
                 guard let self else { return }
-                self.navigationController?.pushViewController(HomeDetailViewController(viewModel: self.viewModel), animated: true)
+//                self.navigationController?.pushViewController(HomeDetailViewController(viewModel: self.viewModel), animated: true)
             })
             .disposed(by: disposeBag)
     }
