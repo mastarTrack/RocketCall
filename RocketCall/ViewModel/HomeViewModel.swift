@@ -16,10 +16,12 @@ final class HomeViewModel: ViewModelProtocol {
     
     struct Output {
         let alarm: Observable<Result<Alarm?, Error>> // (alarm: 알람, isExist: 존재 여부)
-        let total: Observable<Result<TotalResult, Error>>
-        let sum: Observable<Result<[SumResult], Error>> // 미션 결과 통계
         let missionResults: Observable<Result<[MissionResultPayload], Error>>
+        //        let total: Observable<Result<TotalResult, Error>>
+        let sum: Observable<Result<[SumResult], Error>> // 미션 결과 통계
+        let chartRawData: Observable<Result<[Int: Int], Error>> // 차트뷰에 사용할 rawData
     }
+        
     
     //MARK: 속성 선언
     let coreDataManager: CoreDataManager
@@ -97,11 +99,18 @@ final class HomeViewModel: ViewModelProtocol {
                 self.sumResults(of: results)
             }
         
+        // 차트 뷰에 사용할 주간 누적 기록 데이터
+        let chartRawData = missionResults
+            .withUnretained(self)
+            .flatMap { `self`, results in
+                self.chartRawData(from: results)
+            }
         
         return Output(
             alarm: alarm,
-            total: total,
-            missionResults: missionResults
+            missionResults: missionResults,
+            sum: sum,
+            chartRawData: chartRawData
         )
     }
 }
@@ -187,7 +196,7 @@ extension HomeViewModel {
 }
 
 //MARK: Total 기록
-extension HomeViewModel {    
+extension HomeViewModel {
     struct TotalResult {
         var complete: Int // 누적 완료 미션 횟수
         var totalTime: Int // 누적 집중 시간 (분)
@@ -197,74 +206,74 @@ extension HomeViewModel {
         var weeklyRawData: [Int: Int] // 주간 기록 rawdata
     }
     
-//    private func fetchTotalResult() -> Observable<TotalResult> {
-//        Observable.create { [weak self] observer in
-//            guard let self else { return Disposables.create() }
-//            do {
-//                let results = try self.coreDataManager.fetchAllMissionResult()
-//                
-//                if results.isEmpty {
-//                    let total = TotalResult(complete: 0, totalTime: 0, streak: 0, target: TargetPlanet.moon,
-//                                            weeklyRawData: [:]
-//                    )
-//                    observer.onNext(total)
-//                    observer.onCompleted()
-//                } else {
-//                    let calculation = calculateTotal(of: results)
-//                    let targetPlanet = TargetPlanet.allCases.filter { ($0.targetTime * 60) >= calculation.totalTime }.first
-//                    let rawData = calculateWeeklyTotal(of: results)
-//                    
-//                    let total = TotalResult(
-//                        complete: calculation.complete,
-//                        totalTime: calculation.totalTime,
-//                        streak: calculation.streak,
-//                        target: targetPlanet,
-//                        weeklyRawData: rawData
-//                    )
-//                    
-//                    observer.onNext(total)
-//                    observer.onCompleted()
-//                }
-//            } catch {
-//                observer.onError(error)
-//            }
-//            return Disposables.create()
-//        }
-//    }
+    //    private func fetchTotalResult() -> Observable<TotalResult> {
+    //        Observable.create { [weak self] observer in
+    //            guard let self else { return Disposables.create() }
+    //            do {
+    //                let results = try self.coreDataManager.fetchAllMissionResult()
+    //
+    //                if results.isEmpty {
+    //                    let total = TotalResult(complete: 0, totalTime: 0, streak: 0, target: TargetPlanet.moon,
+    //                                            weeklyRawData: [:]
+    //                    )
+    //                    observer.onNext(total)
+    //                    observer.onCompleted()
+    //                } else {
+    //                    let calculation = calculateTotal(of: results)
+    //                    let targetPlanet = TargetPlanet.allCases.filter { ($0.targetTime * 60) >= calculation.totalTime }.first
+    //                    let rawData = calculateWeeklyTotal(of: results)
+    //
+    //                    let total = TotalResult(
+    //                        complete: calculation.complete,
+    //                        totalTime: calculation.totalTime,
+    //                        streak: calculation.streak,
+    //                        target: targetPlanet,
+    //                        weeklyRawData: rawData
+    //                    )
+    //
+    //                    observer.onNext(total)
+    //                    observer.onCompleted()
+    //                }
+    //            } catch {
+    //                observer.onError(error)
+    //            }
+    //            return Disposables.create()
+    //        }
+    //    }
     
     // 총 집중 시간, 성공 미션 횟수, 연속 기록 일수를 계산하는 메서드
-//    private func calculateTotal(of results: [MissionResultPayload]) -> (complete: Int, totalTime: Int, streak: Int) {
-//        let calendar = Calendar.current
-//        
-//        let sortedByStartDate = results.sorted(by: { $0.start > $1.start }) // 미션 결과 start 날짜 기준 최근순 정렬
-//        
-//        let result = sortedByStartDate.reduce(into: (complete: 0, totalTime: 0, streak: 0, benchmark: Date.now)) {
-//            guard $1.isCompleted else { return } // 성공 미션일 경우에만 코드 진행
-//            
-//            if $0.streak >= 0 // 연속 기록이 유효하고
-//                && $1.start >= calendar.startOfDay(for: $0.benchmark) // result의 시작 시간이 기준일 범위 내에 있을 경우
-//                && $1.start <= calendar.startOfDay(for: $0.benchmark + 86399) {
-//                
-//                $0 = (
-//                    $0.complete + 1,
-//                    $0.totalTime + $1.studyTime,
-//                    $0.streak + 1,
-//                    $1.start
-//                )
-//            } else {
-//                // 연속 기록이 유효하지 않을 경우 (streak == -1)
-//                // 혹은 result의 시작 시간이 기준일 범위 밖에 있을 경우 (== 연속 기록이 아닌 경우)
-//                $0 = (
-//                    $0.complete + 1,
-//                    $0.totalTime + $1.studyTime,
-//                    -1,
-//                    $0.benchmark
-//                )
-//            }
-//        }
-//        
-//        return (result.complete, result.totalTime, result.streak)
-//    }
+    //    private func calculateTotal(of results: [MissionResultPayload]) -> (complete: Int, totalTime: Int, streak: Int) {
+    //        let calendar = Calendar.current
+    //
+    //        let sortedByStartDate = results.sorted(by: { $0.start > $1.start }) // 미션 결과 start 날짜 기준 최근순 정렬
+    //
+    //        let result = sortedByStartDate.reduce(into: (complete: 0, totalTime: 0, streak: 0, benchmark: Date.now)) {
+    //            guard $1.isCompleted else { return } // 성공 미션일 경우에만 코드 진행
+    //
+    //            if $0.streak >= 0 // 연속 기록이 유효하고
+    //                && $1.start >= calendar.startOfDay(for: $0.benchmark) // result의 시작 시간이 기준일 범위 내에 있을 경우
+    //                && $1.start <= calendar.startOfDay(for: $0.benchmark + 86399) {
+    //
+    //                $0 = (
+    //                    $0.complete + 1,
+    //                    $0.totalTime + $1.studyTime,
+    //                    $0.streak + 1,
+    //                    $1.start
+    //                )
+    //            } else {
+    //                // 연속 기록이 유효하지 않을 경우 (streak == -1)
+    //                // 혹은 result의 시작 시간이 기준일 범위 밖에 있을 경우 (== 연속 기록이 아닌 경우)
+    //                $0 = (
+    //                    $0.complete + 1,
+    //                    $0.totalTime + $1.studyTime,
+    //                    -1,
+    //                    $0.benchmark
+    //                )
+    //            }
+    //        }
+    //
+    //        return (result.complete, result.totalTime, result.streak)
+    //    }
     
     // 미션 결과 통계 계산 메서드
     private func sumResults(of result: Result<[MissionResultPayload], Error>) -> Observable<Result<[SumResult], Error>> {
@@ -273,10 +282,10 @@ extension HomeViewModel {
             
             switch result {
             case .success(let results):
-                let totalTime = self.totalTimeResult(from: results) // 총 집중 시간
-                let leftTime = self.leftTimeResult(from: totalTime.detail ?? 0) // 다음 목표까지 남은 시간
-                let totalCount = self.completeCountResult(from: results) // 총 미션 성공 횟수
-                let streak = self.streakResult(from: results)
+                let totalTime = self.calculateTotalTime(of: results) // 총 집중 시간
+                let leftTime = self.calculateLeftTime(from: totalTime.detail ?? 0) // 다음 목표까지 남은 시간
+                let totalCount = self.calculateCompleteCount(of: results) // 총 미션 성공 횟수
+                let streak = self.calculateStreak(of: results)
                 
                 observer.onNext(.success([totalTime, leftTime, totalCount, streak]))
                 observer.onCompleted()
@@ -291,7 +300,7 @@ extension HomeViewModel {
     }
     
     // 총 집중 시간 계산 메서드
-    private func totalTimeResult(from results: [MissionResultPayload]) -> SumResult {
+    private func calculateTotalTime(of results: [MissionResultPayload]) -> SumResult {
         guard !results.isEmpty else {
             return SumResult(
                 cardType: .totalTime,
@@ -314,7 +323,7 @@ extension HomeViewModel {
     }
     
     // 다음 목표까지 잔여 시간 계산 메서드
-    private func leftTimeResult(from totalMinute: Int) -> SumResult {
+    private func calculateLeftTime(from totalMinute: Int) -> SumResult {
         guard let target = findTargetPlanet(from: totalMinute) else {
             return SumResult(
                 cardType: .leftTime,
@@ -334,18 +343,18 @@ extension HomeViewModel {
     }
     
     // 총 성공 미션 횟수 계산 메서드
-    private func completeCountResult(from results: [MissionResultPayload]) -> SumResult {
-            let count = results.filter { $0.isCompleted }.count
-            
-            return SumResult(
-                cardType: .totalCount,
-                value: count,
-                detail: nil
-            )
+    private func calculateCompleteCount(of results: [MissionResultPayload]) -> SumResult {
+        let count = results.filter { $0.isCompleted }.count
+        
+        return SumResult(
+            cardType: .totalCount,
+            value: count,
+            detail: nil
+        )
     }
     
     // 연속 기록 일수 계산 메서드
-    private func streakResult(from results: [MissionResultPayload]) -> SumResult {
+    private func calculateStreak(of results: [MissionResultPayload]) -> SumResult {
         // 미션 결과가 없을 경우
         guard !results.isEmpty else {
             return SumResult(
@@ -370,7 +379,7 @@ extension HomeViewModel {
             .map {
                 calendar.startOfDay(for: $0.start)
             }
-
+        
         // 미션 성공 날짜 Set - 최근순 정렬
         let completeDates = Set(completed)
             .sorted(by: { $0 > $1 })
@@ -387,8 +396,8 @@ extension HomeViewModel {
         
         /*
          미션 성공 날짜에 어제 날짜가 포함되어있는지 확인
-          - 연속 집중 후 접속 일자와 마지막 집중 일자 간격이 1일보다 많은 경우 연속 기록을 초기화하기 위함
-          - 예시) 월, 화, 수 연속으로 집중하고 목, 금은 집중하지 않은 상태로 토요일에 접속했을 경우, 기존 연속 기록 3일이 보이지 않도록 하기 위함
+         - 연속 집중 후 접속 일자와 마지막 집중 일자 간격이 1일보다 많은 경우 연속 기록을 초기화하기 위함
+         - 예시) 월, 화, 수 연속으로 집중하고 목, 금은 집중하지 않은 상태로 토요일에 접속했을 경우, 기존 연속 기록 3일이 보이지 않도록 하기 위함
          */
         if completeDates.contains(yesterday) {
             for i in 1...completeDates.count {
@@ -406,6 +415,27 @@ extension HomeViewModel {
             cardType: .streak,
             value: streak
         )
+    }
+}
+
+//MARK: Chart RawData
+extension HomeViewModel {
+    // 차트뷰에 사용할 rawData를 가져오는 메서드
+    private func chartRawData(from result: Result<[MissionResultPayload], Error>) -> Observable<Result<[Int: Int], Error>> {
+        Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            
+            switch result {
+            case .success(let results):
+                let data = calculateWeeklyTotal(of: results)
+                observer.onNext(.success(data))
+                observer.onCompleted()
+            case .failure(let error):
+                observer.onNext(.failure(error))
+            }
+            
+            return Disposables.create()
+        }
     }
     
     // 주간 누적 기록을 계산하는 메서드
