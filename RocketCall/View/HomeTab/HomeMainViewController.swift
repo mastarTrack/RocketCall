@@ -59,6 +59,7 @@ extension HomeMainViewController {
         
         // 알람 카드뷰 업데이트
         output.alarm
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [cardView = homeMainView.alarmCardView] result in
                 switch result {
                 case .success(let alarm):
