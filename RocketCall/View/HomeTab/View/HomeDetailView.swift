@@ -13,9 +13,10 @@ import RxRelay
 final class HomeDetailView: UIView {
     private let titleView = TitleView(title: "상세 기록", subTitle: "당신의 우주 여정", hasButton: false)
     let collectionView = DetailCollectionView()
-    private lazy var dataSource = makeCollectionViewDiffableDataSource(collectionView)
+    private(set) lazy var dataSource = makeCollectionViewDiffableDataSource(collectionView)
     
     let infoButtonTappedRelay = PublishRelay<Void>()
+    let resultCellTappedRelay = PublishRelay<UUID>()
     let disposeBag = DisposeBag()
     
     override init(frame: CGRect) {
@@ -74,7 +75,7 @@ extension HomeDetailView {
             case .progress(let status):
                 cell.configure(status: status)
                 
-                cell.bind(item: status)
+                cell.bind()
                 cell.infoButtonTapped
                     .bind(to: self.infoButtonTappedRelay)
                     .disposed(by: cell.disposeBag)

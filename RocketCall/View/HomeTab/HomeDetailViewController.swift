@@ -147,6 +147,22 @@ extension HomeDetailViewController {
                 self?.present(HomeTimeContainerViewController(), animated: true)
             })
             .disposed(by: disposeBag)
+        
+        detailView.collectionView.rx.itemSelected
+            .subscribe(onNext: { [weak self] indexPath in
+                guard let self else { return }
+                guard let item = self.detailView.dataSource.itemIdentifier(for: indexPath) else { return }
+                
+                switch item {
+                case .result(let result):
+                    let vc = MissionResultViewController(coreDataManager: self.viewModel.coreDataManager, resultId: result.id)
+                    self.present(vc, animated: true)
+                default:
+                    break
+                }
+            })
+            .disposed(by: disposeBag)
+
     }
     
     

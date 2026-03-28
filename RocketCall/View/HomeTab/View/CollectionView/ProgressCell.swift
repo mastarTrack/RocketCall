@@ -56,7 +56,6 @@ final class ProgressCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setLayout()
-        bind()
     }
     
     required init?(coder: NSCoder) {
@@ -69,12 +68,6 @@ final class ProgressCell: UICollectionViewCell {
     }
     
     func bind() {
-        infoButton.rx.tap
-            .bind(to: infoButtonTapped)
-            .disposed(by: disposeBag)
-    }
-    
-    func bind(item: HomeViewModel.ProgressStatus) {
         infoButton.rx.tap
             .bind(to: infoButtonTapped)
             .disposed(by: disposeBag)

@@ -29,8 +29,6 @@ final class ResultListCell: UICollectionViewCell {
     
     private let stateLabel = StateLabel(text: "✔️ 성공", config: .success)
     
-    
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setLayout()
