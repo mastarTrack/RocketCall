@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import Then
 
-class SmallCardView: BaseCardView {
+class TotalCardView: BaseCardView {
     //MARK: Category Enum
     enum CardCategory: String, Hashable {
         case totalTime = "총 시간"
@@ -67,7 +67,7 @@ class SmallCardView: BaseCardView {
     }
 }
 
-extension SmallCardView {
+extension TotalCardView {
     private func setLayout(type: CardCategory) {
         let title = UILabel().then {
             $0.text = type.rawValue
@@ -77,29 +77,25 @@ extension SmallCardView {
         
         let titleStackView = SymbolLabelStack(symbol: type.symbol, symbolColor: type.titleColor, label: title)
         
-        addSubview(titleStackView)
-        addSubview(valueLabel)
-        addSubview(detailLabel)
+        let stackView = UIStackView(arrangedSubviews: [titleStackView, valueLabel, detailLabel]).then {
+            $0.axis = .vertical
+            $0.spacing = 5
+            $0.alignment = .leading
+            
+            detailLabel.setContentHuggingPriority(.defaultLow, for: .vertical)
+            detailLabel.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        }
         
-        titleStackView.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(10)
+        addSubview(stackView)
+        
+        stackView.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(15)
-        }
-        
-        valueLabel.snp.makeConstraints {
-            $0.top.equalTo(titleStackView.snp.bottom).offset(5)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-        }
-        
-        detailLabel.snp.makeConstraints {
-            $0.top.equalTo(valueLabel.snp.bottom).offset(5)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview().inset(15)
         }
     }
 }
 
-extension SmallCardView {
+extension TotalCardView {
     func configure(type: CardCategory, valueText: String, detailText: String) {
         backgroundColor = type.color.withAlphaComponent(0.2)
         layer.borderColor = type.color.withAlphaComponent(0.3).cgColor

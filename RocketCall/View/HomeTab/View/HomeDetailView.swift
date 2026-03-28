@@ -107,6 +107,6 @@ extension HomeDetailView {
         snapshot.appendItems(data[DetailCollectionView.Section.progress.rawValue], toSection: .progress)
         snapshot.appendItems(data[DetailCollectionView.Section.result.rawValue], toSection: .result)
         
-        dataSource.apply(snapshot)
+        dataSource.apply(snapshot, animatingDifferences: false)
     }
 }

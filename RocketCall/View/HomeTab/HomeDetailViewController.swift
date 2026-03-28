@@ -70,7 +70,10 @@ extension HomeDetailViewController {
                 let sum = self.convertToItem(total, section: .sum)
                 let chart = self.convertToItem(total, section: .chart)
                 let progress = self.convertToItem(total, section: .progress)
-                let results = missionResults?.compactMap { DetailCollectionView.Item.result($0) } ?? []
+                
+                let allResults = missionResults?.compactMap { DetailCollectionView.Item.result($0) } ?? []
+                
+                let results = allResults.count >= 5 ? Array(allResults[0...4]) : allResults
                 
                 detailView.setSnapshot(with: [sum, chart, progress, results])
             })

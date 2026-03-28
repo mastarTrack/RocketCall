@@ -18,7 +18,7 @@ final class DetailCollectionView: UICollectionView {
     
     //TODO: 타입 변경 필요
     enum Item: Hashable {
-        case sum(SmallCardView.CardCategory, String, String) // 카테고리, value, detail
+        case sum(TotalCardView.CardCategory, String, String) // 카테고리, value, detail
         case chart([Int: Int])
         case progress(TargetPlanet) // 타입 변경 필요
         case result(MissionResultPayload) // 타입 변경 필요
@@ -33,10 +33,12 @@ final class DetailCollectionView: UICollectionView {
             case .chart(let rawData):
                 hasher.combine("chart")
                 hasher.combine(rawData)
-            case .progress:
+            case .progress(let target):
                 hasher.combine("progress")
-            case .result:
+                hasher.combine(target)
+            case .result(let payload):
                 hasher.combine("result")
+                hasher.combine(payload.id)
             }
         }
         
@@ -47,6 +49,7 @@ final class DetailCollectionView: UICollectionView {
         super.init(frame: frame, collectionViewLayout: UICollectionViewLayout())
         collectionViewLayout = makeCompositionalLayout()
         layoutMargins = .init(top: 0, left: 20, bottom: 0, right: 20)
+        contentInset = .init(top: 0, left: 0, bottom: 50, right: 0)
         backgroundColor = .background
     }
     
@@ -62,7 +65,7 @@ extension DetailCollectionView {
         configuration.interSectionSpacing = 10
         configuration.contentInsetsReference = .layoutMargins
         
-        return UICollectionViewCompositionalLayout { [weak self] sectionIndex, environment in
+        return UICollectionViewCompositionalLayout (sectionProvider: { [weak self] sectionIndex, environment in
             switch Section(rawValue: sectionIndex) {
             case .sum:
                 let section = self?.sumSectionLayout(environment: environment)
@@ -71,7 +74,7 @@ extension DetailCollectionView {
                 let section = self?.chartSectionLayout()
                 return section
             case .progress:
-                let section = self?.chartSectionLayout()
+                let section = self?.progressSectionLayout()
                 return section
             case .result:
                 let section = self?.resultSectionLayout(environment: environment)
@@ -79,7 +82,7 @@ extension DetailCollectionView {
             case .none:
                 return self?.chartSectionLayout()
             }
-        }
+        }, configuration: configuration)
     }
     
     private func sumSectionLayout(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
@@ -90,7 +93,7 @@ extension DetailCollectionView {
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .absolute(itemWidth),
-                heightDimension: .absolute(itemWidth * 0.6)
+                heightDimension: .absolute(itemWidth * 0.55)
             )
         )
         
@@ -98,7 +101,7 @@ extension DetailCollectionView {
         let innerGroup = NSCollectionLayoutGroup.horizontal(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
-                heightDimension: .absolute(itemWidth * 0.6)
+                heightDimension: .absolute(itemWidth * 0.55)
             ),
             repeatingSubitem: item,
             count: 2
@@ -110,7 +113,7 @@ extension DetailCollectionView {
         let group = NSCollectionLayoutGroup.vertical(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
-                heightDimension: .absolute((itemWidth * 0.6 * 2) + spacing)
+                heightDimension: .absolute((itemWidth * 1.1) + 8)
             ),
             repeatingSubitem: innerGroup,
             count: 2
@@ -127,14 +130,14 @@ extension DetailCollectionView {
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
-                heightDimension: .fractionalHeight(1)
+                heightDimension: .fractionalWidth(0.8)
             )
         )
         
         let group = NSCollectionLayoutGroup.vertical(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
-                heightDimension: .fractionalHeight(1)
+                heightDimension: .fractionalWidth(0.8)
             ),
             subitems: [item]
         )
@@ -144,18 +147,39 @@ extension DetailCollectionView {
         return section
     }
     
-    private func resultSectionLayout(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
+    private func progressSectionLayout() -> NSCollectionLayoutSection {
         let item = NSCollectionLayoutItem(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
-                heightDimension: .fractionalHeight(1)
+                heightDimension: .fractionalWidth(0.35)
             )
         )
         
         let group = NSCollectionLayoutGroup.vertical(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
-                heightDimension: .fractionalHeight(1)
+                heightDimension: .fractionalWidth(0.35)
+            ),
+            subitems: [item]
+        )
+        
+        let section = NSCollectionLayoutSection(group: group)
+        
+        return section
+    }
+    
+    private func resultSectionLayout(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {        
+        let item = NSCollectionLayoutItem(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1),
+                heightDimension: .fractionalWidth(0.28)
+            )
+        )
+        
+        let group = NSCollectionLayoutGroup.vertical(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1),
+                heightDimension: .fractionalWidth(0.28)
             ),
             subitems: [item]
         )

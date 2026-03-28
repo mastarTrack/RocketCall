@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 
 final class SumCardCell: UICollectionViewCell {
-    private let cardView = SmallCardView(type: .totalCount)
+    private let cardView = TotalCardView(type: .totalCount)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,7 +30,7 @@ extension SumCardCell {
         }
     }
     
-    func configure(type: SmallCardView.CardCategory, valueText: String, detailText: String) {
+    func configure(type: TotalCardView.CardCategory, valueText: String, detailText: String) {
         cardView.configure(type: type, valueText: valueText, detailText: detailText)
     }
 }

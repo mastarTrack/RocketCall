@@ -9,7 +9,8 @@ import UIKit
 
 // 목표 행성
 enum TargetPlanet: Int, CaseIterable {
-    case moon = 0
+    case earth = 0
+    case moon
     case mars
     case venus
     case mercury
@@ -21,6 +22,7 @@ enum TargetPlanet: Int, CaseIterable {
     
     var title: String {
         switch self {
+        case .earth: "지구"
         case .moon: "달"
         case .mars: "화성"
         case .venus: "금성"
@@ -32,23 +34,24 @@ enum TargetPlanet: Int, CaseIterable {
         case .neptune: "해왕성"
         }
     }
-    
-    var image: UIImage {
+    var emoji: String {
         switch self {
-        case .moon: UIImage.star5 // 변경 필요
-        case .mars: UIImage.star1
-        case .venus: UIImage.star3 // 변경 필요
-        case .mercury: UIImage.star3
-        case .sun: UIImage.star5
-        case .jupiter: UIImage.star2
-        case .saturn: UIImage.star4
-        case .uranus: UIImage.star6
-        case .neptune: UIImage.star6 // 변경 필요
+        case .earth: "🌏"
+        case .moon: "🌙"
+        case .mars: "🔴"
+        case .venus: "🟡"
+        case .mercury: "⚪️"
+        case .sun: "☀️"
+        case .jupiter: "🟤"
+        case .saturn: "🪐"
+        case .uranus: "🔵"
+        case .neptune: "💠"
         }
     }
     
     var targetTime: Int {
         switch self {
+        case .earth: 0
         case .moon: 2 // 시간 기준! 달은 2시간
         case .mars: 10 // 10시간
         case .venus: 25 // ...

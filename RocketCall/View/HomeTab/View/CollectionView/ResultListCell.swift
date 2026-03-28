@@ -18,8 +18,8 @@ final class ResultListCell: UICollectionViewCell {
     private let timeLabel = UILabel(
         text: "시간",
         config: LabelConfiguration(font: .boldSystemFont(ofSize: 18), color: .mainLabel, lines: 1)).then {
-        $0.textAlignment = .right
-    }
+            $0.textAlignment = .right
+        }
     
     private let dateLabel = UILabel(text: "날짜", config: .sub12)
     private let cycleLabel = UILabel(text: "사이클", config: .sub12).then {
@@ -27,6 +27,8 @@ final class ResultListCell: UICollectionViewCell {
     }
     
     private let stateLabel = StateLabel(text: "✔️ 성공", config: .success)
+    
+    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -36,9 +38,26 @@ final class ResultListCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        titleLabel.text = nil
+        timeLabel.text = nil
+        dateLabel.text = nil
+        cycleLabel.text = nil
+    }
 }
 
 extension ResultListCell {
+    private func setAttributes() {
+        contentView.backgroundColor = UIColor(red: 18/255.0, green: 26/255.0, blue: 48/255.0, alpha: 1.0)
+        contentView.layer.cornerRadius = 16
+        contentView.layer.masksToBounds = true
+        contentView.layer.borderWidth = 1
+        contentView.layer.borderColor = UIColor(red: 201/255.0, green: 209/255.0, blue: 232/255.0, alpha: 0.3).cgColor
+    }
+    
     private func setLayout() {
         let firstStack = UIStackView(arrangedSubviews: [titleLabel, timeLabel]).then {
             $0.axis = .horizontal
@@ -56,6 +75,7 @@ extension ResultListCell {
             dateLabel.setContentHuggingPriority(.required, for: .horizontal)
             dateLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         }
+        
         
         contentView.addSubview(cardView)
         cardView.addSubview(firstStack)
