@@ -8,6 +8,7 @@
 import RxSwift
 import RxCocoa
 import Foundation
+import UserNotifications
 
 final class HomeViewModel: ViewModelProtocol {
     struct Input {
@@ -25,7 +26,9 @@ final class HomeViewModel: ViewModelProtocol {
     
     //MARK: 속성 선언
     let coreDataManager: CoreDataManager
+    let notificationManager: NotificationManager
     let disposeBag = DisposeBag()
+    let center = UNUserNotificationCenter.current()
     private(set) var weeklyData: WeeklyData // ChartView 바인딩용
     
     struct TotalResultValue {
@@ -34,8 +37,9 @@ final class HomeViewModel: ViewModelProtocol {
     }
     
     //MARK: init
-    init(coreDataManager: CoreDataManager) {
+    init(coreDataManager: CoreDataManager, notificationManager: NotificationManager) {
         self.coreDataManager = coreDataManager
+        self.notificationManager = notificationManager
         self.weeklyData = WeeklyData()
     }
     
@@ -111,6 +115,11 @@ extension HomeViewModel {
 
 //MARK: 가장 가까운 알람 가져오기 - 로직 수정 필요!
 extension HomeViewModel {
+    private func nearestAlarm() {
+
+
+    }
+    
     private func fetchNearestAlarm() -> Observable<Alarm?> {
         Observable.create { [weak self] observer in
             do {
@@ -153,12 +162,13 @@ extension HomeViewModel {
         do {
             let alarms = try coreDataManager.fetchAllAlarm()
 //            print(alarms)
+            nearestAlarm()
             let filtered = alarms.filter {
                 $0.isOn == true // 활성화 된 알람
                 && ($0.repeatDays.isEmpty || $0.repeatDays.contains(weekday)) // 반복 요일이 없거나, 반복 요일에 현재 요일이 포함된 경우
 //                && time <= ($0.hour * 60 + $0.minute)  현재 시간보다 뒤로 설정된 알람만
             }
-            print(filtered)
+//            print(filtered)
             return filtered.first
             
         } catch {
