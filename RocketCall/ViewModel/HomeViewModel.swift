@@ -18,7 +18,6 @@ final class HomeViewModel: ViewModelProtocol {
         let alarm: Observable<Result<Alarm?, Error>> // (alarm: 알람, isExist: 존재 여부)
         let missionResults: Observable<Result<[MissionResultPayload], Error>> // 미션 결과 목록
         let sum: Observable<Result<[SumResult], Error>> // 미션 결과 통계
-//        let chartUpdated: Observable<Result<Bool, Error>> // 차트뷰 업데이트 여부 - 에러 처리를 위함
         let chartRawData: Observable<Result<[Int: Int], Error>> // 차트뷰 업데이트를 위한 dataSource
         let progressStatus: Observable<Result<ProgressStatus, Error>> // ProgressView 데이터
     }
@@ -78,13 +77,6 @@ final class HomeViewModel: ViewModelProtocol {
                 self.sumResults(of: results)
             }
             .share()
-        
-//        // 차트 뷰에 사용할 주간 누적 기록 데이터
-//        let chartUpdated = missionResults
-//            .withUnretained(self)
-//            .flatMap { `self`, results in
-//                self.chartDataUpdate(from: results)
-//            }
         
         // 상세화면 차트 뷰에 바인딩용 주간 누적 기록 데이터
         let chartRawData = missionResults
@@ -339,24 +331,6 @@ extension HomeViewModel {
 
 //MARK: Chart RawData
 extension HomeViewModel {
-//    // 차트뷰에 사용할 rawData를 업데이트하고, 업데이트 여부를 알리는 메서드
-//    private func chartDataUpdate(from result: Result<[MissionResultPayload], Error>) -> Observable<Result<Bool, Error>> {
-//        Observable.create { [weak self] observer in
-//            guard let self else { return Disposables.create() }
-//            
-//            switch result {
-//            case .success(let results):
-//                self.weeklyData.newValue(calculateWeeklyTotal(of: results)) // 차트뷰 dataSource 업데이트
-//                observer.onNext(.success(true))
-//                observer.onCompleted()
-//                
-//            case .failure(let error):
-//                observer.onNext(.failure(error))
-//            }
-//            return Disposables.create()
-//        }
-//    }
-    
     // 차트뷰에 사용할 rawData를 업데이트하고, rawData를 전달하는 메서드
     private func chartRawData(from result: Result<[MissionResultPayload], Error>) -> Observable<Result<[Int: Int], Error>> {
         Observable.create { [weak self] observer in
@@ -400,7 +374,7 @@ extension HomeViewModel {
             let rawWeekday = calendar.dateComponents(in: .current, from: result.start).weekday ?? -1
             let weekday = rawWeekday == 1 ? 6 : rawWeekday - 2
         
-            weeklyRecord[weekday, default: 0] += result.studyTime
+            weeklyRecord[weekday, default: 0] += (result.studyTime / 60)
         }
         
         return weeklyRecord

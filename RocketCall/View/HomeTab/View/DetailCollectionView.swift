@@ -60,7 +60,7 @@ final class DetailCollectionView: UICollectionView {
 extension DetailCollectionView {
     private func makeCompositionalLayout() -> UICollectionViewLayout {
         let configuration = UICollectionViewCompositionalLayoutConfiguration()
-        configuration.interSectionSpacing = 10
+        configuration.interSectionSpacing = 20
         configuration.contentInsetsReference = .layoutMargins
         
         return UICollectionViewCompositionalLayout (sectionProvider: { [weak self] sectionIndex, environment in

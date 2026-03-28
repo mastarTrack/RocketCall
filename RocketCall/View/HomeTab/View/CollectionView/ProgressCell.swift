@@ -10,7 +10,10 @@ import SnapKit
 import Then
 
 final class ProgressCell: UICollectionViewCell {
-    private let cardView = BaseCardView()
+    private let cardView = BaseCardView().then {
+        $0.isOn = true
+        $0.backgroundColor = .mainPoint.withAlphaComponent(0.2)
+    }
     
     private let titleLabel = UILabel().then {
         $0.text = "태양계 정복도"
