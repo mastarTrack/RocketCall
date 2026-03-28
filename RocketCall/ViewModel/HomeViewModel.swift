@@ -20,6 +20,7 @@ final class HomeViewModel: ViewModelProtocol {
         let sum: Observable<Result<[SumResult], Error>> // 미션 결과 통계
 //        let chartUpdated: Observable<Result<Bool, Error>> // 차트뷰 업데이트 여부 - 에러 처리를 위함
         let chartRawData: Observable<Result<[Int: Int], Error>> // 차트뷰 업데이트를 위한 dataSource
+        let progressStatus: Observable<Result<ProgressStatus, Error>> // ProgressView 데이터
     }
         
     
@@ -76,6 +77,7 @@ final class HomeViewModel: ViewModelProtocol {
             .flatMap { `self`, results in
                 self.sumResults(of: results)
             }
+            .share()
         
 //        // 차트 뷰에 사용할 주간 누적 기록 데이터
 //        let chartUpdated = missionResults
@@ -91,11 +93,18 @@ final class HomeViewModel: ViewModelProtocol {
                 self.chartRawData(from: results)
             }
         
+        let progress: Observable<Result<ProgressStatus, Error>> = sum
+            .withUnretained(self)
+            .flatMap { `self`, results in
+                self.progressStatus(from: results)
+            }
+        
         return Output(
             alarm: alarm,
             missionResults: missionResults,
             sum: sum,
-            chartRawData: chartRawData
+            chartRawData: chartRawData,
+            progressStatus: progress
         )
     }
 }
@@ -403,6 +412,29 @@ extension HomeViewModel {
         let current: Planet
         let target: Planet?
         let progress: Float
+    }
+    
+    private func progressStatus(from result: Result<[SumResult], Error>) -> Observable<Result<ProgressStatus, Error>> {
+        Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            
+            switch result {
+            case .success(let result):
+                let cum = result[TotalCardView.CardCategory.totalTime.rawValue].value // 누적 집중 시간(분)
+                let left = result[TotalCardView.CardCategory.leftTime.rawValue].value // 다음 목적지까지 남은 시간(분)
+                
+                let progressStatus = self.calculateProgress(cum: cum, left: left)
+                
+                observer.onNext(.success(progressStatus))
+                observer.onCompleted()
+                
+            case .failure(let error):
+                observer.onNext(.failure(error))
+                observer.onCompleted()
+            }
+            
+            return Disposables.create()
+        }
     }
     
     private func calculateProgress(cum: Int, left: Int) -> ProgressStatus {
