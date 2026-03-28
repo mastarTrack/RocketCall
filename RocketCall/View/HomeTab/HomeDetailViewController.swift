@@ -37,6 +37,7 @@ final class HomeDetailViewController: UIViewController {
 
 extension HomeDetailViewController {
     private func bind() {
+        //MARK: Input
         let viewWillAppear = rx.viewWillAppear
         let didBecomeActive = NotificationCenter.default.rx.notification(UIApplication.didBecomeActiveNotification)
             .map { _ in }
@@ -46,8 +47,10 @@ extension HomeDetailViewController {
             fetchData: Observable.merge(viewWillAppear, didBecomeActive)
         )
         
+        //MARK: Output
         let output = viewModel.transform(input)
         
+        //MARK: set collectionView snapSHot
         // Sum Section Item
         let sum: Observable<[HomeViewModel.SumResult]> = output.sum
             .map {
@@ -138,36 +141,12 @@ extension HomeDetailViewController {
             })
             .disposed(by: disposeBag)
         
-//        Observable
-//            .zip(output.total, output.missionResults)
-//            .subscribe(onNext: { [weak self] totalResult, fetchResult in
-//                guard let self else { return }
-//                
-//                var total: HomeViewModel.TotalResult?
-//                
-//                switch totalResult {
-//                case .success(let result): total = result
-//                case .failure(let error): print(error)
-//                }
-//                
-//                var missionResults: [MissionResultPayload]?
-//                switch fetchResult {
-//                case .success(let results): missionResults = results
-//                case .failure(let error): print(error)
-//                }
-//                
-//                let sum = self.convertToItem(total, section: .sum)
-//                let chart = self.convertToItem(total, section: .chart)
-//                let progress = self.convertToItem(total, section: .progress)
-//                
-//                let allResults = missionResults?.compactMap { DetailCollectionView.Item.result($0) } ?? []
-//                
-//                let results = allResults.count >= 5 ? Array(allResults[0...4]) : allResults
-//                
-//                detailView.setSnapshot(with: [sum, chart, progress, results])
-//            })
-//            .disposed(by: disposeBag)
-//        
+        //MARK: collectionView event
+        detailView.infoButtonTappedRelay
+            .subscribe(onNext: { [weak self] item in
+                self?.present(HomeTimeContainerViewController(), animated: true)
+            })
+            .disposed(by: disposeBag)
     }
     
     

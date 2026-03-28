@@ -64,3 +64,13 @@ enum Planet: Int, CaseIterable {
         }
     }
 }
+
+extension Planet {
+    var listItem: ContainerInfoItem {
+        ContainerInfoItem(
+            title: title,
+            value: "\(targetTime)시간",
+            emoji: emoji
+        )
+    }
+}

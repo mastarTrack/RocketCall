@@ -7,11 +7,16 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxRelay
 
 final class HomeDetailView: UIView {
     private let titleView = TitleView(title: "상세 기록", subTitle: "당신의 우주 여정", hasButton: false)
     let collectionView = DetailCollectionView()
     private lazy var dataSource = makeCollectionViewDiffableDataSource(collectionView)
+    
+    let infoButtonTappedRelay = PublishRelay<Void>()
+    let disposeBag = DisposeBag()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -62,10 +67,17 @@ extension HomeDetailView {
             }
         }
         
-        let progressCellRegistration = UICollectionView.CellRegistration<ProgressCell, DetailCollectionView.Item> { cell, indexPath, item in
+        let progressCellRegistration = UICollectionView.CellRegistration<ProgressCell, DetailCollectionView.Item> { [weak self] cell, indexPath, item in
+            guard let self else { return }
+            
             switch item {
             case .progress(let status):
                 cell.configure(status: status)
+                
+                cell.bind(item: status)
+                cell.infoButtonTapped
+                    .bind(to: self.infoButtonTappedRelay)
+                    .disposed(by: cell.disposeBag)
             default:
                 break
             }
