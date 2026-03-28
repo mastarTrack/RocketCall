@@ -7,8 +7,8 @@
 
 import UIKit
 
-// 목표 행성
-enum TargetPlanet: Int, CaseIterable {
+// 행성
+enum Planet: Int, CaseIterable {
     case earth = 0
     case moon
     case mars

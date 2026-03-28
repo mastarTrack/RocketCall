@@ -70,22 +70,6 @@ extension HomeMainViewController {
             })
             .disposed(by: disposeBag)
         
-        // 통계 업데이트
-//        output.total
-//            .subscribe(onNext: { [homeMainView] result in
-//                switch result {
-//                case .success(let total):
-//                    // 카드뷰 업데이트
-//                    homeMainView.totalTimeCardView.valueLabel.text = "\(total.totalTime / 60)시간"
-//                    homeMainView.totalTimeCardView.detailLabel.text = "\(total.totalTime)분"
-//                    homeMainView.missionCardView.valueLabel.text = "\(total.complete)회"
-//                    
-//                case .failure(let error):
-//                    print(error) // 추후 처리 필요
-//                }
-//            })
-//            .disposed(by: disposeBag)
-        
         // 통계 카드 업데이트
         output.sum
             .subscribe(onNext: { [homeMainView] result in
@@ -99,11 +83,11 @@ extension HomeMainViewController {
             })
             .disposed(by: disposeBag)
         
-        // 차트 데이터 업데이트 여부 - 에러 처리용
-        output.chartUpdated
+        // 차트뷰 데이터소스 - 에러 처리용
+        output.chartRawData
             .subscribe(onNext: { [weak self] result in
                 switch result {
-                case .success(let bool):
+                case .success(_):
                     break
                 case .failure(let error):
                     print(error)

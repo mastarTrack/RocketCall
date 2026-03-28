@@ -20,11 +20,11 @@ final class ProgressCell: UICollectionViewCell {
     let subTitleLabel = UILabel(text: "집중할수록 행성에 가까워져요", config: .sub14)
     
     let startPlanet = UILabel().then {
-        $0.text = TargetPlanet.earth.emoji
+        $0.text = Planet.earth.emoji
         $0.font = .systemFont(ofSize: 30)
     }
     let targetPlanet = UILabel().then {
-        $0.text = TargetPlanet.moon.emoji
+        $0.text = Planet.moon.emoji
         $0.font = .systemFont(ofSize: 30)
     }
     
@@ -32,7 +32,7 @@ final class ProgressCell: UICollectionViewCell {
     let progressLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .semibold)
         $0.textColor = .mainLabel
-        $0.text = "\(TargetPlanet.earth.title) → \(TargetPlanet.moon.title)"
+        $0.text = "\(Planet.earth.title) → \(Planet.moon.title)"
     }
     let targetTimeLabel = UILabel(text: "시간", config: .sub12).then {
         $0.textAlignment = .right
@@ -127,8 +127,8 @@ extension ProgressCell {
 }
 
 extension ProgressCell {
-    func configure(target: TargetPlanet) {
-        guard let start = TargetPlanet(rawValue: target.rawValue - 1) else { return }
+    func configure(target: Planet) {
+        guard let start = Planet(rawValue: target.rawValue - 1) else { return }
         
         progressLabel.text = "\(start.title) → \(target.title)"
         

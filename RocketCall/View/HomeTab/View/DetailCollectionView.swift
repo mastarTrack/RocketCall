@@ -18,18 +18,16 @@ final class DetailCollectionView: UICollectionView {
     
     //TODO: 타입 변경 필요
     enum Item: Hashable {
-        case sum(TotalCardView.CardCategory, String, String) // 카테고리, value, detail
+        case sum(HomeViewModel.SumResult)
         case chart([Int: Int])
-        case progress(TargetPlanet) // 타입 변경 필요
+        case progress(Planet) // 타입 변경 필요
         case result(MissionResultPayload) // 타입 변경 필요
         
         func hash(into hasher: inout Hasher) {
             switch self {
-            case .sum(let category, let value, let detail):
+            case .sum(let result):
                 hasher.combine("total")
-                hasher.combine(category)
-                hasher.combine(value)
-                hasher.combine(detail)
+                hasher.combine(result)
             case .chart(let rawData):
                 hasher.combine("chart")
                 hasher.combine(rawData)

@@ -18,7 +18,8 @@ final class HomeViewModel: ViewModelProtocol {
         let alarm: Observable<Result<Alarm?, Error>> // (alarm: 알람, isExist: 존재 여부)
         let missionResults: Observable<Result<[MissionResultPayload], Error>> // 미션 결과 목록
         let sum: Observable<Result<[SumResult], Error>> // 미션 결과 통계
-        let chartUpdated: Observable<Result<Bool, Error>> // 차트뷰 업데이트 여부 - 에러 처리를 위함
+//        let chartUpdated: Observable<Result<Bool, Error>> // 차트뷰 업데이트 여부 - 에러 처리를 위함
+        let chartRawData: Observable<Result<[Int: Int], Error>> // 차트뷰 업데이트를 위한 dataSource
     }
         
     
@@ -76,24 +77,31 @@ final class HomeViewModel: ViewModelProtocol {
                 self.sumResults(of: results)
             }
         
-        // 차트 뷰에 사용할 주간 누적 기록 데이터
-        let chartUpdated = missionResults
+//        // 차트 뷰에 사용할 주간 누적 기록 데이터
+//        let chartUpdated = missionResults
+//            .withUnretained(self)
+//            .flatMap { `self`, results in
+//                self.chartDataUpdate(from: results)
+//            }
+        
+        // 상세화면 차트 뷰에 바인딩용 주간 누적 기록 데이터
+        let chartRawData = missionResults
             .withUnretained(self)
             .flatMap { `self`, results in
-                self.chartDataUpdate(from: results)
+                self.chartRawData(from: results)
             }
         
         return Output(
             alarm: alarm,
             missionResults: missionResults,
             sum: sum,
-            chartUpdated: chartUpdated
+            chartRawData: chartRawData
         )
     }
 }
 
 extension HomeViewModel {
-    struct SumResult {
+    struct SumResult: Hashable {
         var cardType: TotalCardView.CardCategory
         var value: Int
         var detail: Int
@@ -322,15 +330,35 @@ extension HomeViewModel {
 
 //MARK: Chart RawData
 extension HomeViewModel {
-    // 차트뷰에 사용할 rawData를 업데이트하고, 업데이트 여부를 알리는 메서드
-    private func chartDataUpdate(from result: Result<[MissionResultPayload], Error>) -> Observable<Result<Bool, Error>> {
+//    // 차트뷰에 사용할 rawData를 업데이트하고, 업데이트 여부를 알리는 메서드
+//    private func chartDataUpdate(from result: Result<[MissionResultPayload], Error>) -> Observable<Result<Bool, Error>> {
+//        Observable.create { [weak self] observer in
+//            guard let self else { return Disposables.create() }
+//            
+//            switch result {
+//            case .success(let results):
+//                self.weeklyData.newValue(calculateWeeklyTotal(of: results)) // 차트뷰 dataSource 업데이트
+//                observer.onNext(.success(true))
+//                observer.onCompleted()
+//                
+//            case .failure(let error):
+//                observer.onNext(.failure(error))
+//            }
+//            return Disposables.create()
+//        }
+//    }
+    
+    // 차트뷰에 사용할 rawData를 업데이트하고, rawData를 전달하는 메서드
+    private func chartRawData(from result: Result<[MissionResultPayload], Error>) -> Observable<Result<[Int: Int], Error>> {
         Observable.create { [weak self] observer in
             guard let self else { return Disposables.create() }
             
             switch result {
             case .success(let results):
-                self.weeklyData.newValue(calculateWeeklyTotal(of: results)) // 차트뷰 dataSource 업데이트
-                observer.onNext(.success(true))
+                let data = calculateWeeklyTotal(of: results)
+                self.weeklyData.newValue(data) // 차트뷰(Main 화면) dataSource 업데이트
+                
+                observer.onNext(.success(data))
                 observer.onCompleted()
                 
             case .failure(let error):
@@ -371,6 +399,35 @@ extension HomeViewModel {
 }
 
 extension HomeViewModel {
+    struct ProgressStatus {
+        let current: Planet
+        let target: Planet?
+        let progress: Float
+    }
+    
+    private func calculateProgress(cum: Int, left: Int) -> ProgressStatus {
+        let target = findTargetPlanet(from: cum) // 목적지
+        
+        guard let target else { // 마지막 목적지까지 이미 도달한 경우
+            return ProgressStatus(
+                current: Planet.allCases.last!,
+                target: nil,
+                progress: 1
+            )
+        }
+        
+        let current = Planet.allCases[target.rawValue - 1]
+        let progress = Float(cum) / Float(target.targetTime * 60)
+        
+        return ProgressStatus(
+            current: current,
+            target: target,
+            progress: progress
+        )
+    }
+}
+
+extension HomeViewModel {
     private func fetchAllMissionResults() -> Observable<[MissionResultPayload]> {
         Observable.create { [weak self] observer in
             guard let self else { return Disposables.create() }
@@ -385,8 +442,8 @@ extension HomeViewModel {
         }
     }
     
-    private func findTargetPlanet(from totalMinute: Int) -> TargetPlanet? {
-        TargetPlanet.allCases.filter {
+    private func findTargetPlanet(from totalMinute: Int) -> Planet? {
+        Planet.allCases.filter {
             totalMinute < ($0.targetTime * 60)
         }.first
     }
