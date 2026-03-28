@@ -115,41 +115,54 @@ extension HomeViewModel {
 
 //MARK: 가장 가까운 알람 가져오기 - 로직 수정 필요!
 extension HomeViewModel {
-    private func nearestAlarm() {
-
-
+    private func nearestAlarm() async {
+        guard let id = await notificationManager.fetchNearestAlarm() else {
+            print("id없음")
+            return
+        }
+        
+        do {
+            let result = try coreDataManager.fetchAlarm(of: id)
+            print(result)
+        } catch {
+            print(error)
+        }
     }
     
     private func fetchNearestAlarm() -> Observable<Alarm?> {
         Observable.create { [weak self] observer in
-            do {
-                let payload = try self?.fetchNearestAlarmPayload()
-                
-                if let payload {
-                    let result = Alarm(
-                        id: payload.id,
-                        hour: payload.hour,
-                        minute: payload.minute,
-                        title: payload.title,
-                        repeatDays: payload.repeatDays.compactMap { WeekDay(rawValue: $0) },
-                        isOn: payload.isOn
-                    )
+            let task = Task {
+                do {
+                    let payload = try await self?.fetchNearestAlarmPayload()
                     
-                    observer.on(.next(result))
-                    observer.onCompleted()
-                } else {
-                    observer.onNext(nil)
-                    observer.onCompleted()
+                    if let payload {
+                        let result = Alarm(
+                            id: payload.id,
+                            hour: payload.hour,
+                            minute: payload.minute,
+                            title: payload.title,
+                            repeatDays: payload.repeatDays.compactMap { WeekDay(rawValue: $0) },
+                            isOn: payload.isOn
+                        )
+                        
+                        observer.on(.next(result))
+                        observer.onCompleted()
+                    } else {
+                        observer.onNext(nil)
+                        observer.onCompleted()
+                    }
+                } catch {
+                    observer.onError(error)
                 }
-            } catch {
-                observer.onError(error)
             }
-            return Disposables.create()
+            return Disposables.create {
+                task.cancel()
+            }
         }
     }
     
     //TODO: 로직 바꿔야함!!!
-    private func fetchNearestAlarmPayload() throws -> AlarmPayload? {
+    private func fetchNearestAlarmPayload() async throws -> AlarmPayload? {
         let calendar = Calendar.current
         let dateComp = calendar.dateComponents(in: .current, from: Date.now) // 현재 날짜의 dateComponents
         
@@ -162,7 +175,7 @@ extension HomeViewModel {
         do {
             let alarms = try coreDataManager.fetchAllAlarm()
 //            print(alarms)
-            nearestAlarm()
+            await nearestAlarm()
             let filtered = alarms.filter {
                 $0.isOn == true // 활성화 된 알람
                 && ($0.repeatDays.isEmpty || $0.repeatDays.contains(weekday)) // 반복 요일이 없거나, 반복 요일에 현재 요일이 포함된 경우
