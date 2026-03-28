@@ -10,35 +10,35 @@ import SnapKit
 import Then
 
 final class ProgressCell: UICollectionViewCell {
-    let cardView = BaseCardView()
+    private let cardView = BaseCardView()
     
-    let titleLabel = UILabel().then {
+    private let titleLabel = UILabel().then {
         $0.text = "태양계 정복도"
         $0.font = .boldSystemFont(ofSize: 16)
         $0.textColor = .mainLabel
     }
-    let subTitleLabel = UILabel(text: "집중할수록 행성에 가까워져요", config: .sub14)
+    private let subTitleLabel = UILabel(text: "집중할수록 행성에 가까워져요", config: .sub14)
     
-    let startPlanet = UILabel().then {
+    private let startPlanet = UILabel().then {
         $0.text = Planet.earth.emoji
         $0.font = .systemFont(ofSize: 30)
     }
-    let targetPlanet = UILabel().then {
+    private let targetPlanet = UILabel().then {
         $0.text = Planet.moon.emoji
         $0.font = .systemFont(ofSize: 30)
     }
     
-    let progressView = GradientProgressView()
-    let progressLabel = UILabel().then {
+    private let progressView = GradientProgressView()
+    private let progressLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .semibold)
         $0.textColor = .mainLabel
         $0.text = "\(Planet.earth.title) → \(Planet.moon.title)"
     }
-    let targetTimeLabel = UILabel(text: "시간", config: .sub12).then {
+    private let targetTimeLabel = UILabel(text: "시간", config: .sub12).then {
         $0.textAlignment = .right
     }
     
-    let infoButton = CircleButton(
+    private let infoButton = CircleButton(
         size: 45,
         backgroundColor: .clear,
         image: UIImage(systemName: "info.circle"),
