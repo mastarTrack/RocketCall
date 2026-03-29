@@ -21,7 +21,6 @@ struct RecordData: Hashable {
 
 /// StopWatch ViewModel
 class StopWatchViewModel {
-    
     /// 스탑워치 상태
     enum State {
         /// 스탑워치 동작
@@ -215,11 +214,13 @@ class StopWatchViewModel {
                 return [currentRecord] + data.records
             }
         
+        // 현재 위치 출력용 데이터 생성
         let location = state
             .map { data -> String in
                 return FreeStage.currentLocationTitle(data.mainTimer) + (data.mainTimer != 0 ? " 항행 중" : " 대기 중")
             }
         
+        // 다음 타겟 위치 출력용 데이터 생성
         let targetLocation = state
             .map {data -> String in
                 return "다음 위치: \(FreeStage.targetLocationTitle(data.mainTimer))"
@@ -245,17 +246,17 @@ class StopWatchViewModel {
 }
 
 
-
+/// 자유항행 목표 값
 enum FreeStage: Int, CaseIterable {
-    case launchPad
-    case surface
-    case troposphere
-    case stratosphere
-    case mesosphere
-    case thermosphere
-    case exosphere
-    case deepSpace
-    case moon
+    case launchPad = 0
+    case surface = 5
+    case troposphere = 13
+    case stratosphere = 20
+    case mesosphere = 35
+    case thermosphere = 55
+    case exosphere = 80
+    case deepSpace = 100
+    case moon = 120
     
     var title: String {
         switch self {
@@ -271,8 +272,10 @@ enum FreeStage: Int, CaseIterable {
         }
     }
     
+    /// 스탑워치 시간 기준 현재 위치 메소드
     static func currentLocationTitle(_ centiseconds: Int) -> String {
         let elapsedMinutes = Double(centiseconds) / 6000.0
+        
         switch elapsedMinutes {
         case 0:
             return FreeStage.launchPad.title
@@ -286,13 +289,18 @@ enum FreeStage: Int, CaseIterable {
             return FreeStage.mesosphere.title
         case 35.0..<55.0:
             return FreeStage.thermosphere.title
-        case 55.0..<120.0:
+        case 55.0..<80.0:
             return FreeStage.exosphere.title
+        case 80.0..<100.0:
+            return FreeStage.deepSpace.title
+        case 100.0..<120.0:
+            return FreeStage.moon.title
         default:
             return FreeStage.deepSpace.title
         }
     }
-    
+
+    /// 스탑워치 시간 기준 다음 위치 메소드
     static func targetLocationTitle(_ centiseconds: Int) -> String {
         let elapsedMinutes = Double(centiseconds) / 6000.0
         
@@ -309,10 +317,22 @@ enum FreeStage: Int, CaseIterable {
             return FreeStage.thermosphere.title
         case 35.0..<55.0:
             return FreeStage.exosphere.title
-        case 55.0..<120.0:
+        case 55.0..<80.0:
             return FreeStage.deepSpace.title
-        default:
+        case 80.0..<100.0:
             return FreeStage.moon.title
+        default:
+            return FreeStage.deepSpace.title
+        }
+    }
+    
+    /// 자유항행  목적지 정보 출력 메소드
+    static func infoLocation() -> [ContainerInfoItem] {
+        return FreeStage.allCases.map {
+            ContainerInfoItem(
+                title: $0.title,
+                value: "\($0.rawValue)분"
+            )
         }
     }
 }

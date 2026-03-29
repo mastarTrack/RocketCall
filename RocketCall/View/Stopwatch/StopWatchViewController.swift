@@ -33,7 +33,6 @@ class StopWatchViewController: UIViewController {
     /// StopWatch 하단 레코드 뷰  
     private let stopWatchRecordView = StopWatchRecordView()
     
-    
     //MARK: - Init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,6 +47,45 @@ class StopWatchViewController: UIViewController {
 //MARK: - Binding
 extension StopWatchViewController {
     func bind() {
+        /// 다음위치 버튼 탭 시, 자유항행 목적지 정보 표기 뷰 출력 액션
+        stopWatchHeaderView.locationButton.rx.tap
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                
+                let vc = UIViewController()
+                vc.modalPresentationStyle = .overFullScreen
+                vc.view.backgroundColor = .clear
+                
+                let dimmedButton = UIButton(type: .custom)
+                dimmedButton.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+                
+                let containerView = TimeContainerView(items: FreeStage.infoLocation())
+                
+                vc.view.addSubview(dimmedButton)
+                vc.view.addSubview(containerView)
+                
+                dimmedButton.snp.makeConstraints {
+                    $0.edges.equalToSuperview()
+                }
+                
+                containerView.snp.makeConstraints {
+                    $0.center.equalToSuperview()
+                    $0.leading.trailing.equalToSuperview().inset(24)
+                }
+                
+                dimmedButton.addAction(
+                    UIAction { [weak self] _ in
+                        guard let self else { return }
+                        self.dismiss(animated: true)
+                    },
+                    for: .touchUpInside
+                )
+                
+                self.present(vc, animated: true)
+            })
+            .disposed(by: disposeBag)
+        
+        
         // View Action Setting
         // 시작/일시정지 버튼 탭 이벤트 설정
         let startPause = stopWatchHeaderView.startButton.rx.tap
@@ -105,10 +143,12 @@ extension StopWatchViewController {
             })
             .disposed(by: disposeBag)
         
+        // 현재 위치 표기
         output.location
             .bind(to: stopWatchHeaderView.currentLocationLabel.rx.text)
             .disposed(by: disposeBag)
         
+        // 다음 위치 표기
         output.targetLocation
             .bind(to: stopWatchHeaderView.locationButton.rx.title())
             .disposed(by: disposeBag)
