@@ -206,9 +206,11 @@ extension MissionViewController {
             .compactMap { missions in
                 missions.first(where: { $0.id == activatedMission.id })
             }
+        let planetImageName = planetImageName(for: activatedMission.id)
         // 해당 id로 결과창 화면 띄움 - 일시정지/정지 같이 처리해줌
         let timerViewController = TimerAnimationViewController(
             activatedMissionState: activatedMissionState,
+            planetImageName: planetImageName,
             onPauseResumeRequested: { [weak self] in
                 self?.pauseResumeMissionSubject.onNext(activatedMission.id)
             },
@@ -217,6 +219,15 @@ extension MissionViewController {
             }
         )
         navigationController?.pushViewController(timerViewController, animated: true)
+    }
+    // 타이머 마다 랜덤하게 행성 띄워주기
+    private func planetImageName(for missionId: UUID) -> String {
+        let imageNames = TimerAnimationView.availablePlanetImageNames
+        // UUID를 -> 문자 -> 숫자변환 -> 합하기 그다음 행성 이미지 수로 나누어서 행성 짝지어주기
+        let scalarSum = missionId.uuidString.unicodeScalars.reduce(0) { partialResult, scalar in
+            partialResult + Int(scalar.value)
+        }
+        return imageNames[scalarSum % imageNames.count]
     }
     
     private func setSnapshot(animated: Bool) {

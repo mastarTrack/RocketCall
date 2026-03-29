@@ -11,8 +11,10 @@ import Then
 final class TimerAnimationView: UIView {
     private enum Layout {
         static let minimumPlanetSize: CGFloat = 5
-        static let maximumPlanetSize: CGFloat = 500
+        static let maximumPlanetSize: CGFloat = 400
     }
+    
+    static let availablePlanetImageNames = ["star1", "star2", "star3", "star4", "star5", "star6"]
     
     private let backgroundImageView = UIImageView().then {
         $0.image = UIImage(named: "backGroundImage")
@@ -41,6 +43,10 @@ final class TimerAnimationView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func setPlanetImage(named imageName: String) {
+        centerStarImageView.image = UIImage(named: imageName)
     }
     
     // 시간을 기준으로 행성크기 업데이트 로직

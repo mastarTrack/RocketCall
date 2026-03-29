@@ -16,16 +16,19 @@ final class TimerAnimationViewController: UIViewController {
     private let viewModel = TimerAnimationViewModel()
     private let disposeBag = DisposeBag()
     private let activatedMissionState: Observable<ActivatedMissionPayload> // 이걸 기준으로 화면 표시
+    private let planetImageName: String
     // MissionList로직 같이 쓰도록 버튼 눌릴시 밖으로 넘김
     private let onPauseResumeRequested: (() -> Void)?
     private let onMissionStopRequested: (() -> Void)?
     
     init(
         activatedMissionState: Observable<ActivatedMissionPayload>,
+        planetImageName: String,
         onPauseResumeRequested: (() -> Void)? = nil,
         onMissionStopRequested: (() -> Void)? = nil
     ) {
         self.activatedMissionState = activatedMissionState
+        self.planetImageName = planetImageName
         self.onPauseResumeRequested = onPauseResumeRequested
         self.onMissionStopRequested = onMissionStopRequested
         super.init(nibName: nil, bundle: nil)
@@ -46,6 +49,7 @@ final class TimerAnimationViewController: UIViewController {
         view.backgroundColor = .background
         view.addSubview(timerAnimationView)
         view.addSubview(timerView)
+        timerAnimationView.setPlanetImage(named: planetImageName)
     }
     
     // 상단은 애니메이션 하단은 타이머
