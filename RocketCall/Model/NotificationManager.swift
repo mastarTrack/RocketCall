@@ -79,8 +79,6 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
                 }
             }
         }
-        self.printPendingAlarms()
-        
     }
     
     
@@ -96,8 +94,6 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             
             center.removePendingNotificationRequests(withIdentifiers: identifiersToRemove)
         }
-        
-        self.printPendingAlarms()
     }
     
     
