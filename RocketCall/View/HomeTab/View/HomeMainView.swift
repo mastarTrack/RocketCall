@@ -83,19 +83,12 @@ final class HomeMainView: UIView {
             $0.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
         }
         
-//        chartViewTitle.snp.makeConstraints {
-//            $0.top.equalTo(alarmCardView.snp.bottom).offset(15)
-//            $0.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
-//        }
-        
         chartHeaderView.snp.makeConstraints {
             $0.top.equalTo(alarmCardView.snp.bottom).offset(5)
             $0.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
         }
         
         chartBaseCardView.snp.makeConstraints {
-//            $0.top.equalTo(chartViewTitle.snp.bottom).offset(10)
-//            $0.top.equalTo(chartHeaderView.snp.bottom).offset(10)
             $0.top.equalTo(chartHeaderView.snp.bottom)
             $0.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
         }
