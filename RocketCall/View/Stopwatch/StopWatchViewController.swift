@@ -39,6 +39,7 @@ class StopWatchViewController: UIViewController {
         super.viewDidLoad()
         //description = "스톱워치 기능으로 원하는 시간까지 카운트하세요."
         view.backgroundColor = .background
+        navigationController?.navigationBar.isHidden = true
         configureUI()
         bind()
     }
@@ -111,7 +112,7 @@ extension StopWatchViewController {
     private func configureUI() {
         let mainStack = UIStackView().then {
             $0.axis = .vertical
-            $0.spacing = 32
+            $0.spacing = 0
             $0.distribution = .fill
             $0.alignment = .fill
         }
@@ -124,8 +125,7 @@ extension StopWatchViewController {
         
         titleView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.leading.equalToSuperview().offset(20)
-            $0.trailing.equalToSuperview().inset(20)
+            $0.leading.trailing.equalToSuperview()
         }
         
         mainStack.snp.makeConstraints { ms in
@@ -135,7 +135,7 @@ extension StopWatchViewController {
         }
 
         stopWatchHeaderView.snp.makeConstraints {
-            $0.height.equalTo(430)
+            $0.height.equalTo(380)
         }
     }
 

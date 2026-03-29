@@ -114,12 +114,16 @@ class StopWatchViewModel {
         // 앱이 활성상태를 잃을때(didEnterBackgroundNotification) 발생 : 홈화면, 전화 및 다른 제어샌터 등으로 이동 시
         let backgroundAction = NotificationCenter.default.rx
             .notification(UIApplication.didEnterBackgroundNotification)
-            .map { _ in TimerAction.background(Date()) }
+            .map { _ in
+                return TimerAction.background(Date())
+            }
         
         // 앱이 다시 활성상태가 되었을때(willEnterForegroundNotification) 발생
         let foregroundAction = NotificationCenter.default.rx
             .notification(UIApplication.willEnterForegroundNotification)
-            .map { _ in TimerAction.foreground(Date()) }
+            .map { _ in
+                return TimerAction.foreground(Date())
+            }
         
         
         // 액션에 따른 스탑워치 동작액션 처리
