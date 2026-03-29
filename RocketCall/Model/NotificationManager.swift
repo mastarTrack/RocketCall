@@ -79,23 +79,27 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
                 }
             }
         }
+        self.printPendingAlarms()
+        
     }
     
     
     // MARK: - 알람 취소 메서드
-    func cancelAlarm(_ id: UUID) {
+    func cancelAlarm(_ id: String) {
         let center = UNUserNotificationCenter.current()
         
         center.getPendingNotificationRequests { requests in
             // 예약된 알람 중 해당 UUID가 포함된 알람만 골라내기
             let identifiersToRemove = requests
-                .filter { $0.identifier.contains(id.uuidString) }
+                .filter { $0.identifier.contains(id) }
                 .map { $0.identifier }
             
             center.removePendingNotificationRequests(withIdentifiers: identifiersToRemove)
         }
+        
+        self.printPendingAlarms()
     }
-
+    
     
     // MARK: - 스누즈 알람 예약 메서드
     func addSnoozeAlarm(title: String, originalId: UUID) {
@@ -115,11 +119,11 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         
         center.add(request)
     }
-        
+    
     
     // MARK: - 앱이 화면에 켜져있을때
     var currentRingingId: UUID? = nil // 현재 울리고 있는 알람의 id값 기억하기
-
+    
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         
         // 예약할 때 넣었던 알람 제목 꺼내기
@@ -161,6 +165,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         }
         completionHandler()
     }
+    
 }
 
 extension NotificationManager {

@@ -106,7 +106,7 @@ final class AlarmRingViewController: UIViewController {
                 self.vibrationTimer?.invalidate()
                 self.vibrationTimer = nil
                 
-                NotificationManager.shared.cancelAlarm(self.alarmId) // 알람 cancel
+                NotificationManager.shared.cancelAlarm(String(self.alarmId.uuidString.prefix(36))) // 알람 cancel
                 
                 NotificationManager.shared.currentRingingId = nil
                 
@@ -130,7 +130,7 @@ final class AlarmRingViewController: UIViewController {
                         }
                             
                         // 24초 딜레이
-                        DispatchQueue.global().asyncAfter(deadline: .now() + 24.0) {
+                        DispatchQueue.global().asyncAfter(deadline: .now() + 27.0) {
                             
                             let alarmToReschedule = Alarm(
                                 id: payload.id,
@@ -164,6 +164,8 @@ final class AlarmRingViewController: UIViewController {
                 owner.audioPlayer?.stop()
                 owner.vibrationTimer?.invalidate()
                 owner.vibrationTimer = nil
+                
+                NotificationManager.shared.cancelAlarm(String(self.alarmId.uuidString.prefix(36))) // 알람 cancel
                 
                 NotificationManager.shared.addSnoozeAlarm(title: owner.alarmRingTitle, originalId: owner.alarmId)
                 
