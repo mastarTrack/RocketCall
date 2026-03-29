@@ -11,7 +11,7 @@ import RxSwift
 import RxRelay
 import RxCocoa
 
-// DiffableDataSource용 레코드 구조체
+/// DiffableDataSource용 레코드 구조체
 struct RecordData: Hashable {
     var count : Int
     var time : String
@@ -21,7 +21,6 @@ struct RecordData: Hashable {
 
 /// StopWatch ViewModel
 class StopWatchViewModel {
-    
     /// 스탑워치 상태
     enum State {
         /// 스탑워치 동작
@@ -76,6 +75,10 @@ class StopWatchViewModel {
         let mainTimer: Observable<String>
         /// 레코드 정보 Out
         let record: Observable<[RecordData]>
+        /// 현재 위치값 Out
+        let location: Observable<String>
+        /// 다음 위치값 Out
+        let targetLocation: Observable<String>
     }
     
     /// 변환 메소드
@@ -114,12 +117,16 @@ class StopWatchViewModel {
         // 앱이 활성상태를 잃을때(didEnterBackgroundNotification) 발생 : 홈화면, 전화 및 다른 제어샌터 등으로 이동 시
         let backgroundAction = NotificationCenter.default.rx
             .notification(UIApplication.didEnterBackgroundNotification)
-            .map { _ in TimerAction.background(Date()) }
+            .map { _ in
+                return TimerAction.background(Date())
+            }
         
         // 앱이 다시 활성상태가 되었을때(willEnterForegroundNotification) 발생
         let foregroundAction = NotificationCenter.default.rx
             .notification(UIApplication.willEnterForegroundNotification)
-            .map { _ in TimerAction.foreground(Date()) }
+            .map { _ in
+                return TimerAction.foreground(Date())
+            }
         
         
         // 액션에 따른 스탑워치 동작액션 처리
@@ -138,7 +145,7 @@ class StopWatchViewModel {
                 case .record:
                     let recordData = RecordData(count: newData.records.count + 1,
                                                 time: formatTime(newData.recordTimer),
-                                                location: "",
+                                                location: FreeStage.currentLocationTitle(newData.mainTimer),
                                                 isLive: false)
                     newData.recordTimer = 0
                     newData.records.insert(recordData, at: 0)
@@ -201,16 +208,29 @@ class StopWatchViewModel {
                 guard let self else { return [] }
                 let currentRecord = RecordData(count: data.records.count + 1,
                                                time: formatTime(data.recordTimer),
-                                               location: "",
+                                               location: FreeStage.currentLocationTitle(data.mainTimer),
                                                isLive: true)
                 
                 return [currentRecord] + data.records
             }
         
+        // 현재 위치 출력용 데이터 생성
+        let location = state
+            .map { data -> String in
+                return FreeStage.currentLocationTitle(data.mainTimer) + (data.mainTimer != 0 ? " 항행 중" : " 대기 중")
+            }
+        
+        // 다음 타겟 위치 출력용 데이터 생성
+        let targetLocation = state
+            .map {data -> String in
+                return "다음 위치: \(FreeStage.targetLocationTitle(data.mainTimer))"
+            }
         
         return Output(
             mainTimer: mainTimer,
-            record: record
+            record: record,
+            location: location,
+            targetLocation: targetLocation
         )
     }
     
@@ -226,4 +246,93 @@ class StopWatchViewModel {
 }
 
 
+/// 자유항행 목표 값
+enum FreeStage: Int, CaseIterable {
+    case launchPad = 0
+    case surface = 5
+    case troposphere = 13
+    case stratosphere = 20
+    case mesosphere = 35
+    case thermosphere = 55
+    case exosphere = 80
+    case deepSpace = 100
+    case moon = 120
+    
+    var title: String {
+        switch self {
+        case .launchPad: "발사대"
+        case .surface: "지표면"
+        case .troposphere: "대류권"
+        case .stratosphere: "성층권"
+        case .mesosphere: "중간권"
+        case .thermosphere: "열권"
+        case .exosphere: "외기권"
+        case .deepSpace: "심우주"
+        case .moon: "달"
+        }
+    }
+    
+    /// 스탑워치 시간 기준 현재 위치 메소드
+    static func currentLocationTitle(_ centiseconds: Int) -> String {
+        let elapsedMinutes = Double(centiseconds) / 6000.0
+        
+        switch elapsedMinutes {
+        case 0:
+            return FreeStage.launchPad.title
+        case 0.0..<5.0:
+            return FreeStage.surface.title
+        case 5.0..<13.0:
+            return FreeStage.troposphere.title
+        case 13.0..<20.0:
+            return FreeStage.stratosphere.title
+        case 20.0..<35.0:
+            return FreeStage.mesosphere.title
+        case 35.0..<55.0:
+            return FreeStage.thermosphere.title
+        case 55.0..<80.0:
+            return FreeStage.exosphere.title
+        case 80.0..<100.0:
+            return FreeStage.deepSpace.title
+        case 100.0..<120.0:
+            return FreeStage.moon.title
+        default:
+            return FreeStage.deepSpace.title
+        }
+    }
 
+    /// 스탑워치 시간 기준 다음 위치 메소드
+    static func targetLocationTitle(_ centiseconds: Int) -> String {
+        let elapsedMinutes = Double(centiseconds) / 6000.0
+        
+        switch elapsedMinutes {
+        case 0:
+            return FreeStage.surface.title
+        case 0.0..<5.0:
+            return FreeStage.troposphere.title
+        case 5.0..<13.0:
+            return FreeStage.stratosphere.title
+        case 13.0..<20.0:
+            return FreeStage.mesosphere.title
+        case 20.0..<35.0:
+            return FreeStage.thermosphere.title
+        case 35.0..<55.0:
+            return FreeStage.exosphere.title
+        case 55.0..<80.0:
+            return FreeStage.deepSpace.title
+        case 80.0..<100.0:
+            return FreeStage.moon.title
+        default:
+            return FreeStage.deepSpace.title
+        }
+    }
+    
+    /// 자유항행  목적지 정보 출력 메소드
+    static func infoLocation() -> [ContainerInfoItem] {
+        return FreeStage.allCases.map {
+            ContainerInfoItem(
+                title: $0.title,
+                value: "\($0.rawValue)분"
+            )
+        }
+    }
+}

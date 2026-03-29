@@ -15,17 +15,19 @@ import Then
 /// 스탑워치 상단 타이머 관련 뷰
 class StopWatchHeaderView: UIView {
     
+    //MARK: - Properties
+    private let mainCircleSize = 280
+    private let pulseCircleSize = 290
+    
     //MARK: - Components
     /// 타이머 원형 뷰
     private let mainCircleView = UIView().then {
-        $0.layer.cornerRadius = 320 / 2
         $0.layer.borderWidth = 2
         $0.layer.borderColor = UIColor.mainPoint.cgColor
         $0.backgroundColor = .clear
     }
     /// 타이머 펄스 애니메이션 뷰
     private let pulseCircleView = UIView().then {
-        $0.layer.cornerRadius = 340 / 2
         $0.layer.borderWidth = 4
         $0.layer.borderColor = UIColor.darkGray.cgColor
         $0.backgroundColor = .clear
@@ -35,16 +37,16 @@ class StopWatchHeaderView: UIView {
         text: "00:00.00",
         config: .title
     ).then {
-        $0.font = UIFont.systemFont(ofSize: 50, weight: .heavy)
+        $0.font = UIFont.systemFont(ofSize: 50, weight: .light)
     }
     /// 현재 위치 라벨
-    private let currentLocationLabel = UILabel().then {
+    let currentLocationLabel = UILabel().then {
         $0.text = "현재 위치 확인중..."
         $0.font = .systemFont(ofSize: 18)
         $0.textColor = .mainPoint
     }
     /// 목적지 안내 버튼
-    private let locationButton = RectangleButton(
+    let locationButton = RectangleButton(
         title: "발사 지점",
         color: .mainPoint
     ).then {
@@ -97,7 +99,7 @@ extension StopWatchHeaderView {
             $0.axis = .vertical
             $0.distribution = .fillProportionally
             $0.alignment = .center
-            $0.spacing = 32
+            $0.spacing = 16
         }
         
         let timerStack = UIStackView().then {
@@ -117,6 +119,10 @@ extension StopWatchHeaderView {
         let timerView = UIView().then {
             $0.backgroundColor = .background
         }
+        
+        mainCircleView.layer.cornerRadius = CGFloat(mainCircleSize / 2)
+        pulseCircleView.layer.cornerRadius = CGFloat(pulseCircleSize / 2)
+
         
         timerStack.addArrangedSubview(timerLabel)
         timerStack.addArrangedSubview(currentLocationLabel)
@@ -150,17 +156,17 @@ extension StopWatchHeaderView {
         }
         
         timerView.snp.makeConstraints {
-            $0.width.height.equalTo(340)
+            $0.width.height.equalTo(pulseCircleSize)
         }
         
         pulseCircleView.snp.makeConstraints {
             $0.center.equalToSuperview()
-            $0.size.equalTo(340)
+            $0.size.equalTo(pulseCircleSize)
         }
         
         mainCircleView.snp.makeConstraints {
             $0.center.equalToSuperview()
-            $0.size.equalTo(320)
+            $0.size.equalTo(mainCircleSize)
         }
         
         locationButton.snp.makeConstraints {

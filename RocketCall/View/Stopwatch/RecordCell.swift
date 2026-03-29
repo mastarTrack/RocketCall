@@ -21,7 +21,7 @@ class RecordCell: UICollectionViewCell {
     
     private let  timerLabel = UILabel(
         text: "00:00.00",
-        config: .sub16
+        config: .missionLabel
     )
     
     private let locationLabel = UILabel(
