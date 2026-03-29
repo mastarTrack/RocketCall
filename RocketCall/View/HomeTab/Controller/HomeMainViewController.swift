@@ -113,17 +113,18 @@ extension HomeMainViewController {
         let chartTapGesture = UITapGestureRecognizer()
         homeMainView.chartBaseCardView.addGestureRecognizer(chartTapGesture) // 제스처 추가
         
-        chartTapGesture.rx.event // 탭 이벤트
+        let chartViewTapped = chartTapGesture.rx.event
             .debounce(.milliseconds(500), scheduler: MainScheduler.instance)
             .map { _ in }
-            .subscribe(onNext: { [weak self] in
-                guard let self else { return }
-                self.navigationController?.pushViewController(HomeDetailViewController(viewModel: self.viewModel), animated: true)
-            })
-            .disposed(by: disposeBag)
+            .share()
         
-        // 차트 상세보기 버튼        
-        homeMainView.rx.detailButtonTap
+        let chartDetailButtonTapped = homeMainView.rx.detailButtonTap
+            .debounce(.milliseconds(500), scheduler: MainScheduler.instance)
+            .share()
+        
+        // 상세 기록 화면 띄우기
+        Observable
+            .merge(chartViewTapped, chartDetailButtonTapped)
             .subscribe(onNext: { [weak self] in
                 guard let self else { return }
                 self.navigationController?.pushViewController(HomeDetailViewController(viewModel: self.viewModel), animated: true)
