@@ -10,23 +10,24 @@ import SnapKit
 import Then
 
 final class ResultListCell: UICollectionViewCell {
-    let cardView = BaseCardView()
+    private let cardView = BaseCardView()
     
-    let titleLabel = UILabel(text: "미션", config: .sub14).then {
+    private let titleLabel = UILabel(text: "미션", config: .sub14).then {
         $0.font = .systemFont(ofSize: 14, weight: .semibold)
     }
-    let timeLabel = UILabel(
+    private let timeLabel = UILabel(
         text: "시간",
         config: LabelConfiguration(font: .boldSystemFont(ofSize: 18), color: .mainLabel, lines: 1)).then {
+            $0.textAlignment = .right
+        }
+    
+    private let dateLabel = UILabel(text: "날짜", config: .sub12)
+    private let cycleLabel = UILabel(text: "사이클", config: .sub12).then {
         $0.textAlignment = .right
+        $0.isHidden = true // 코어데이터에 cycle 정보가 없어서 hidden 처리
     }
     
-    let dateLabel = UILabel(text: "날짜", config: .sub12)
-    let cycleLabel = UILabel(text: "사이클", config: .sub12).then {
-        $0.textAlignment = .right
-    }
-    
-    let stateLabel = StateLabel(text: "✔️ 성공", config: .success)
+    private let stateLabel = StateLabel(text: "✔️ 성공", config: .success)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -39,11 +40,19 @@ final class ResultListCell: UICollectionViewCell {
 }
 
 extension ResultListCell {
+    private func setAttributes() {
+        contentView.backgroundColor = UIColor(red: 18/255.0, green: 26/255.0, blue: 48/255.0, alpha: 1.0)
+        contentView.layer.cornerRadius = 16
+        contentView.layer.masksToBounds = true
+        contentView.layer.borderWidth = 1
+        contentView.layer.borderColor = UIColor(red: 201/255.0, green: 209/255.0, blue: 232/255.0, alpha: 0.3).cgColor
+    }
+    
     private func setLayout() {
         let firstStack = UIStackView(arrangedSubviews: [titleLabel, timeLabel]).then {
             $0.axis = .horizontal
             $0.alignment = .bottom
-            $0.distribution = .fillEqually
+            $0.spacing = 5
             
             timeLabel.setContentHuggingPriority(.required, for: .horizontal)
             timeLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -51,11 +60,12 @@ extension ResultListCell {
         
         let secondStack = UIStackView(arrangedSubviews: [dateLabel, cycleLabel]).then {
             $0.axis = .horizontal
-            $0.distribution = .fillEqually
+            $0.spacing = 5
             
-            dateLabel.setContentHuggingPriority(.required, for: .horizontal)
-            dateLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+            cycleLabel.setContentHuggingPriority(.required, for: .horizontal)
+            cycleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         }
+        
         
         contentView.addSubview(cardView)
         cardView.addSubview(firstStack)
@@ -83,11 +93,14 @@ extension ResultListCell {
 }
 
 extension ResultListCell {
-    // 파라미터 타입 변경 필요
     func configure(with result: MissionResultPayload) {
         titleLabel.text = result.title
-        timeLabel.text = "\(result.studyTime)"
-        dateLabel.text = "\(result.start)"
+        timeLabel.text = "\(result.studyTime / 60)h \(result.studyTime % 60)m"
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "M월 dd일 (E)"
+        dateLabel.text = dateFormatter.string(from: result.start)
+        
         configureStateLabel(isCompleted: result.isCompleted)
     }
     

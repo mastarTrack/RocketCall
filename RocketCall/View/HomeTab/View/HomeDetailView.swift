@@ -7,11 +7,17 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxRelay
 
 final class HomeDetailView: UIView {
     private let titleView = TitleView(title: "상세 기록", subTitle: "당신의 우주 여정", hasButton: false)
     let collectionView = DetailCollectionView()
-    private lazy var dataSource = makeCollectionViewDiffableDataSource(collectionView)
+    private(set) lazy var dataSource = makeCollectionViewDiffableDataSource(collectionView)
+    
+    let infoButtonTappedRelay = PublishRelay<Void>()
+    let resultCellTappedRelay = PublishRelay<UUID>()
+    let disposeBag = DisposeBag()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -46,8 +52,8 @@ extension HomeDetailView {
         
         let sumCardCellRegistration = UICollectionView.CellRegistration<SumCardCell, DetailCollectionView.Item> { cell, indexPath, item in
             switch item {
-            case .sum(let type, let value, let detail):
-                cell.configure(type: type, valueText: value, detailText: detail)
+            case .sum(let result):
+                cell.configure(result)
             default:
                 break
             }
@@ -62,17 +68,58 @@ extension HomeDetailView {
             }
         }
         
+        let progressCellRegistration = UICollectionView.CellRegistration<ProgressCell, DetailCollectionView.Item> { [weak self] cell, indexPath, item in
+            guard let self else { return }
+            
+            switch item {
+            case .progress(let status):
+                cell.configure(status: status)
+                
+                cell.bind()
+                cell.infoButtonTapped
+                    .bind(to: self.infoButtonTappedRelay)
+                    .disposed(by: cell.disposeBag)
+            default:
+                break
+            }
+        }
+        
+        let resultCellRegistration = UICollectionView.CellRegistration<ResultListCell, DetailCollectionView.Item> { cell, indexPath, item in
+            switch item {
+            case .result(let payload):
+                cell.configure(with: payload)
+            default:
+                break
+            }
+        }
+        
         let dataSource = UICollectionViewDiffableDataSource<DetailCollectionView.Section, DetailCollectionView.Item>(collectionView: collectionView) { collectionView, indexPath, item in
             switch DetailCollectionView.Section(rawValue: indexPath.section) {
             case .sum:
                 return collectionView.dequeueConfiguredReusableCell(using: sumCardCellRegistration, for: indexPath, item: item)
             case .chart:
                 return collectionView.dequeueConfiguredReusableCell(using: chartCellRegistration, for: indexPath, item: item)
+            case .progress:
+                return collectionView.dequeueConfiguredReusableCell(using: progressCellRegistration, for: indexPath, item: item)
+            case .result:
+                return collectionView.dequeueConfiguredReusableCell(using: resultCellRegistration, for: indexPath, item: item)
             default:
-                return UICollectionViewCell()
+                fatalError("DetailCollectionView: 유효하지 않은 섹션입니다")
             }
         }
         
         return dataSource
+    }
+    
+    func setSnapshot(with data: [[DetailCollectionView.Item]]) {
+        var snapshot = NSDiffableDataSourceSnapshot<DetailCollectionView.Section, DetailCollectionView.Item>()
+        snapshot.appendSections([.sum, .chart, .progress, .result])
+        
+        snapshot.appendItems(data[DetailCollectionView.Section.sum.rawValue], toSection: .sum)
+        snapshot.appendItems(data[DetailCollectionView.Section.chart.rawValue], toSection: .chart)
+        snapshot.appendItems(data[DetailCollectionView.Section.progress.rawValue], toSection: .progress)
+        snapshot.appendItems(data[DetailCollectionView.Section.result.rawValue], toSection: .result)
+        
+        dataSource.apply(snapshot, animatingDifferences: false)
     }
 }

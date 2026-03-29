@@ -8,6 +8,7 @@
 import RxSwift
 import RxCocoa
 import Foundation
+import UserNotifications
 
 final class HomeViewModel: ViewModelProtocol {
     struct Input {
@@ -16,12 +17,18 @@ final class HomeViewModel: ViewModelProtocol {
     
     struct Output {
         let alarm: Observable<Result<Alarm?, Error>> // (alarm: 알람, isExist: 존재 여부)
-        let total: Observable<Result<TotalResult, Error>>
+        let missionResults: Observable<Result<[MissionResultPayload], Error>> // 미션 결과 목록
+        let sum: Observable<Result<[SumResult], Error>> // 미션 결과 통계
+        let chartRawData: Observable<Result<[Int: Int], Error>> // 차트뷰 업데이트를 위한 dataSource
+        let progressStatus: Observable<Result<ProgressStatus, Error>> // ProgressView 데이터
     }
+        
     
     //MARK: 속성 선언
     let coreDataManager: CoreDataManager
+    let notificationManager: NotificationManager
     let disposeBag = DisposeBag()
+    let center = UNUserNotificationCenter.current()
     private(set) var weeklyData: WeeklyData // ChartView 바인딩용
     
     struct TotalResultValue {
@@ -30,8 +37,9 @@ final class HomeViewModel: ViewModelProtocol {
     }
     
     //MARK: init
-    init(coreDataManager: CoreDataManager) {
+    init(coreDataManager: CoreDataManager, notificationManager: NotificationManager) {
         self.coreDataManager = coreDataManager
+        self.notificationManager = notificationManager
         self.weeklyData = WeeklyData()
     }
     
@@ -39,11 +47,11 @@ final class HomeViewModel: ViewModelProtocol {
         let fetch = input.fetchData
             .share()
         
-        // 가까운 알람
+        // 가까운 알람        
         let alarm: Observable<Result<Alarm?, Error>> = fetch
             .withUnretained(self)
             .flatMap { `self`, _ in
-                self.fetchNearestAlarm()
+                self.nearestAlarm()
                     .map {
                         .success($0)
                     }
@@ -52,11 +60,11 @@ final class HomeViewModel: ViewModelProtocol {
                     }
             }
         
-        // 미션 결과 통계
-        let total: Observable<Result<TotalResult, Error>> = fetch
+        // 전체 미션 결과 가져오기
+        let missionResults: Observable<Result<[MissionResultPayload], Error>> = fetch
             .withUnretained(self)
             .flatMap { `self`, _ in
-                self.fetchTotalResult()
+                self.fetchAllMissionResults()
                     .map {
                         .success($0)
                     }
@@ -66,198 +74,261 @@ final class HomeViewModel: ViewModelProtocol {
             }
             .share()
         
-        // 주간 기록 차트뷰와 바인딩
-        total.subscribe(onNext: { [weak self] result in
-            if case .success(let total) = result {
-                self?.weeklyData.newValue(total.weeklyRawData) // 차트뷰에서 사용하는 주간 기록 업데이트
+        // 결과 통계
+        let sum: Observable<Result<[SumResult], Error>> = missionResults
+            .withUnretained(self)
+            .flatMap { `self`, results in
+                self.sumResults(of: results)
             }
-        })
-        .disposed(by: disposeBag)
+            .share()
+        
+        // 상세화면 차트 뷰에 바인딩용 주간 누적 기록 데이터
+        let chartRawData = missionResults
+            .withUnretained(self)
+            .flatMap { `self`, results in
+                self.chartRawData(from: results)
+            }
+        
+        let progress: Observable<Result<ProgressStatus, Error>> = sum
+            .withUnretained(self)
+            .flatMap { `self`, results in
+                self.progressStatus(from: results)
+            }
         
         return Output(
             alarm: alarm,
-            total: total
+            missionResults: missionResults,
+            sum: sum,
+            chartRawData: chartRawData,
+            progressStatus: progress
         )
     }
 }
 
-//MARK: 가장 가까운 알람 가져오기 - 로직 수정 필요!
 extension HomeViewModel {
-    private func fetchNearestAlarm() -> Observable<Alarm?> {
+    struct SumResult: Hashable {
+        var cardType: TotalCardView.CardCategory
+        var value: Int
+        var detail: Int
+    }
+}
+
+//MARK: 가장 가까운 알람 가져오기
+extension HomeViewModel {
+    func nearestAlarm() -> Observable<Alarm?> {
         Observable.create { [weak self] observer in
-            do {
-                let payload = try self?.fetchNearestAlarmPayload()
-                
-                if let payload {
-                    let result = Alarm(
-                        id: payload.id,
-                        hour: payload.hour,
-                        minute: payload.minute,
-                        title: payload.title,
-                        repeatDays: payload.repeatDays.compactMap { WeekDay(rawValue: $0) },
-                        isOn: payload.isOn
-                    )
+            let task = Task {
+                do {
+                    let payload = try await self?.fetchNearestAlarmPayload()
                     
-                    observer.on(.next(result))
-                    observer.onCompleted()
-                } else {
-                    observer.onNext(nil)
-                    observer.onCompleted()
+                    if let payload {
+                        let result = Alarm(
+                            id: payload.id,
+                            hour: payload.hour,
+                            minute: payload.minute,
+                            title: payload.title,
+                            repeatDays: payload.repeatDays.compactMap { WeekDay(rawValue: $0) },
+                            isOn: payload.isOn
+                        )
+                        
+                        observer.on(.next(result))
+                        observer.onCompleted()
+                    } else {
+                        observer.onNext(nil)
+                        observer.onCompleted()
+                    }
+                } catch {
+                    observer.onError(error)
                 }
-            } catch {
-                observer.onError(error)
             }
-            return Disposables.create()
+            return Disposables.create {
+                task.cancel()
+            }
         }
     }
     
-    //TODO: 로직 바꿔야함!!!
-    private func fetchNearestAlarmPayload() throws -> AlarmPayload? {
-        let calendar = Calendar.current
-        let dateComp = calendar.dateComponents(in: .current, from: Date.now) // 현재 날짜의 dateComponents
-        
-        guard let weekday = dateComp.weekday,
-              let hour = dateComp.hour,
-              let minute = dateComp.minute else { return nil }
-        
-        let time = hour * 60 + minute
+    private func fetchNearestAlarmPayload() async throws -> AlarmPayload? {
+        guard let id = await notificationManager.fetchNearestAlarm() else {
+            return nil
+        }
         
         do {
-            let alarms = try coreDataManager.fetchAllAlarm()
-//            print(alarms)
-            let filtered = alarms.filter {
-                $0.isOn == true // 활성화 된 알람
-                && ($0.repeatDays.isEmpty || $0.repeatDays.contains(weekday)) // 반복 요일이 없거나, 반복 요일에 현재 요일이 포함된 경우
-//                && time <= ($0.hour * 60 + $0.minute)  현재 시간보다 뒤로 설정된 알람만
-            }
-            print(filtered)
-            return filtered.first
-            
+            let result = try coreDataManager.fetchAlarm(of: id)
+            return result
         } catch {
             throw error
         }
-    }
-    
-    private func time(hour: Int, minute: Int) {
-        let calendar = Calendar.current
-        let dateComp = calendar.dateComponents(in: .current, from: Date.now)
-        
-        guard let todayHour = dateComp.hour,
-              let todayMinute = dateComp.minute else { return }
-        
-        if (todayHour * 60 + todayMinute) < (hour * 60 + minute) { // (동일 날짜의 경우) 현재 시간이 알람 시간보다 빠를 때
-            
-        }
-        
-//        calendar.date(from: dateComp) - calendar.date(from:)
     }
 }
 
 //MARK: Total 기록
 extension HomeViewModel {
-    // 목표 행성
-    enum TargetPlanet: Int, CaseIterable {
-        case moon = 2 // 시간 기준! 달은 2시간
-        case mars = 10 // 10시간
-        case venus = 25 // ...
-        case mercury = 55
-        case sun = 100
-        case jupiter = 250
-        case saturn = 500
-        case uranus = 1000
-        case neptune = 2000
-        
-        var title: String {
-            switch self {
-            case .moon: "달"
-            case .mars: "화성"
-            case .venus: "금성"
-            case .mercury: "수성"
-            case .sun: "태양"
-            case .jupiter: "목성"
-            case .saturn: "토성"
-            case .uranus: "천왕성"
-            case .neptune: "해왕성"
-            }
-        }
-    }
-    
-    struct TotalResult {
-        var complete: Int // 누적 완료 미션 횟수
-        var totalTime: Int // 누적 집중 시간 (분)
-        var streak: Int // 미션 연속 성공 일수
-        var target: TargetPlanet? // 다음 목표 행성
-        
-        var weeklyRawData: [Int: Int] // 주간 기록 rawdata
-    }
-    
-    private func fetchTotalResult() -> Observable<TotalResult> {
+    // 미션 결과 통계 계산 메서드
+    private func sumResults(of result: Result<[MissionResultPayload], Error>) -> Observable<Result<[SumResult], Error>> {
         Observable.create { [weak self] observer in
             guard let self else { return Disposables.create() }
-            do {
-                let results = try self.coreDataManager.fetchAllMissionResult()
+            
+            switch result {
+            case .success(let results):
+                let totalTime = self.calculateTotalTime(of: results) // 총 집중 시간
+                let leftTime = self.calculateLeftTime(from: totalTime.detail) // 다음 목표까지 남은 시간
+                let totalCount = self.calculateCompleteCount(of: results) // 총 미션 성공 횟수
+                let streak = self.calculateStreak(of: results)
                 
-                if results.isEmpty {
-                    let total = TotalResult(complete: 0, totalTime: 0, streak: 0, target: TargetPlanet.moon,
-                                            weeklyRawData: [:]
-                    )
-                    observer.onNext(total)
-                    observer.onCompleted()
-                } else {
-                    let calculation = calculateTotal(of: results)
-                    let targetPlanet = TargetPlanet.allCases.filter { ($0.rawValue * 60) >= calculation.totalTime }.first
-                    let rawData = calculateWeeklyTotal(of: results)
-                    
-                    let total = TotalResult(
-                        complete: calculation.complete,
-                        totalTime: calculation.totalTime,
-                        streak: calculation.streak,
-                        target: targetPlanet,
-                        weeklyRawData: rawData
-                    )
-                    
-                    observer.onNext(total)
-                    observer.onCompleted()
-                }
-            } catch {
-                observer.onError(error)
+                observer.onNext(.success([totalTime, leftTime, totalCount, streak]))
+                observer.onCompleted()
+                
+            case .failure(let error):
+                observer.onNext(.failure(error))
+                observer.onCompleted()
             }
+            
             return Disposables.create()
         }
     }
     
-    // 총 집중 시간, 성공 미션 횟수, 연속 기록 일수를 계산하는 메서드
-    private func calculateTotal(of results: [MissionResultPayload]) -> (complete: Int, totalTime: Int, streak: Int) {
+    // 총 집중 시간 계산 메서드
+    private func calculateTotalTime(of results: [MissionResultPayload]) -> SumResult {
+        guard !results.isEmpty else {
+            return SumResult(
+                cardType: .totalTime,
+                value: 0,
+                detail: 0
+            )
+        }
+        
+        let completed = results.filter { $0.isCompleted }
+        let seconds = completed.reduce(0) { $0 + $1.studyTime } // 초 단위 - $1.studyTime은 초 단위로 작성
+        
+        let minutes = seconds / 60 // 분 단위 변환
+        let hours = minutes / 60 // 시 단위 변환
+        
+        return SumResult(
+            cardType: .totalTime,
+            value: hours,
+            detail: minutes
+        )
+    }
+    
+    // 다음 목표까지 잔여 시간 계산 메서드
+    private func calculateLeftTime(from totalMinute: Int) -> SumResult {
+        guard let target = findTargetPlanet(from: totalMinute) else {
+            return SumResult(
+                cardType: .leftTime,
+                value: 0,
+                detail: 0
+            )
+        }
+        
+        let leftMinute = target.targetTime * 60 - totalMinute // 분 단위 - target.targetTime은 시 단위로 작성
+        let leftHour = leftMinute / 60 // 시 단위 변환
+        
+        return SumResult(
+            cardType: .leftTime,
+            value: leftHour,
+            detail: leftMinute
+        )
+    }
+    
+    // 총 성공 미션 횟수 계산 메서드
+    private func calculateCompleteCount(of results: [MissionResultPayload]) -> SumResult {
+        let count = results.filter { $0.isCompleted }.count
+        
+        return SumResult(
+            cardType: .totalCount,
+            value: count,
+            detail: -1
+        )
+    }
+    
+    // 연속 기록 일수 계산 메서드
+    private func calculateStreak(of results: [MissionResultPayload]) -> SumResult {
+        // 미션 결과가 없을 경우
+        guard !results.isEmpty else {
+            return SumResult(
+                cardType: .streak,
+                value: 0,
+                detail: -1
+            )
+        }
+        
+        // 미션 결과가 1개일 경우
+        if results.count == 1 {
+            return SumResult(
+                cardType: .streak,
+                value: 1,
+                detail: -1
+            )
+        }
+        
         let calendar = Calendar.current
         
-        let sortedByStartDate = results.sorted(by: { $0.start > $1.start }) // 미션 결과 start 날짜 기준 최근순 정렬
+        // 성공 미션 시작일자 배열
+        let completed = results
+            .filter { $0.isCompleted }
+            .map {
+                calendar.startOfDay(for: $0.start)
+            }
         
-        let result = sortedByStartDate.reduce(into: (complete: 0, totalTime: 0, streak: 0, benchmark: Date.now)) {
-            guard $1.isCompleted else { return } // 성공 미션일 경우에만 코드 진행
-            
-            if $0.streak >= 0 // 연속 기록이 유효하고
-                && $1.start >= calendar.startOfDay(for: $0.benchmark) // result의 시작 시간이 기준일 범위 내에 있을 경우
-                && $1.start <= calendar.startOfDay(for: $0.benchmark + 86399) {
+        // 미션 성공 날짜 Set - 최근순 정렬
+        let completeDates = Set(completed)
+            .sorted(by: { $0 > $1 })
+        
+        // 어제 날짜
+        let yesterday = calendar.date(
+            byAdding: .day,
+            value: -1,
+            to: calendar.startOfDay(for: Date.now)
+        )!
+        
+        
+        var streak = 0
+        
+        /*
+         미션 성공 날짜에 어제 날짜가 포함되어있는지 확인
+         - 연속 집중 후 접속 일자와 마지막 집중 일자 간격이 1일보다 많은 경우 연속 기록을 초기화하기 위함
+         - 예시) 월, 화, 수 연속으로 집중하고 목, 금은 집중하지 않은 상태로 토요일에 접속했을 경우, 기존 연속 기록 3일이 보이지 않도록 하기 위함
+         */
+        if completeDates.contains(yesterday) {
+            for i in 1..<completeDates.count {
+                let pre = i - 1
                 
-                $0 = (
-                    $0.complete + 1,
-                    $0.totalTime + $1.studyTime,
-                    $0.streak + 1,
-                    $1.start
-                )
-            } else {
-                // 연속 기록이 유효하지 않을 경우 (streak == -1)
-                // 혹은 result의 시작 시간이 기준일 범위 밖에 있을 경우 (== 연속 기록이 아닌 경우)
-                $0 = (
-                    $0.complete + 1,
-                    $0.totalTime + $1.studyTime,
-                    -1,
-                    $0.benchmark
-                )
+                if completeDates[i].distance(to: completeDates[pre]) == -86400 {
+                    streak += 1
+                } else {
+                    break
+                }
             }
         }
         
-        return (result.complete, result.totalTime, result.streak)
+        return SumResult(
+            cardType: .streak,
+            value: streak,
+            detail: -1
+        )
+    }
+}
+
+//MARK: Chart RawData
+extension HomeViewModel {
+    // 차트뷰에 사용할 rawData를 업데이트하고, rawData를 전달하는 메서드
+    private func chartRawData(from result: Result<[MissionResultPayload], Error>) -> Observable<Result<[Int: Int], Error>> {
+        Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            
+            switch result {
+            case .success(let results):
+                let data = calculateWeeklyTotal(of: results)
+                self.weeklyData.newValue(data) // 차트뷰(Main 화면) dataSource 업데이트
+                
+                observer.onNext(.success(data))
+                observer.onCompleted()
+                
+            case .failure(let error):
+                observer.onNext(.failure(error))
+            }
+            return Disposables.create()
+        }
     }
     
     // 주간 누적 기록을 계산하는 메서드
@@ -283,9 +354,84 @@ extension HomeViewModel {
             let rawWeekday = calendar.dateComponents(in: .current, from: result.start).weekday ?? -1
             let weekday = rawWeekday == 1 ? 6 : rawWeekday - 2
         
-            weeklyRecord[weekday, default: 0] += result.studyTime
+            weeklyRecord[weekday, default: 0] += (result.studyTime / 60)
         }
         
         return weeklyRecord
+    }
+}
+
+//MARK: Progress View
+extension HomeViewModel {
+    struct ProgressStatus: Hashable {
+        let current: Planet
+        let target: Planet?
+        let progress: Float
+    }
+    
+    private func progressStatus(from result: Result<[SumResult], Error>) -> Observable<Result<ProgressStatus, Error>> {
+        Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            
+            switch result {
+            case .success(let result):
+                let cum = result[TotalCardView.CardCategory.totalTime.rawValue].value // 누적 집중 시간(분)
+                let left = result[TotalCardView.CardCategory.leftTime.rawValue].value // 다음 목적지까지 남은 시간(분)
+                
+                let progressStatus = self.calculateProgress(cum: cum, left: left)
+                
+                observer.onNext(.success(progressStatus))
+                observer.onCompleted()
+                
+            case .failure(let error):
+                observer.onNext(.failure(error))
+                observer.onCompleted()
+            }
+            
+            return Disposables.create()
+        }
+    }
+    
+    private func calculateProgress(cum: Int, left: Int) -> ProgressStatus {
+        let target = findTargetPlanet(from: cum) // 목적지
+        
+        guard let target else { // 마지막 목적지까지 이미 도달한 경우
+            return ProgressStatus(
+                current: Planet.allCases.last!,
+                target: nil,
+                progress: 1
+            )
+        }
+        
+        let current = Planet.allCases[target.rawValue - 1]
+        let progress = Float(cum) / Float(target.targetTime * 60)
+        
+        return ProgressStatus(
+            current: current,
+            target: target,
+            progress: progress
+        )
+    }
+}
+
+extension HomeViewModel {
+    private func fetchAllMissionResults() -> Observable<[MissionResultPayload]> {
+        Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            do {
+                let results = try self.coreDataManager.fetchAllMissionResult()
+                observer.onNext(results)
+                observer.onCompleted()
+            } catch {
+                observer.onError(error)
+            }
+            return Disposables.create()
+        }
+    }
+    
+    private func findTargetPlanet(from totalMinute: Int) -> Planet? {
+        Planet.allCases.filter {
+            totalMinute < ($0.targetTime * 60)
+        }.first
     }
 }

@@ -42,7 +42,7 @@ struct ActivatedMissionPayload: Hashable {
 }
 
 // 미션 결과 - 뽀모도로
-struct MissionResultPayload {
+struct MissionResultPayload: Hashable {
     var id: UUID
     var title: String // Mission.title과 동일값
     var start: Date

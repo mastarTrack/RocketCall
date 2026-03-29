@@ -165,3 +165,27 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     }
 }
 
+extension NotificationManager {
+    func fetchNearestAlarm() async -> UUID? {
+        let center = UNUserNotificationCenter.current()
+        
+        let requests = await center.pendingNotificationRequests()
+        
+        let request = requests
+            .compactMap { request -> (request: UNNotificationRequest, date: Date)? in
+                guard let trigger = request.trigger as? UNCalendarNotificationTrigger,
+                      let nextTriggerDate = trigger.nextTriggerDate() else {
+                    return nil
+                }
+                return (request, nextTriggerDate)
+            }
+            .sorted(by: { $0.date < $1.date })
+            .first?.request
+        
+        guard let id = request?.identifier.prefix(36) else {
+            return nil
+        }
+
+        return UUID(uuidString: String(id))
+    }
+}

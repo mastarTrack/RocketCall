@@ -59,6 +59,7 @@ extension HomeMainViewController {
         
         // 알람 카드뷰 업데이트
         output.alarm
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [cardView = homeMainView.alarmCardView] result in
                 switch result {
                 case .success(let alarm):
@@ -70,18 +71,27 @@ extension HomeMainViewController {
             })
             .disposed(by: disposeBag)
         
-        // 통계 업데이트
-        output.total
+        // 통계 카드 업데이트
+        output.sum
             .subscribe(onNext: { [homeMainView] result in
                 switch result {
-                case .success(let total):
-                    // 카드뷰 업데이트
-                    homeMainView.totalTimeCardView.valueLabel.text = "\(total.totalTime / 60)시간"
-                    homeMainView.totalTimeCardView.detailLabel.text = "\(total.totalTime)분"
-                    homeMainView.missionCardView.valueLabel.text = "\(total.complete)회"
-                    
+                case .success(let results):
+                    homeMainView.totalTimeCardView.configure(results[TotalCardView.CardCategory.totalTime.rawValue])
+                    homeMainView.missionCardView.configure(results[TotalCardView.CardCategory.totalCount.rawValue])
                 case .failure(let error):
-                    print(error) // 추후 처리 필요
+                    print(error)
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        // 차트뷰 데이터소스 - 에러 처리용
+        output.chartRawData
+            .subscribe(onNext: { [weak self] result in
+                switch result {
+                case .success(_):
+                    break
+                case .failure(let error):
+                    print(error)
                 }
             })
             .disposed(by: disposeBag)
@@ -107,10 +117,9 @@ extension HomeMainViewController {
             .debounce(.milliseconds(500), scheduler: MainScheduler.instance)
             .map { _ in }
             .subscribe(onNext: { [weak self] in
-                self?.navigationController?.pushViewController(HomeDetailViewController(), animated: true)
+                guard let self else { return }
+                self.navigationController?.pushViewController(HomeDetailViewController(viewModel: self.viewModel), animated: true)
             })
             .disposed(by: disposeBag)
     }
-    
-    
 }

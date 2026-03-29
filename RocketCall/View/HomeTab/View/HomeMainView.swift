@@ -22,8 +22,8 @@ final class HomeMainView: UIView {
     // SwiftUI로 생성된 ChartView를 UIKit에서 사용하기 위한 HostingController
     private(set) var chartHostingController: UIHostingController<ChartView>
     
-    let totalTimeCardView = SmallCardView(type: .totalTime)
-    let missionCardView = SmallCardView(type: .totalCount)
+    let totalTimeCardView = TotalCardView(type: .totalTime)
+    let missionCardView = TotalCardView(type: .totalCount)
     
     init(data: WeeklyData) {
         let chartView = ChartView(data: data)
@@ -95,6 +95,7 @@ final class HomeMainView: UIView {
         smallCardStackView.snp.makeConstraints {
             $0.top.equalTo(chartBaseCardView.snp.bottom).offset(10)
             $0.bottom.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
+            $0.height.equalTo(92)
         }
     }
 }
