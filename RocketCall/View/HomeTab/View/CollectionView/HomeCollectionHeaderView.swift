@@ -28,7 +28,7 @@ final class HomeCollectionHeaderView: UICollectionReusableView {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        disposeBag = DisposeBag()
+        disposeBag = DisposeBag() // 구독 초기화
     }
     
     func configure(title: String, hasButton: Bool, buttonTitle: String = "") {

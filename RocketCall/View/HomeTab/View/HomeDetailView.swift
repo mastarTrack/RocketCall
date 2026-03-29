@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 import RxSwift
-import RxRelay
+import RxCocoa
 
 final class HomeDetailView: UIView {
     private let titleView = TitleView(title: "상세 기록", subTitle: "당신의 우주 여정", hasButton: false)
@@ -91,10 +91,10 @@ extension HomeDetailView {
             case .progress(let status):
                 cell.configure(status: status)
                 
-                cell.bind()
-                cell.infoButtonTapped
+                cell.rx.infoButtonTap
                     .bind(to: self.infoButtonTappedRelay)
                     .disposed(by: cell.disposeBag)
+                
             default:
                 break
             }

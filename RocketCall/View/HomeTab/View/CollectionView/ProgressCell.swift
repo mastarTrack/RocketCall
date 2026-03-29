@@ -43,14 +43,13 @@ final class ProgressCell: UICollectionViewCell {
         $0.textAlignment = .right
     }
     
-    private let infoButton = CircleButton(
+    fileprivate let infoButton = CircleButton(
         size: 45,
         backgroundColor: .clear,
         image: UIImage(systemName: "info.circle"),
         tintColor: .subLabel
     )
     
-    let infoButtonTapped = PublishRelay<Void>()
     private(set) var disposeBag = DisposeBag()
     
     override init(frame: CGRect) {
@@ -65,12 +64,6 @@ final class ProgressCell: UICollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         disposeBag = DisposeBag()
-    }
-    
-    func bind() {
-        infoButton.rx.tap
-            .bind(to: infoButtonTapped)
-            .disposed(by: disposeBag)
     }
 }
 
@@ -154,5 +147,11 @@ extension ProgressCell {
         targetPlanet.text = status.target?.emoji
         
         progressView.setProgress(status.progress, animated: true)
+    }
+}
+
+extension Reactive where Base :ProgressCell {
+    var infoButtonTap: ControlEvent<Void> {
+        base.infoButton.rx.tap
     }
 }

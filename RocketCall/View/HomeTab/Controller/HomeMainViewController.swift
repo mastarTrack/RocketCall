@@ -122,7 +122,7 @@ extension HomeMainViewController {
             })
             .disposed(by: disposeBag)
         
-        // 차트 상세보기 버튼
+        // 차트 상세보기 버튼        
         homeMainView.rx.detailButtonTap
             .subscribe(onNext: { [weak self] in
                 guard let self else { return }
