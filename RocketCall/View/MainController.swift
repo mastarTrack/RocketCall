@@ -61,9 +61,9 @@ extension MainController {
         selectedIndex = 2
         // 네비게이션 컨트롤러 꺼냄
         guard let missionNavigationController = viewControllers?[2] as? UINavigationController else { return }
-        // 이미 상단이 미션결과VC이면 확인한후 pop
-        if let topViewController = missionNavigationController.topViewController as? MissionResultViewController {
-            topViewController.navigationController?.popViewController(animated: false)
+        // 결과 화면 전 미션 목록 화면까지 스택 정리
+        if let missionViewController = missionNavigationController.viewControllers.first(where: { $0 is MissionViewController }) {
+            missionNavigationController.popToViewController(missionViewController, animated: false)
         }
         // 아닐경우 결과VC 띄움
         let resultViewController = MissionResultViewController(

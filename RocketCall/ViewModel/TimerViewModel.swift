@@ -17,6 +17,7 @@ class TimerViewModel: ViewModelProtocol {
     private let activatedMissionRelay = BehaviorRelay<[ActivatedMissionPayload]>(value: []) // 진행중 타이머
     private let errorSubject = PublishSubject<CoreDataManager.CoreDataError>()
     private let missionResultSubject = PublishSubject<UUID>()
+    private let startedMissionSubject = PublishSubject<ActivatedMissionPayload>()
     
     var backgroundEnterTime: Date?
     
@@ -44,9 +45,6 @@ class TimerViewModel: ViewModelProtocol {
     }
     
     func transform(_ input: Input) -> Output {
-        // 새미션이 활성화되면 타이머 진입시에 쓰는 값
-        let startedMissionSubject = PublishSubject<ActivatedMissionPayload>()
-        
         // 미션 활성화
         input.activatedMission
             .subscribe(onNext: { [weak self] mission in
