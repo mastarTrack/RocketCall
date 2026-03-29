@@ -60,22 +60,33 @@ final class DetailCollectionView: UICollectionView {
 extension DetailCollectionView {
     private func makeCompositionalLayout() -> UICollectionViewLayout {
         let configuration = UICollectionViewCompositionalLayoutConfiguration()
-        configuration.interSectionSpacing = 20
+        configuration.interSectionSpacing = 5
         configuration.contentInsetsReference = .layoutMargins
         
         return UICollectionViewCompositionalLayout (sectionProvider: { [weak self] sectionIndex, environment in
+            let headerItem = NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1),
+                    heightDimension: .absolute(35)
+                ),
+                elementKind: "HeaderKind",
+                alignment: .top
+            )
+            
             switch Section(rawValue: sectionIndex) {
             case .sum:
                 let section = self?.sumSectionLayout(environment: environment)
                 return section
             case .chart:
                 let section = self?.chartSectionLayout()
+                section?.boundarySupplementaryItems = [headerItem]
                 return section
             case .progress:
                 let section = self?.progressSectionLayout()
                 return section
             case .result:
                 let section = self?.resultSectionLayout(environment: environment)
+                section?.boundarySupplementaryItems = [headerItem]
                 return section
             case .none:
                 return self?.chartSectionLayout()
@@ -120,6 +131,7 @@ extension DetailCollectionView {
         group.interItemSpacing = .fixed(spacing)
         
         let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
         
         return section
     }
@@ -141,6 +153,7 @@ extension DetailCollectionView {
         )
         
         let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = .init(top: 5, leading: 0, bottom: 0, trailing: 0)
         
         return section
     }
@@ -162,6 +175,7 @@ extension DetailCollectionView {
         )
         
         let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
         
         return section
     }
@@ -184,6 +198,7 @@ extension DetailCollectionView {
         
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 8
+        section.contentInsets = .init(top: 5, leading: 0, bottom: 0, trailing: 0)
         
         return section
     }

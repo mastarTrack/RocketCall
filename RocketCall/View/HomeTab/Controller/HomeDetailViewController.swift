@@ -142,12 +142,14 @@ extension HomeDetailViewController {
             .disposed(by: disposeBag)
         
         //MARK: collectionView event
+        // progressCell 정보 버튼 클릭 시 - 행성 목록을 동작
         detailView.infoButtonTappedRelay
             .subscribe(onNext: { [weak self] item in
                 self?.present(HomeTimeContainerViewController(), animated: true)
             })
             .disposed(by: disposeBag)
         
+        // 미션 결과 셀 선택 시 - 미션 결과를 띄우는 동작
         detailView.collectionView.rx.itemSelected
             .subscribe(onNext: { [weak self] indexPath in
                 guard let self else { return }
@@ -163,7 +165,13 @@ extension HomeDetailViewController {
             })
             .disposed(by: disposeBag)
 
+        // 미션 결과 섹션 '더보기' 버튼 클릭 시 - 모든 미션 결과를 띄우는 동작
+        detailView.detailButtonTappedRelay
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                let vc = HomeResultListViewController(viewModel: self.viewModel)
+                self.navigationController?.pushViewController(vc, animated: true)
+            })
+            .disposed(by: disposeBag)
     }
-    
-    
 }

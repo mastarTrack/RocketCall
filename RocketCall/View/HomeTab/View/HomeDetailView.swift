@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 import RxSwift
-import RxRelay
+import RxCocoa
 
 final class HomeDetailView: UIView {
     private let titleView = TitleView(title: "상세 기록", subTitle: "당신의 우주 여정", hasButton: false)
@@ -16,7 +16,7 @@ final class HomeDetailView: UIView {
     private(set) lazy var dataSource = makeCollectionViewDiffableDataSource(collectionView)
     
     let infoButtonTappedRelay = PublishRelay<Void>()
-    let resultCellTappedRelay = PublishRelay<UUID>()
+    let detailButtonTappedRelay = PublishRelay<Void>()
     let disposeBag = DisposeBag()
     
     override init(frame: CGRect) {
@@ -50,6 +50,21 @@ extension HomeDetailView {
 extension HomeDetailView {
     private func makeCollectionViewDiffableDataSource(_ collectionView: UICollectionView) -> UICollectionViewDiffableDataSource<DetailCollectionView.Section, DetailCollectionView.Item> {
         
+        let headerViewRegistration = UICollectionView.SupplementaryRegistration<HomeCollectionHeaderView>(elementKind: "HeaderKind") { [weak self] supplementaryView, elementKind, indexPath in
+            guard let self else { return }
+            switch DetailCollectionView.Section(rawValue: indexPath.section) {
+            case .chart:
+                supplementaryView.configure(title: "주간 기록", hasButton: false)
+            case .result:
+                supplementaryView.configure(title: "미션 결과", hasButton: true, buttonTitle: "더 보기")
+                supplementaryView.headerView.rx.detailButtonTap
+                    .bind(to: self.detailButtonTappedRelay)
+                    .disposed(by: supplementaryView.disposeBag)
+            default:
+                break
+            }
+        }
+        
         let sumCardCellRegistration = UICollectionView.CellRegistration<SumCardCell, DetailCollectionView.Item> { cell, indexPath, item in
             switch item {
             case .sum(let result):
@@ -75,10 +90,10 @@ extension HomeDetailView {
             case .progress(let status):
                 cell.configure(status: status)
                 
-                cell.bind()
-                cell.infoButtonTapped
+                cell.rx.infoButtonTap
                     .bind(to: self.infoButtonTappedRelay)
                     .disposed(by: cell.disposeBag)
+                
             default:
                 break
             }
@@ -106,6 +121,10 @@ extension HomeDetailView {
             default:
                 fatalError("DetailCollectionView: 유효하지 않은 섹션입니다")
             }
+        }
+        
+        dataSource.supplementaryViewProvider = {
+            collectionView.dequeueConfiguredReusableSupplementary(using: headerViewRegistration, for: $2)
         }
         
         return dataSource
