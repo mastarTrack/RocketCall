@@ -6,8 +6,10 @@
 //
 import UIKit
 import SnapKit
+import RxSwift
 
 final class HomeCollectionHeaderView: UICollectionReusableView {
+    private(set) var disposeBag = DisposeBag()
     let headerView = HomeHeaderView()
     
     override init(frame: CGRect) {
@@ -22,6 +24,11 @@ final class HomeCollectionHeaderView: UICollectionReusableView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        disposeBag = DisposeBag()
     }
     
     func configure(title: String, hasButton: Bool, buttonTitle: String = "") {

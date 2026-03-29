@@ -56,6 +56,11 @@ extension HomeDetailView {
                 supplementaryView.configure(title: "주간 기록", hasButton: false)
             case .result:
                 supplementaryView.configure(title: "미션 결과", hasButton: true, buttonTitle: "더 보기")
+                supplementaryView.headerView.rx.detailButtonTap
+                    .subscribe(onNext: { [weak self] in
+                        print("detailButtonTapped")
+                    })
+                    .disposed(by: supplementaryView.disposeBag)
             default:
                 break
             }
