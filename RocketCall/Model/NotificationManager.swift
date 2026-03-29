@@ -56,7 +56,8 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
                 dateComponents.second = i * 9
                 
                 let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
-                let request = UNNotificationRequest(identifier: "\(alarm.id.uuidString)-\(i)", content: content, trigger: trigger)
+                let identifier = "\(alarm.id.uuidString)-\(i)"
+                let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
                 
                 center.add(request)
             }
@@ -65,10 +66,10 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             for day in alarm.repeatDays {
                 for i in 0..<4 {
                     var dateComponents = DateComponents()
+                    dateComponents.weekday = day.appleWeekDay
                     dateComponents.hour = alarm.hour
                     dateComponents.minute = alarm.minute
-                    dateComponents.weekday = day.appleWeekDay
-                    dateComponents.second = i * 8
+                    dateComponents.second = i * 9
                     
                     let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
                     let identifier = "\(alarm.id.uuidString)-\(day.rawValue)-\(i)" // id가 동일하므로 구분지어주기 위해 뒤에 요일 추가
@@ -79,6 +80,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             }
         }
     }
+    
     
     // MARK: - 알람 취소 메서드
     func cancelAlarm(_ id: UUID) {
@@ -98,26 +100,26 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     // MARK: - 스누즈 알람 예약 메서드
     func addSnoozeAlarm(title: String, originalId: UUID) {
         let center = UNUserNotificationCenter.current()
-        let content = UNMutableNotificationContent()
         
+        // 1. 내용
+        let content = UNMutableNotificationContent()
         content.title = "Rocket Call (Snooze)"
         content.body = title
         content.sound = UNNotificationSound(named: UNNotificationSoundName("AlarmSound.wav"))
         content.interruptionLevel = .timeSensitive // 방해 금지여도 알람
         
+        // 2. 시간 설정
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 300, repeats: false)
-        
         let identifier = "\(originalId.uuidString)-Snooze"
-        
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         
         center.add(request)
     }
-    
-    
-    var currentRingingId: UUID? = nil // 현재 울리고 있는 알람의 id값 기억하기
+        
     
     // MARK: - 앱이 화면에 켜져있을때
+    var currentRingingId: UUID? = nil // 현재 울리고 있는 알람의 id값 기억하기
+
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         
         // 예약할 때 넣었던 알람 제목 꺼내기
