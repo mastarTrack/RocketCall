@@ -20,6 +20,8 @@ class MissionViewController: UIViewController {
     private let disposeBag = DisposeBag()
     private let viewModel: MissionViewModel
     private let timerViewModel: TimerViewModel
+    // 화면 밖으로 페이로드  넘기기 위해서 프로퍼티 추가
+    private let activatedMissionsRelay = BehaviorRelay<[ActivatedMissionPayload]>(value: [])
     
     private var missions: [MissionPayload] = []
     private let initialLoadSubject = PublishSubject<Void>()
@@ -102,7 +104,14 @@ extension MissionViewController {
             .subscribe(onNext: { [weak self] in
                 guard let self else { return }
                 let nextVM = CreateMissionViewModel(coreDataManager: self.coreDataManager)
-                let nextVC = CreateMissionViewController(viewModel: nextVM)
+                let nextVC = CreateMissionViewController(
+                    viewModel: nextVM,
+                    // 미션 정보 클로저 넘김
+                    onMissionCreated: { [weak self] mission in
+                        // 시작하면 정보 넘기도록
+                        self?.activatedMissionSubject.onNext(mission)
+                    }
+                )
                 self.navigationController?.pushViewController(nextVC, animated: true)
             }).disposed(by: disposeBag)
         
@@ -133,14 +142,27 @@ extension MissionViewController {
         timerOutput.activatedMissions
             .subscribe(onNext: { [weak self] (activatedMissions, animated) in
                 self?.activatedMissions = activatedMissions
+                // 시작된 미션 받아서 저장함(타이머 화면에서 정보 받을 수 있도록)
+                self?.activatedMissionsRelay.accept(activatedMissions)
                 self?.setSnapshot(animated: animated)
             })
             .disposed(by: disposeBag)
+        
+        // 새미션 시작시 타이머 화면으로 보내기
+        timerOutput.startedMission
+            .subscribe(onNext: { [weak self] activatedMission in
+                self?.showTimerAnimationViewController(for: activatedMission)
+            })
+            .disposed(by: disposeBag)
+
         timerOutput.error
             .subscribe(onNext: { [weak self] error in
                 self?.showErrorAlert(error: error)
             })
             .disposed(by: disposeBag)
+        
+        /*
+         // 타이머로 보내기 위해서 결과 띄우는 로직은 삭제했습니다.
         timerOutput.missionResult
             .subscribe(onNext: { [weak self] resultId in
                 guard let self else { return }
@@ -148,6 +170,7 @@ extension MissionViewController {
                 self.navigationController?.pushViewController(resultVC, animated: true)
             })
             .disposed(by: disposeBag)
+         */
     }
 }
 
@@ -161,10 +184,51 @@ extension MissionViewController {
 }
 
 extension MissionViewController: UICollectionViewDelegate {
-    
+    // 셀 누르면 타이머 화면으로 가도록 함
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let item = dataSource.itemIdentifier(for: indexPath) else { return }
+        
+        switch item {
+        case .activatedMission(let mission):
+            showTimerAnimationViewController(for: mission)
+        case .customMission:
+            break
+        }
+    }
 }
 
 extension MissionViewController {
+    // 타이머 화면 띄우는 코드
+    private func showTimerAnimationViewController(for activatedMission: ActivatedMissionPayload) {
+        // 해당 하는 id 꺼내서 저장
+        let activatedMissionState = activatedMissionsRelay
+            .asObservable()
+            .compactMap { missions in
+                missions.first(where: { $0.id == activatedMission.id })
+            }
+        let planetImageName = planetImageName(for: activatedMission.id)
+        // 해당 id로 결과창 화면 띄움 - 일시정지/정지 같이 처리해줌
+        let timerViewController = TimerAnimationViewController(
+            activatedMissionState: activatedMissionState,
+            planetImageName: planetImageName,
+            onPauseResumeRequested: { [weak self] in
+                self?.pauseResumeMissionSubject.onNext(activatedMission.id)
+            },
+            onMissionStopRequested: { [weak self] in
+                self?.stopMissionSubject.onNext(activatedMission.id)
+            }
+        )
+        navigationController?.pushViewController(timerViewController, animated: true)
+    }
+    // 타이머 마다 랜덤하게 행성 띄워주기
+    private func planetImageName(for missionId: UUID) -> String {
+        let imageNames = TimerAnimationView.availablePlanetImageNames
+        // UUID를 -> 문자 -> 숫자변환 -> 합하기 그다음 행성 이미지 수로 나누어서 행성 짝지어주기
+        let scalarSum = missionId.uuidString.unicodeScalars.reduce(0) { partialResult, scalar in
+            partialResult + Int(scalar.value)
+        }
+        return imageNames[scalarSum % imageNames.count]
+    }
     
     private func setSnapshot(animated: Bool) {
         var snapshot = NSDiffableDataSourceSnapshot<MissionSection, MissionItem>()

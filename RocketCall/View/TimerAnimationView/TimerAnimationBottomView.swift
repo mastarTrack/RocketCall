@@ -49,10 +49,10 @@ final class TimerAnimationBottomView: UIView {
         tintColor: .white
     )
     
-    let homeButton = CircleButton(
+    let missionStopButton = CircleButton(
         size: 40,
         backgroundColor: UIColor.white.withAlphaComponent(0.3),
-        image: UIImage(systemName: "house.fill"),
+        image: UIImage(systemName: "stop"),
         tintColor: .white
     )
     
@@ -66,12 +66,18 @@ final class TimerAnimationBottomView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func configure(missionTitle: String, timerText: String, cycleText: String) {
+        missionTitleLabel.text = missionTitle
+        timerLabel.text = timerText
+        cycleLabel.text = cycleText
+    }
+    
     private func configureUI() {
         backgroundColor = .black
         
         buttonStackView.addArrangedSubview(backButton)
         buttonStackView.addArrangedSubview(stopButton)
-        buttonStackView.addArrangedSubview(homeButton)
+        buttonStackView.addArrangedSubview(missionStopButton)
         
         addSubview(missionTitleLabel)
         addSubview(timerLabel)
