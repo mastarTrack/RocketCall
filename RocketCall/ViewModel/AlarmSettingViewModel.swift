@@ -119,15 +119,17 @@ final class AlarmSettingViewModel: ViewModelProtocol {
                         // 기존 알람 예약 취소
                         let oldAlarm = Alarm(id: oldPayload.id, hour: oldPayload.hour, minute: oldPayload.minute, title: oldPayload.title, repeatDays: oldPayload.repeatDays.compactMap { WeekDay(rawValue: $0) }, isOn: oldPayload.isOn
                         )
-                        NotificationManager.shared.cancelAlarm(oldAlarm.id)
+                        NotificationManager.shared.cancelAlarm(String(oldAlarm.id.uuidString.prefix(36)))
                     } else {
                         try owner.coreDataManager.createAlarmEntity(alarm: payload)
                     }
                     
                     // 알람 예약하기
-                    NotificationManager.shared.addAlarm(alarmForNoti)
-
-                    saveSuccess.accept(()) // 성공 트리거 발사
+                    DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
+                        NotificationManager.shared.addAlarm(alarmForNoti)
+                        saveSuccess.accept(()) // 성공 트리거 발사
+                    }
+                    
                 } catch {
                     print("저장 실패: \(error)")
                 }
