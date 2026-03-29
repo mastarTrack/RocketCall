@@ -121,5 +121,13 @@ extension HomeMainViewController {
                 self.navigationController?.pushViewController(HomeDetailViewController(viewModel: self.viewModel), animated: true)
             })
             .disposed(by: disposeBag)
+        
+        // 차트 상세보기 버튼
+        homeMainView.rx.detailButtonTap
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                self.navigationController?.pushViewController(HomeDetailViewController(viewModel: self.viewModel), animated: true)
+            })
+            .disposed(by: disposeBag)
     }
 }

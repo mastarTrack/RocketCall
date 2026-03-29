@@ -8,10 +8,12 @@
 import UIKit
 import SnapKit
 import Then
+import RxSwift
+import RxCocoa
 
 final class HomeHeaderView: UIView {
     private let titleLabel = UILabel(text: "제목", config: LabelConfiguration.homeViewHeader)
-    private let detailButton = UIButton(configuration: .plain()).then {
+    fileprivate let detailButton = UIButton(configuration: .plain()).then {
         $0.backgroundColor = .clear
         $0.tintColor = .mainPoint
         $0.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
@@ -39,15 +41,6 @@ final class HomeHeaderView: UIView {
             unitLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         }
         
-//        let stackView = UIStackView(arrangedSubviews: [titleLabel, detailButton]).then {
-//            $0.axis = .horizontal
-//            $0.spacing = 5
-//            $0.alignment = .bottom
-//            
-//            detailButton.setContentHuggingPriority(.required, for: .horizontal)
-//            detailButton.setContentCompressionResistancePriority(.required, for: .horizontal)
-//        }
-        
         addSubview(stackView)
         
         stackView.snp.makeConstraints {
@@ -65,5 +58,11 @@ final class HomeHeaderView: UIView {
         titleLabel.text = title
         detailButton.isHidden = !hasButton
         detailButton.setTitle(buttonTitle, for: .normal)
+    }
+}
+
+extension Reactive where Base: HomeHeaderView {
+    var detailButtonTap: ControlEvent<Void> {
+        base.detailButton.rx.tap
     }
 }

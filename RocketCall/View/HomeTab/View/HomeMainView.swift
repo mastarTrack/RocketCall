@@ -9,6 +9,8 @@ import UIKit
 import SnapKit
 import Then
 import SwiftUI
+import RxSwift
+import RxCocoa
 
 final class HomeMainView: UIView {
     //MARK: set attributes
@@ -135,5 +137,11 @@ extension HomeMainView {
         }
         
         return stackView
+    }
+}
+
+extension Reactive where Base: HomeMainView {
+    var detailButtonTap: ControlEvent<Void> {
+        base.chartHeaderView.rx.detailButtonTap
     }
 }
