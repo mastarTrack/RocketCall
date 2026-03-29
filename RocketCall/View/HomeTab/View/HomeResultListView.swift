@@ -12,7 +12,7 @@ import Then
 final class HomeResultListView: UIView {
     private let titleView = TitleView(title: "미션 결과", subTitle: "지금까지 수행한 미션 결과를 확인하세요", hasButton: false)
     
-    private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: makeCompositionalLayout()).then {
+    private(set) lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: makeCompositionalLayout()).then {
         $0.backgroundColor = .background
         $0.contentInset = .init(top: 0, left: 0, bottom: 50, right: 0)
     }

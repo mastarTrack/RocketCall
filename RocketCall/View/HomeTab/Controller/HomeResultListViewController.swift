@@ -60,6 +60,21 @@ extension HomeResultListViewController {
                 }
             })
             .disposed(by: disposeBag)
+        
+        listView.collectionView.rx.itemSelected
+            .subscribe(onNext: { [weak self] indexPath in
+                guard let self else { return }
+                guard let item = listView.dataSource.itemIdentifier(for: indexPath) else { return }
+                
+                switch item {
+                case .result(let result):
+                    let vc = MissionResultViewController(coreDataManager: self.viewModel.coreDataManager, resultId: result.id)
+                    self.present(vc, animated: true)
+                default:
+                    break
+                }
+            })
+            .disposed(by: disposeBag)
     }
     
     private func converToItem(_ results: [MissionResultPayload]) -> [DetailCollectionView.Item] {
