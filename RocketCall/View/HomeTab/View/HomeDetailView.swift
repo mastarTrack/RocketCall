@@ -16,7 +16,7 @@ final class HomeDetailView: UIView {
     private(set) lazy var dataSource = makeCollectionViewDiffableDataSource(collectionView)
     
     let infoButtonTappedRelay = PublishRelay<Void>()
-    let resultCellTappedRelay = PublishRelay<UUID>()
+    let detailButtonTappedRelay = PublishRelay<Void>()
     let disposeBag = DisposeBag()
     
     override init(frame: CGRect) {
@@ -50,16 +50,15 @@ extension HomeDetailView {
 extension HomeDetailView {
     private func makeCollectionViewDiffableDataSource(_ collectionView: UICollectionView) -> UICollectionViewDiffableDataSource<DetailCollectionView.Section, DetailCollectionView.Item> {
         
-        let headerViewRegistration = UICollectionView.SupplementaryRegistration<HomeCollectionHeaderView>(elementKind: "HeaderKind") { supplementaryView, elementKind, indexPath in
+        let headerViewRegistration = UICollectionView.SupplementaryRegistration<HomeCollectionHeaderView>(elementKind: "HeaderKind") { [weak self] supplementaryView, elementKind, indexPath in
+            guard let self else { return }
             switch DetailCollectionView.Section(rawValue: indexPath.section) {
             case .chart:
                 supplementaryView.configure(title: "주간 기록", hasButton: false)
             case .result:
                 supplementaryView.configure(title: "미션 결과", hasButton: true, buttonTitle: "더 보기")
                 supplementaryView.headerView.rx.detailButtonTap
-                    .subscribe(onNext: { [weak self] in
-                        print("detailButtonTapped")
-                    })
+                    .bind(to: self.detailButtonTappedRelay)
                     .disposed(by: supplementaryView.disposeBag)
             default:
                 break
