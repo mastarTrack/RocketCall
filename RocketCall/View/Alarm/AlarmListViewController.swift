@@ -90,12 +90,10 @@ final class AlarmListViewController: UIViewController {
     
     
     // MARK: - 초기화
-    private let coreDataManager: CoreDataManager
     private let viewModel: AlarmListViewModel
     
-    init(coreDataManager: CoreDataManager) {
-        self.coreDataManager = coreDataManager
-        self.viewModel = AlarmListViewModel(coreDataManager: coreDataManager)
+    init(viewModel: AlarmListViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
