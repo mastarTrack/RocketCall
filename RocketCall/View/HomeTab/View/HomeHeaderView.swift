@@ -33,8 +33,9 @@ final class HomeHeaderView: UIView {
         addSubview(stackView)
         
         stackView.snp.makeConstraints {
-            $0.verticalEdges.equalToSuperview().inset(10)
-            $0.horizontalEdges.equalToSuperview().inset(20)
+//            $0.verticalEdges.equalToSuperview().inset(10)
+//            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.edges.equalToSuperview()
         }
     }
     
