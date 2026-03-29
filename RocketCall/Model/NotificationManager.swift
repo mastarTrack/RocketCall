@@ -58,9 +58,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
                 let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
                 let request = UNNotificationRequest(identifier: "\(alarm.id.uuidString)-\(i)", content: content, trigger: trigger)
                 
-                center.add(request) { error in
-                    if let error = error { print("반복 없는 알람 예약 실패: \(error)") }
-                }
+                center.add(request)
             }
         } else {
             // 반복 있음
@@ -76,9 +74,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
                     let identifier = "\(alarm.id.uuidString)-\(day.rawValue)-\(i)" // id가 동일하므로 구분지어주기 위해 뒤에 요일 추가
                     let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
                     
-                    center.add(request) { error in
-                        if let error = error { print("반복 알람 예약 실패: \(error)") }
-                    }
+                    center.add(request)
                 }
             }
         }
@@ -97,7 +93,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             center.removePendingNotificationRequests(withIdentifiers: identifiersToRemove)
         }
     }
-    
+
     
     // MARK: - 스누즈 알람 예약 메서드
     func addSnoozeAlarm(title: String, originalId: UUID) {

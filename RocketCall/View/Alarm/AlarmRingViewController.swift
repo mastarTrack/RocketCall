@@ -106,18 +106,48 @@ final class AlarmRingViewController: UIViewController {
                 self.vibrationTimer?.invalidate()
                 self.vibrationTimer = nil
                 
-                NotificationManager.shared.cancelAlarm(self.alarmId)
+                NotificationManager.shared.cancelAlarm(self.alarmId) // 알람 cancel
                 
                 NotificationManager.shared.currentRingingId = nil
                 
-                // 요일 반복 없는 알람이면 토글 off
                 do {
                     let payload = try self.coreDataManager.fetchAlarm(of: self.alarmId)
                     
                     if payload.repeatDays.isEmpty {
                         var updatedPayload = payload
-                        updatedPayload.isOn = false
+                        updatedPayload.isOn = false   // 요일 반복 없는 알람이면 토글 off
                         try self.coreDataManager.updateAlarmEntity(of: updatedPayload)
+                        
+                        
+                    } else { // 요일 반복하는 알람이면 알람 다시 등록
+                        
+                        // 앱이 백그라운드 상태여도 앱이 죽지않도록 요청
+                        var bgTask: UIBackgroundTaskIdentifier = .invalid
+                        bgTask = UIApplication.shared.beginBackgroundTask(withName: "RescheduleAlarm") {
+                            // 만약 시스템이 시간을 더 이상 못 주겠다고 하면 태스크 종료
+                            UIApplication.shared.endBackgroundTask(bgTask)
+                            bgTask = .invalid
+                        }
+                            
+                        // 24초 딜레이
+                        DispatchQueue.global().asyncAfter(deadline: .now() + 24.0) {
+                            
+                            let alarmToReschedule = Alarm(
+                                id: payload.id,
+                                hour: payload.hour,
+                                minute: payload.minute,
+                                title: payload.title,
+                                repeatDays: payload.repeatDays.compactMap { WeekDay(rawValue: $0) },
+                                isOn: payload.isOn
+                            )
+                            
+                            NotificationManager.shared.addAlarm(alarmToReschedule)
+                            
+                            // 재등록이 끝났으니,종료
+                            UIApplication.shared.endBackgroundTask(bgTask)
+                            bgTask = .invalid
+                        }
+                        
                     }
                 } catch {
                         print("알람 토글 상태 업데이트 실패: \(error)")
