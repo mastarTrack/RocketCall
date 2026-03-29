@@ -14,7 +14,7 @@ final class HomeHeaderView: UIView {
     private let detailButton = UIButton(configuration: .plain()).then {
         $0.backgroundColor = .clear
         $0.tintColor = .mainPoint
-        $0.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
+        $0.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
     }
     
     override init(frame: CGRect) {
@@ -33,9 +33,8 @@ final class HomeHeaderView: UIView {
         addSubview(stackView)
         
         stackView.snp.makeConstraints {
-//            $0.verticalEdges.equalToSuperview().inset(10)
-//            $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.edges.equalToSuperview()
+            $0.top.equalToSuperview().offset(10)
+            $0.bottom.horizontalEdges.equalToSuperview()
         }
     }
     
@@ -43,8 +42,9 @@ final class HomeHeaderView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(title: String, hasButton: Bool) {
+    func configure(title: String, hasButton: Bool, buttonTitle: String = "") {
         titleLabel.text = title
         detailButton.isHidden = !hasButton
+        detailButton.setTitle(buttonTitle, for: .normal)
     }
 }

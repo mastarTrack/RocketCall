@@ -50,6 +50,17 @@ extension HomeDetailView {
 extension HomeDetailView {
     private func makeCollectionViewDiffableDataSource(_ collectionView: UICollectionView) -> UICollectionViewDiffableDataSource<DetailCollectionView.Section, DetailCollectionView.Item> {
         
+        let headerViewRegistration = UICollectionView.SupplementaryRegistration<HomeCollectionHeaderView>(elementKind: "HeaderKind") { supplementaryView, elementKind, indexPath in
+            switch DetailCollectionView.Section(rawValue: indexPath.section) {
+            case .chart:
+                supplementaryView.configure(title: "주간 기록", hasButton: false)
+            case .result:
+                supplementaryView.configure(title: "미션 결과", hasButton: true, buttonTitle: "더 보기")
+            default:
+                break
+            }
+        }
+        
         let sumCardCellRegistration = UICollectionView.CellRegistration<SumCardCell, DetailCollectionView.Item> { cell, indexPath, item in
             switch item {
             case .sum(let result):
@@ -106,6 +117,10 @@ extension HomeDetailView {
             default:
                 fatalError("DetailCollectionView: 유효하지 않은 섹션입니다")
             }
+        }
+        
+        dataSource.supplementaryViewProvider = {
+            collectionView.dequeueConfiguredReusableSupplementary(using: headerViewRegistration, for: $2)
         }
         
         return dataSource

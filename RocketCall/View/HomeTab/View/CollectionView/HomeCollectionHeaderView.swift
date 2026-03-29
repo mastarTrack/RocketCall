@@ -24,7 +24,7 @@ final class HomeCollectionHeaderView: UICollectionReusableView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(title: String, hasButton: Bool) {
-        headerView.configure(title: title, hasButton: hasButton)
+    func configure(title: String, hasButton: Bool, buttonTitle: String = "") {
+        headerView.configure(title: title, hasButton: hasButton, buttonTitle: buttonTitle)
     }
 }
