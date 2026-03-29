@@ -40,13 +40,13 @@ class StopWatchHeaderView: UIView {
         $0.font = UIFont.systemFont(ofSize: 50, weight: .light)
     }
     /// 현재 위치 라벨
-    private let currentLocationLabel = UILabel().then {
+    let currentLocationLabel = UILabel().then {
         $0.text = "현재 위치 확인중..."
         $0.font = .systemFont(ofSize: 18)
         $0.textColor = .mainPoint
     }
     /// 목적지 안내 버튼
-    private let locationButton = RectangleButton(
+    let locationButton = RectangleButton(
         title: "발사 지점",
         color: .mainPoint
     ).then {

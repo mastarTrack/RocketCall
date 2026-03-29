@@ -11,7 +11,7 @@ import RxSwift
 import RxRelay
 import RxCocoa
 
-// DiffableDataSource용 레코드 구조체
+/// DiffableDataSource용 레코드 구조체
 struct RecordData: Hashable {
     var count : Int
     var time : String
@@ -76,6 +76,10 @@ class StopWatchViewModel {
         let mainTimer: Observable<String>
         /// 레코드 정보 Out
         let record: Observable<[RecordData]>
+        /// 현재 위치값 Out
+        let location: Observable<String>
+        /// 다음 위치값 Out
+        let targetLocation: Observable<String>
     }
     
     /// 변환 메소드
@@ -142,7 +146,7 @@ class StopWatchViewModel {
                 case .record:
                     let recordData = RecordData(count: newData.records.count + 1,
                                                 time: formatTime(newData.recordTimer),
-                                                location: "",
+                                                location: FreeStage.currentLocationTitle(newData.mainTimer),
                                                 isLive: false)
                     newData.recordTimer = 0
                     newData.records.insert(recordData, at: 0)
@@ -205,16 +209,27 @@ class StopWatchViewModel {
                 guard let self else { return [] }
                 let currentRecord = RecordData(count: data.records.count + 1,
                                                time: formatTime(data.recordTimer),
-                                               location: "",
+                                               location: FreeStage.currentLocationTitle(data.mainTimer),
                                                isLive: true)
                 
                 return [currentRecord] + data.records
             }
         
+        let location = state
+            .map { data -> String in
+                return FreeStage.currentLocationTitle(data.mainTimer) + (data.mainTimer != 0 ? " 항행 중" : " 대기 중")
+            }
+        
+        let targetLocation = state
+            .map {data -> String in
+                return "다음 위치: \(FreeStage.targetLocationTitle(data.mainTimer))"
+            }
         
         return Output(
             mainTimer: mainTimer,
-            record: record
+            record: record,
+            location: location,
+            targetLocation: targetLocation
         )
     }
     
@@ -231,3 +246,73 @@ class StopWatchViewModel {
 
 
 
+enum FreeStage: Int, CaseIterable {
+    case launchPad
+    case surface
+    case troposphere
+    case stratosphere
+    case mesosphere
+    case thermosphere
+    case exosphere
+    case deepSpace
+    case moon
+    
+    var title: String {
+        switch self {
+        case .launchPad: "발사대"
+        case .surface: "지표면"
+        case .troposphere: "대류권"
+        case .stratosphere: "성층권"
+        case .mesosphere: "중간권"
+        case .thermosphere: "열권"
+        case .exosphere: "외기권"
+        case .deepSpace: "심우주"
+        case .moon: "달"
+        }
+    }
+    
+    static func currentLocationTitle(_ centiseconds: Int) -> String {
+        let elapsedMinutes = Double(centiseconds) / 6000.0
+        switch elapsedMinutes {
+        case 0:
+            return FreeStage.launchPad.title
+        case 0.0..<5.0:
+            return FreeStage.surface.title
+        case 5.0..<13.0:
+            return FreeStage.troposphere.title
+        case 13.0..<20.0:
+            return FreeStage.stratosphere.title
+        case 20.0..<35.0:
+            return FreeStage.mesosphere.title
+        case 35.0..<55.0:
+            return FreeStage.thermosphere.title
+        case 55.0..<120.0:
+            return FreeStage.exosphere.title
+        default:
+            return FreeStage.deepSpace.title
+        }
+    }
+    
+    static func targetLocationTitle(_ centiseconds: Int) -> String {
+        let elapsedMinutes = Double(centiseconds) / 6000.0
+        
+        switch elapsedMinutes {
+        case 0:
+            return FreeStage.surface.title
+        case 0.0..<5.0:
+            return FreeStage.troposphere.title
+        case 5.0..<13.0:
+            return FreeStage.stratosphere.title
+        case 13.0..<20.0:
+            return FreeStage.mesosphere.title
+        case 20.0..<35.0:
+            return FreeStage.thermosphere.title
+        case 35.0..<55.0:
+            return FreeStage.exosphere.title
+        case 55.0..<120.0:
+            return FreeStage.deepSpace.title
+        default:
+            return FreeStage.moon.title
+        }
+    }
+}

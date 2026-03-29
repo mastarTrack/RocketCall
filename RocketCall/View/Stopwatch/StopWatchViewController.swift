@@ -104,6 +104,14 @@ extension StopWatchViewController {
                 self.stopWatchRecordView.applySnapshot(with: datas)
             })
             .disposed(by: disposeBag)
+        
+        output.location
+            .bind(to: stopWatchHeaderView.currentLocationLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        output.targetLocation
+            .bind(to: stopWatchHeaderView.locationButton.rx.title())
+            .disposed(by: disposeBag)
     }
 }
 
