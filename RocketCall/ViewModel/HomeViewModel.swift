@@ -277,7 +277,7 @@ extension HomeViewModel {
         // 어제 날짜
         let yesterday = calendar.date(
             byAdding: .day,
-            value: 1,
+            value: -1,
             to: calendar.startOfDay(for: Date.now)
         )!
         
@@ -290,7 +290,7 @@ extension HomeViewModel {
          - 예시) 월, 화, 수 연속으로 집중하고 목, 금은 집중하지 않은 상태로 토요일에 접속했을 경우, 기존 연속 기록 3일이 보이지 않도록 하기 위함
          */
         if completeDates.contains(yesterday) {
-            for i in 1...completeDates.count {
+            for i in 1..<completeDates.count {
                 let pre = i - 1
                 
                 if completeDates[i].distance(to: completeDates[pre]) == -86400 {
