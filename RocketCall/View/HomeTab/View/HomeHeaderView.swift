@@ -16,24 +16,43 @@ final class HomeHeaderView: UIView {
         $0.tintColor = .mainPoint
         $0.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
     }
+    let unitLabel = UILabel().then {
+        $0.text = "(단위: 분)"
+        $0.textColor = .subLabel
+        $0.textAlignment = .left
+        $0.font = .systemFont(ofSize: 12, weight: .medium)
+        $0.isHidden = true
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .clear
         
-        let stackView = UIStackView(arrangedSubviews: [titleLabel, detailButton]).then {
+        let stackView = UIStackView(arrangedSubviews: [titleLabel, unitLabel, detailButton]).then {
             $0.axis = .horizontal
             $0.spacing = 5
-            $0.alignment = .bottom
+            $0.alignment = .lastBaseline
             
             detailButton.setContentHuggingPriority(.required, for: .horizontal)
             detailButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+            unitLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+            unitLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         }
+        
+//        let stackView = UIStackView(arrangedSubviews: [titleLabel, detailButton]).then {
+//            $0.axis = .horizontal
+//            $0.spacing = 5
+//            $0.alignment = .bottom
+//            
+//            detailButton.setContentHuggingPriority(.required, for: .horizontal)
+//            detailButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+//        }
         
         addSubview(stackView)
         
         stackView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(10)
+            $0.bottom.equalToSuperview().offset(-5)
             $0.bottom.horizontalEdges.equalToSuperview()
         }
     }

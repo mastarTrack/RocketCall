@@ -17,6 +17,10 @@ final class HomeMainView: UIView {
     private let alarmCardTitle = UILabel(text: "다가오는 알람", config: LabelConfiguration.homeViewHeader)
     let alarmCardView = AlarmCardView()
     
+    let chartHeaderView = HomeHeaderView().then {
+        $0.configure(title: "주간 기록", hasButton: true, buttonTitle: "상세 보기")
+        $0.unitLabel.isHidden = false
+    }
     let chartBaseCardView = BaseCardView()
     
     // SwiftUI로 생성된 ChartView를 UIKit에서 사용하기 위한 HostingController
@@ -56,7 +60,8 @@ final class HomeMainView: UIView {
         addSubview(alarmCardTitle)
         addSubview(alarmCardView)
         
-        addSubview(chartViewTitle)
+//        addSubview(chartViewTitle)
+        addSubview(chartHeaderView)
         addSubview(chartBaseCardView)
         chartBaseCardView.addSubview(chartHostingController.view)
         
@@ -76,13 +81,20 @@ final class HomeMainView: UIView {
             $0.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
         }
         
-        chartViewTitle.snp.makeConstraints {
-            $0.top.equalTo(alarmCardView.snp.bottom).offset(15)
+//        chartViewTitle.snp.makeConstraints {
+//            $0.top.equalTo(alarmCardView.snp.bottom).offset(15)
+//            $0.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
+//        }
+        
+        chartHeaderView.snp.makeConstraints {
+            $0.top.equalTo(alarmCardView.snp.bottom).offset(5)
             $0.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
         }
         
         chartBaseCardView.snp.makeConstraints {
-            $0.top.equalTo(chartViewTitle.snp.bottom).offset(10)
+//            $0.top.equalTo(chartViewTitle.snp.bottom).offset(10)
+//            $0.top.equalTo(chartHeaderView.snp.bottom).offset(10)
+            $0.top.equalTo(chartHeaderView.snp.bottom)
             $0.horizontalEdges.equalTo(safeAreaLayoutGuide).inset(20)
         }
         

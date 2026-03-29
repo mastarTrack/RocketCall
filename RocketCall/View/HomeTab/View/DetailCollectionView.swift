@@ -131,6 +131,7 @@ extension DetailCollectionView {
         group.interItemSpacing = .fixed(spacing)
         
         let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
         
         return section
     }
@@ -174,6 +175,7 @@ extension DetailCollectionView {
         )
         
         let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = .init(top: 0, leading: 0, bottom: 10, trailing: 0)
         
         return section
     }
