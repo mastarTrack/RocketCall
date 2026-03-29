@@ -14,11 +14,16 @@ class TimerViewModel: ViewModelProtocol {
     
     private let disposeBag = DisposeBag()
     private let coreDataManager: CoreDataManager
-    private let activatedMissionRelay = BehaviorRelay<[ActivatedMissionPayload]>(value: [])
+    private let activatedMissionRelay = BehaviorRelay<[ActivatedMissionPayload]>(value: []) // 진행중 타이머
     private let errorSubject = PublishSubject<CoreDataManager.CoreDataError>()
     private let missionResultSubject = PublishSubject<UUID>()
     
     var backgroundEnterTime: Date?
+    
+    // 밖(mainController)에서 결과 UUID를 얻을 수 잇도록 만듦
+    var missionResult: Observable<UUID> {
+        missionResultSubject.asObservable()
+    }
     
     init(coreDataManager: CoreDataManager) {
         self.coreDataManager = coreDataManager
@@ -32,11 +37,15 @@ class TimerViewModel: ViewModelProtocol {
     
     struct Output {
         let activatedMissions: Observable<([ActivatedMissionPayload], Bool)>
+        // 시작된 미션 추가
+        let startedMission: Observable<ActivatedMissionPayload>
         let error: Observable<CoreDataManager.CoreDataError>
         let missionResult: Observable<UUID>
     }
     
     func transform(_ input: Input) -> Output {
+        // 새미션이 활성화되면 타이머 진입시에 쓰는 값
+        let startedMissionSubject = PublishSubject<ActivatedMissionPayload>()
         
         // 미션 활성화
         input.activatedMission
@@ -56,6 +65,8 @@ class TimerViewModel: ViewModelProtocol {
                 var current = self.activatedMissionRelay.value
                 current.append(activatedMission)
                 self.activatedMissionRelay.accept(current) // Relay 배열에 추가
+                // 여기서 보내면 MissionViewController쪽에서 받아서 타이머 화면 열어줌
+                startedMissionSubject.onNext(activatedMission)
             })
             .disposed(by: disposeBag)
         
@@ -113,6 +124,8 @@ class TimerViewModel: ViewModelProtocol {
         
         return Output(
             activatedMissions: Observable.merge(activatedMissions, timerUpdate),
+            // 새로시작된 활성미션 내보냄
+            startedMission: startedMissionSubject.asObservable(),
             error: errorSubject.asObservable(),
             missionResult: missionResultSubject.asObservable()
         )

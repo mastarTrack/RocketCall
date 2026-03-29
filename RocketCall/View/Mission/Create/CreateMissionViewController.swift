@@ -14,9 +14,12 @@ class CreateMissionViewController: UIViewController {
     private let mainView = CreateMissionView()
     private let disposeBag = DisposeBag()
     private let viewModel: CreateMissionViewModel
+    // 미션페이로드 넘기기 위해 추가함
+    private let onMissionCreated: ((MissionPayload) -> Void)?
     
-    init(viewModel: CreateMissionViewModel) {
+    init(viewModel: CreateMissionViewModel, onMissionCreated: ((MissionPayload) -> Void)? = nil) {
         self.viewModel = viewModel
+        self.onMissionCreated = onMissionCreated
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -89,9 +92,12 @@ extension CreateMissionViewController {
             .bind(to: mainView.createButton.rx.isEnabled)
             .disposed(by: disposeBag)
         
-        output.success
-            .subscribe(onNext: { [weak self] in
-                self?.navigationController?.popViewController(animated: true)
+        //mission 값까지 같이 보내줌
+        output.createdMission
+            .subscribe(onNext: { [weak self] mission in
+                guard let self else { return }
+                self.navigationController?.popViewController(animated: false)
+                self.onMissionCreated?(mission)
             })
             .disposed(by: disposeBag)
         

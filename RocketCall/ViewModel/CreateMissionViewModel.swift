@@ -35,7 +35,8 @@ class CreateMissionViewModel: ViewModelProtocol {
         let quickStudyTime: Observable<Int>
         let quickRestTime: Observable<Int>
         let isCreateButtonEnabled: Observable<Bool>
-        let success: Observable<Void>
+        // 성공 여부 + 미션 페이로드 전달 (success를 대체함)
+        let createdMission: Observable<MissionPayload>
         let error: Observable<CoreDataManager.CoreDataError>
     }
     
@@ -92,7 +93,8 @@ class CreateMissionViewModel: ViewModelProtocol {
             }
         
         // 저장 성공, 실패
-        let success = input.createButtonTapped
+        // 생성버튼 탭하면 createdMission만듦(success 역할 포함)
+        let createdMission = input.createButtonTapped
             .flatMap {
                 Observable.combineLatest(
                     input.missionName,
@@ -101,7 +103,8 @@ class CreateMissionViewModel: ViewModelProtocol {
                     input.cycleCount
                 ).take(1)
             }
-            .flatMap { [weak self] (missionName, studyTime, restTime, cycleCount) -> Observable<Void> in
+        // 페이로드 값까지 전달하도록 수정함
+            .flatMap { [weak self] (missionName, studyTime, restTime, cycleCount) -> Observable<MissionPayload> in
                 guard let self else { return .empty() }
                 let mission = MissionPayload(
                     id: UUID(),
@@ -113,7 +116,8 @@ class CreateMissionViewModel: ViewModelProtocol {
                 do {
                     try self.coreDataManager.createMissionEntity(mission: mission)
                     print("저장 성공.\n title: \(missionName), concentrateTime: \(studyTime), breakTime: \(restTime), cycle: \(cycleCount)")
-                    return .just(())
+                    // 미션정보까지 전달
+                    return .just(mission)
                 } catch {
                     if let coreDataError = error as? CoreDataManager.CoreDataError {
                         self.errorSubject.onNext(coreDataError)
@@ -131,7 +135,8 @@ class CreateMissionViewModel: ViewModelProtocol {
             quickStudyTime: quickStudyTime,
             quickRestTime: quickRestTime,
             isCreateButtonEnabled: isCreateButtonEnabled,
-            success: success,
+            // success: success에서  미션에 대한 정보포함하는 파라미터로 변경
+            createdMission: createdMission,
             error: errorSubject.asObservable()
         )
     }

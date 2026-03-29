@@ -30,6 +30,15 @@ class MainController: UITabBarController {
                 self?.selectedIndex = 2
             })
             .disposed(by: disposeBag)
+        
+        // 사용자가 앱을 사용하고 있을때 미션결과화면을 띄우도록 함
+        timerViewModel.missionResult
+            .observe(on: MainScheduler.instance) // 메인스레드 처리하기 필수!!
+        // 결과 id로 미션결과창 호출
+            .subscribe(onNext: { [weak self] resultId in
+                self?.showMissionResult(resultId: resultId)
+            })
+            .disposed(by: disposeBag)
     }
 }
 
@@ -46,5 +55,21 @@ extension MainController {
         fourthVC.tabBarItem = UITabBarItem(title: "자유항행", image: UIImage(systemName: "stopwatch"), tag: 3)
         
         viewControllers = [firstVC, secondVC, thirdVC, fourthVC]
+    }
+    // 결과가 오면 미션결과 띄워주는 메서드
+    private func showMissionResult(resultId: UUID) {
+        selectedIndex = 2
+        // 네비게이션 컨트롤러 꺼냄
+        guard let missionNavigationController = viewControllers?[2] as? UINavigationController else { return }
+        // 이미 상단이 미션결과VC이면 확인한후 pop
+        if let topViewController = missionNavigationController.topViewController as? MissionResultViewController {
+            topViewController.navigationController?.popViewController(animated: false)
+        }
+        // 아닐경우 결과VC 띄움
+        let resultViewController = MissionResultViewController(
+            coreDataManager: coreDataManager,
+            resultId: resultId
+        )
+        missionNavigationController.pushViewController(resultViewController, animated: true)
     }
 }

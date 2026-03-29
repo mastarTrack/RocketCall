@@ -7,37 +7,39 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 final class TimerAnimationViewController: UIViewController {
     private let timerAnimationView = TimerAnimationView()
     private let timerView = TimerAnimationBottomView()
-    private var progressTimer: Timer?
+    private let viewModel = TimerAnimationViewModel()
+    private let disposeBag = DisposeBag()
+    private let activatedMissionState: Observable<ActivatedMissionPayload> // 이걸 기준으로 화면 표시
+    // MissionList로직 같이 쓰도록 버튼 눌릴시 밖으로 넘김
+    private let onPauseResumeRequested: (() -> Void)?
+    private let onMissionStopRequested: (() -> Void)?
     
-    // 샘플데이터
-    private let sampleTotalDuration: TimeInterval = 2 * 60
-    private var sampleRemainingTime: TimeInterval = 2 * 60
+    init(
+        activatedMissionState: Observable<ActivatedMissionPayload>,
+        onPauseResumeRequested: (() -> Void)? = nil,
+        onMissionStopRequested: (() -> Void)? = nil
+    ) {
+        self.activatedMissionState = activatedMissionState
+        self.onPauseResumeRequested = onPauseResumeRequested
+        self.onMissionStopRequested = onMissionStopRequested
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
         setupLayout()
-        
-        // 현재 상태를 업데이트 해줌(초기값 전달)
-        timerAnimationView.updatePlanetProgress(
-            remainingTime: sampleRemainingTime,
-            totalDuration: sampleTotalDuration
-        )
-    }
-    
-    // 백그라운드로 가면 멈춤고 시작하는 로직
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        startSampleProgressTimer()
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        stopSampleProgressTimer()
+        bind()
     }
     
     private func configureUI() {
@@ -59,31 +61,81 @@ final class TimerAnimationViewController: UIViewController {
         }
     }
     
-    // 타이머 시작 부분
-    private func startSampleProgressTimer() {
-        stopSampleProgressTimer() // 중복생성 막기
+    private func bind() {
+        let input = TimerAnimationViewModel.Input(
+            activatedMissionState: activatedMissionState,
+            stopButtonTapped: timerView.stopButton.rx.tap.asObservable(),
+            missionStopButtonTapped: timerView.missionStopButton.rx.tap.asObservable(),
+            backButtonTapped: timerView.backButton.rx.tap.asObservable()
+        )
         
-        // 진행 타이머
-        progressTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
-            guard let self else { return }
-            
-            // 남은 시간을 줄여줌
-            sampleRemainingTime = max(sampleRemainingTime - 1, 0)
-            // 남은 시간을 기반으로 행성크기 다시 업데이트
-            timerAnimationView.updatePlanetProgress(
-                remainingTime: sampleRemainingTime,
-                totalDuration: sampleTotalDuration
-            )
-            // 0이되면 타이머 종료
-            if sampleRemainingTime <= 0 {
-                timer.invalidate()
-            }
-        }
+        let output = viewModel.transform(input)
+        
+        // 하단 뷰 갱신
+        Observable
+            .combineLatest(output.missionTitleText, output.timerText, output.cycleText)
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] values in
+                let (missionTitle, timerText, cycleText) = values
+                self?.timerView.configure(
+                    missionTitle: missionTitle,
+                    timerText: timerText,
+                    cycleText: cycleText
+                )
+            })
+            .disposed(by: disposeBag)
+        
+        // 애니메이션 갱신
+        Observable
+            .combineLatest(output.remainingTime, output.totalDuration)
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] values in
+                let (remainingTime, totalDuration) = values
+                self?.timerAnimationView.updatePlanetProgress(
+                    remainingTime: remainingTime,
+                    totalDuration: totalDuration
+                )
+            })
+            .disposed(by: disposeBag)
+        
+        output.stopButtonImage
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] image in
+                self?.timerView.stopButton.setImage(image, for: .normal)
+            })
+            .disposed(by: disposeBag)
+        
+        //눌린 이벤트만 전달(ActivatedMissionCell 해당로직이랑 밖에서 같이 처리함)
+        output.pauseResumeRequested
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] in
+                self?.onPauseResumeRequested?()
+            })
+            .disposed(by: disposeBag)
+
+        output.routeStopMission
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] in
+                self?.onMissionStopRequested?()
+            })
+            .disposed(by: disposeBag)
+        
+        // 뒤로가기 버튼 눌렸을 시 missionViewController 띄움
+        output.routeBack
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] in
+                self?.popToMissionViewController()
+            })
+            .disposed(by: disposeBag)
     }
     
-    // 타이머 정지 로직
-    private func stopSampleProgressTimer() {
-        progressTimer?.invalidate()
-        progressTimer = nil
+    private func popToMissionViewController() {
+        guard let navigationController else { return }
+        
+        if let missionViewController = navigationController.viewControllers.last(where: { $0 is MissionViewController }) {
+            navigationController.popToViewController(missionViewController, animated: true)
+            return
+        }
+        navigationController.popViewController(animated: true)
     }
 }
