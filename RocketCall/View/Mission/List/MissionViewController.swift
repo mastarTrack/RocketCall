@@ -181,7 +181,11 @@ extension MissionViewController {
                     try self.coreDataManager.deleteMissionEntity(of: mission.id)
                     self.initialLoadSubject.onNext(())
                 } catch {
-                    self.showErrorAlert(error: .saveFailed)
+                    if let coreDataError = error as? CoreDataManager.CoreDataError {
+                        self.showErrorAlert(error: coreDataError)
+                    } else {
+                        self.showErrorAlert(error: .saveFailed)
+                    }
                 }
             })
             .disposed(by: disposeBag)
@@ -201,7 +205,7 @@ extension MissionViewController {
               case .customMission(let mission) = item else { return nil }
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-            let delete = UIAction(title: "삭제", image: UIImage(systemName: "trah.fill"), attributes: .destructive) { [weak self] _ in
+            let delete = UIAction(title: "삭제", image: UIImage(systemName: "trash.fill"), attributes: .destructive) { [weak self] _ in
                 self?.deleteMissionSubject.onNext(mission)
             }
             return UIMenu(title: "",children: [delete])
