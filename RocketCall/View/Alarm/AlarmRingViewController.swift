@@ -69,7 +69,7 @@ final class AlarmRingViewController: UIViewController {
         
         do {
             // 무음모드 일때도 소리나게 하기
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: . default)
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
             
             // 플레이어 세팅하기
@@ -130,7 +130,7 @@ final class AlarmRingViewController: UIViewController {
                         }
                             
                         // 24초 딜레이
-                        DispatchQueue.global().asyncAfter(deadline: .now() + 27.0) {
+                        DispatchQueue.global().asyncAfter(deadline: .now() + 9.0 * 3) {
                             
                             let alarmToReschedule = Alarm(
                                 id: payload.id,
