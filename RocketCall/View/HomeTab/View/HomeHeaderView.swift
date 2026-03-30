@@ -37,8 +37,8 @@ final class HomeHeaderView: UIView {
             
             detailButton.setContentHuggingPriority(.required, for: .horizontal)
             detailButton.setContentCompressionResistancePriority(.required, for: .horizontal)
-            unitLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-            unitLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+            titleLabel.setContentHuggingPriority(.required, for: .horizontal)
+            titleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         }
         
         addSubview(stackView)
