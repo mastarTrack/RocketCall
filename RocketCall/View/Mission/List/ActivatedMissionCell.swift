@@ -22,8 +22,7 @@ class ActivatedMissionCell: UICollectionViewCell {
     private let titleLabel = UILabel()
     private let timeLabel = UILabel()
     
-//    나중에 추가
-//    private let progressBar = UIProgressView()
+    private let progressView = UIProgressView()
     
     private let buttonStackView = UIStackView()
     private let startButton = RectangleButton(image: UIImage(systemName: ""), backgroundColor: .mainPoint.withAlphaComponent(0.2), tintColor: .mainPoint)
@@ -63,6 +62,9 @@ extension ActivatedMissionCell {
         buttonStackView.axis = .horizontal
         buttonStackView.spacing = 10
         
+        progressView.progressTintColor = .mainPoint
+        progressView.trackTintColor = .mainPoint.withAlphaComponent(0.2)
+        
         var startConfig = startButton.configuration
         startConfig?.background.strokeColor = .mainPoint
         startConfig?.background.strokeWidth = 1
@@ -78,7 +80,7 @@ extension ActivatedMissionCell {
         contentView.addSubview(containerView)
         
         [startButton, stopButton].forEach { buttonStackView.addArrangedSubview($0) }
-        [stateLabel, titleLabel, timeLabel, buttonStackView].forEach { containerView.addSubview($0) }
+        [stateLabel, titleLabel, timeLabel, progressView, buttonStackView].forEach { containerView.addSubview($0) }
         
         containerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
@@ -99,8 +101,14 @@ extension ActivatedMissionCell {
             $0.trailing.equalToSuperview().offset(-20)
         }
         
-        buttonStackView.snp.makeConstraints {
+        progressView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(10)
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.height.equalTo(4)
+        }
+        
+        buttonStackView.snp.makeConstraints {
+            $0.top.equalTo(progressView.snp.bottom).offset(10)
             $0.leading.trailing.equalToSuperview().inset(20)
             $0.bottom.equalToSuperview().inset(20)
         }
@@ -116,7 +124,6 @@ extension ActivatedMissionCell {
     }
 }
 
-// 나중에 모델로 통합
 extension ActivatedMissionCell {
     func config(mission: ActivatedMissionPayload) {
         let state = mission.isConcentrating ? "집중" : "휴식"
@@ -135,5 +142,10 @@ extension ActivatedMissionCell {
         config?.title = title
         config?.imagePadding = 10
         startButton.configuration = config
+        
+        let totalTime = mission.isConcentrating ? mission.mission.concentrateTime * 60 : mission.mission.breakTime * 60
+        let progress = totalTime > 0 ? 1.0 - Float(mission.remainingTime) / Float(totalTime) : 0
+        progressView.setProgress(progress, animated: false)
+        
     }
 }
