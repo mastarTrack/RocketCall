@@ -45,6 +45,7 @@ class MissionResultViewController: UIViewController {
             $0.leading.trailing.top.equalTo(view.safeAreaLayoutGuide)
             $0.bottom.equalToSuperview()
         }
+        missionResultView.homeButton.addTarget(self, action: #selector(handleHomeButtonTap), for: .touchUpInside)
         
         // 여기서 데이터 넣어줌(사용시 샘플 데이터 로직 부분 삭제하시면 됩니다)
         if let resultId {
@@ -58,5 +59,15 @@ class MissionResultViewController: UIViewController {
         } else {
             missionResultView.configure(with: samplePayload)
         }
+    }
+    
+    @objc
+    private func handleHomeButtonTap() {
+        if let navigationController {
+            navigationController.popViewController(animated: true)
+            return
+        }
+        
+        dismiss(animated: true)
     }
 }

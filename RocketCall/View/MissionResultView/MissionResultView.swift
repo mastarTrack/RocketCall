@@ -68,6 +68,11 @@ final class MissionResultView: UIView {
         $0.textAlignment = .center
     }
     
+    let homeButton = RectangleButton(title: "이전 화면으로 돌아가기", color: .subLabel) .then {
+        $0.titleLabel?.font = .systemFont(ofSize: 15, weight: .bold)
+        $0.backgroundColor = UIColor.white.withAlphaComponent(0.1)
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -139,6 +144,8 @@ final class MissionResultView: UIView {
         infoCardView.addSubview(stateRow)
         infoCardView.addSubview(completedDateTitleLabel)
         infoCardView.addSubview(completedDateValueLabel)
+        
+        contentView.addSubview(homeButton)
     }
     
     private func setLayout() {
@@ -181,7 +188,6 @@ final class MissionResultView: UIView {
         infoCardView.snp.makeConstraints {
             $0.top.equalTo(subtitleLabel.snp.bottom).offset(30)
             $0.leading.trailing.equalToSuperview().inset(20)
-            $0.bottom.equalToSuperview().offset(-20)
         }
         
         missionNameTitleLabel.snp.makeConstraints {
@@ -257,6 +263,13 @@ final class MissionResultView: UIView {
             $0.top.equalTo(completedDateTitleLabel.snp.bottom).offset(10)
             $0.leading.trailing.equalToSuperview().inset(25)
             $0.bottom.equalToSuperview().offset(-25)
+        }
+        
+        homeButton.snp.makeConstraints {
+            $0.top.equalTo(infoCardView.snp.bottom).offset(20)
+            $0.leading.trailing.equalToSuperview().inset(18)
+            $0.height.equalTo(60)
+            $0.bottom.equalToSuperview().offset(-20)
         }
     }
 }
