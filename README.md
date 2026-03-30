@@ -49,6 +49,11 @@ RocketCall은 시간을 하나의 우주 미션처럼 해석합니다.
 
 <br>
 
+## 📐와이어 프레임
+<img width="884" height="868" alt="image" src="https://github.com/user-attachments/assets/ad58c77d-bae1-4449-b89f-bf659a088571" />
+
+<br>
+
 ## 🛠 주요 기능
 
 ### 1. 홈 화면
