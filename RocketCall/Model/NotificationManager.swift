@@ -31,12 +31,16 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         let options: UNAuthorizationOptions = [.alert, .sound]
         
         center.requestAuthorization(options: options) { granted, error in
+            if let error = error {
+                print("Notification authorization error: \(error.localizedDescription)")
+            }
         }
     }
     
     
     // MARK: - 알람 예약 메서드
     func addAlarm(_ alarm: Alarm) {
+        let notificationRepeatInterval = 9
         let center = UNUserNotificationCenter.current()
         
         // 1. 내용
@@ -53,7 +57,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
                 var dateComponents = DateComponents()
                 dateComponents.hour = alarm.hour
                 dateComponents.minute = alarm.minute
-                dateComponents.second = i * 9
+                dateComponents.second = i * notificationRepeatInterval
                 
                 let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
                 let identifier = "\(alarm.id.uuidString)-\(i)"
@@ -69,7 +73,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
                     dateComponents.weekday = day.appleWeekDay
                     dateComponents.hour = alarm.hour
                     dateComponents.minute = alarm.minute
-                    dateComponents.second = i * 9
+                    dateComponents.second = i * notificationRepeatInterval
                     
                     let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
                     let identifier = "\(alarm.id.uuidString)-\(day.rawValue)-\(i)" // id가 동일하므로 구분지어주기 위해 뒤에 요일 추가
@@ -99,6 +103,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     
     // MARK: - 스누즈 알람 예약 메서드
     func addSnoozeAlarm(title: String, originalId: UUID) {
+        let snoozeTime: TimeInterval = 60 * 5
         let center = UNUserNotificationCenter.current()
         
         // 1. 내용
@@ -109,7 +114,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         content.interruptionLevel = .timeSensitive // 방해 금지여도 알람
         
         // 2. 시간 설정
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 300, repeats: false)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: snoozeTime, repeats: false)
         let identifier = "\(originalId.uuidString)-Snooze"
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         
