@@ -387,11 +387,10 @@ extension HomeViewModel {
             
             switch result {
             case .success(let result):
-                let cum = result[TotalCardView.CardCategory.totalTime.rawValue].value // 누적 집중 시간(분)
-                let left = result[TotalCardView.CardCategory.leftTime.rawValue].value // 다음 목적지까지 남은 시간(분)
+                let cum = result[TotalCardView.CardCategory.totalTime.rawValue].detail // 누적 집중 시간(분)
                 
-                let progressStatus = self.calculateProgress(cum: cum, left: left)
-                
+                let progressStatus = self.calculateProgress(cum: cum)
+                print(progressStatus)
                 observer.onNext(.success(progressStatus))
                 observer.onCompleted()
                 
@@ -404,7 +403,7 @@ extension HomeViewModel {
         }
     }
     
-    private func calculateProgress(cum: Int, left: Int) -> ProgressStatus {
+    private func calculateProgress(cum: Int) -> ProgressStatus {
         let target = findTargetPlanet(from: cum) // 목적지
         
         guard let target else { // 마지막 목적지까지 이미 도달한 경우
