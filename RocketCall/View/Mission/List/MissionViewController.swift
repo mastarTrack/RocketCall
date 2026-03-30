@@ -32,6 +32,8 @@ class MissionViewController: UIViewController {
     private let pauseResumeMissionSubject = PublishSubject<UUID>()
     private let stopMissionSubject = PublishSubject<UUID>()
     
+    private let deleteMissionSubject = PublishSubject<MissionPayload>()
+    
     private lazy var dataSource: UICollectionViewDiffableDataSource<MissionSection, MissionItem> = {
         let dataSource = UICollectionViewDiffableDataSource<MissionSection, MissionItem>(collectionView: mainView.collectionView) {[weak self] collectionView, indexPath, itemIdentifier in
             guard let self else { fatalError("Error: self is nil") }
@@ -171,6 +173,18 @@ extension MissionViewController {
             })
             .disposed(by: disposeBag)
          */
+        
+        deleteMissionSubject
+            .subscribe(onNext: { [weak self] mission in
+                guard let self else { return }
+                do {
+                    try self.coreDataManager.deleteMissionEntity(of: mission.id)
+                    self.initialLoadSubject.onNext(())
+                } catch {
+                    self.showErrorAlert(error: .saveFailed)
+                }
+            })
+            .disposed(by: disposeBag)
     }
 }
 
@@ -181,6 +195,19 @@ extension MissionViewController {
         mainView.collectionView.register(CustomMissionCell.self, forCellWithReuseIdentifier: CustomMissionCell.id)
         mainView.collectionView.register(MissionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: MissionHeaderView.id)
     }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        guard let item = dataSource.itemIdentifier(for: indexPath),
+              case .customMission(let mission) = item else { return nil }
+        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            let delete = UIAction(title: "삭제", image: UIImage(systemName: "trah.fill"), attributes: .destructive) { [weak self] _ in
+                self?.deleteMissionSubject.onNext(mission)
+            }
+            return UIMenu(title: "",children: [delete])
+        }
+    }
+    
 }
 
 extension MissionViewController: UICollectionViewDelegate {
