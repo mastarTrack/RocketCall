@@ -1,0 +1,151 @@
+//
+//  ActivatedMissionCell.swift
+//  RocketCall
+//
+//  Created by 손영빈 on 3/25/26.
+//
+
+import UIKit
+import SnapKit
+import RxSwift
+import RxCocoa
+
+class ActivatedMissionCell: UICollectionViewCell {
+    
+    static let id = "ActivatedMissionCell"
+    
+    var disposeBag = DisposeBag()
+    
+    private let containerView = BaseCardView()
+    
+    private let stateLabel = StateLabel(text: "", config: .success)
+    private let titleLabel = UILabel()
+    private let timeLabel = UILabel()
+    
+    private let progressView = UIProgressView()
+    
+    private let buttonStackView = UIStackView()
+    private let startButton = RectangleButton(image: UIImage(systemName: ""), backgroundColor: .mainPoint.withAlphaComponent(0.2), tintColor: .mainPoint)
+    var pauseResumeButtonTapped: Observable<Void> { startButton.rx.tap.asObservable() }
+    private let stopButton = RectangleButton(image: UIImage(systemName: "stop"), backgroundColor: .mainLabel.withAlphaComponent(0.1), tintColor: .mainLabel)
+    var stopButtonTapped: Observable<Void> { stopButton.rx.tap.asObservable() }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setAttributes()
+        setLayout()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        disposeBag = DisposeBag()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+extension ActivatedMissionCell {
+    private func setAttributes() {
+        let titleConfig = LabelConfiguration.main24Bold
+        let timeConfig = LabelConfiguration.missionTime
+        
+        titleLabel.font = titleConfig.font
+        titleLabel.textColor = titleConfig.color
+        titleLabel.setContentHuggingPriority(.required, for: .horizontal)
+        
+        timeLabel.textAlignment = .right
+        timeLabel.font = timeConfig.font
+        timeLabel.textColor = timeConfig.color
+        
+        buttonStackView.axis = .horizontal
+        buttonStackView.spacing = 10
+        
+        progressView.progressTintColor = .mainPoint
+        progressView.trackTintColor = .mainPoint.withAlphaComponent(0.2)
+        
+        var startConfig = startButton.configuration
+        startConfig?.background.strokeColor = .mainPoint
+        startConfig?.background.strokeWidth = 1
+        startButton.configuration = startConfig
+        
+        var resetConfig = stopButton.configuration
+        resetConfig?.background.strokeColor = .white
+        resetConfig?.background.strokeWidth = 1
+        stopButton.configuration = resetConfig
+        
+    }
+    private func setLayout() {
+        contentView.addSubview(containerView)
+        
+        [startButton, stopButton].forEach { buttonStackView.addArrangedSubview($0) }
+        [stateLabel, titleLabel, timeLabel, progressView, buttonStackView].forEach { containerView.addSubview($0) }
+        
+        containerView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        stateLabel.snp.makeConstraints {
+            $0.top.leading.equalToSuperview().offset(20)
+        }
+        
+        titleLabel.snp.makeConstraints {
+            $0.top.equalTo(stateLabel.snp.bottom).offset(10)
+            $0.leading.equalToSuperview().offset(20)
+            $0.trailing.equalTo(timeLabel.snp.leading).offset(-10)
+        }
+        
+        timeLabel.snp.makeConstraints {
+            $0.centerY.equalTo(titleLabel)
+            $0.trailing.equalToSuperview().offset(-20)
+        }
+        
+        progressView.snp.makeConstraints {
+            $0.top.equalTo(titleLabel.snp.bottom).offset(10)
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.height.equalTo(4)
+        }
+        
+        buttonStackView.snp.makeConstraints {
+            $0.top.equalTo(progressView.snp.bottom).offset(10)
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.bottom.equalToSuperview().inset(20)
+        }
+        
+        startButton.snp.makeConstraints {
+            $0.width.equalTo(stopButton).multipliedBy(5)
+            $0.height.equalTo(stopButton.snp.height)
+        }
+        stopButton.snp.makeConstraints {
+            $0.height.equalTo(stopButton.snp.width)
+        }
+        
+    }
+}
+
+extension ActivatedMissionCell {
+    func config(mission: ActivatedMissionPayload) {
+        let state = mission.isConcentrating ? "집중" : "휴식"
+        stateLabel.text = "\(mission.currentCycle)/\(mission.mission.cycle) 사이클 · \(state)"
+        titleLabel.text = mission.mission.title
+        
+        let minutes = mission.remainingTime / 60
+        let second = mission.remainingTime % 60
+        
+        timeLabel.text = String(format: "%02d:%02d", minutes, second)
+        
+        let image = mission.isPaused ? UIImage(systemName: "play") : UIImage(systemName: "pause")
+        let title = mission.isPaused ? "재개" : "일시정지"
+        var config = startButton.configuration
+        config?.image = image
+        config?.title = title
+        config?.imagePadding = 10
+        startButton.configuration = config
+        
+        let totalTime = mission.isConcentrating ? mission.mission.concentrateTime * 60 : mission.mission.breakTime * 60
+        let progress = totalTime > 0 ? 1.0 - Float(mission.remainingTime) / Float(totalTime) : 0
+        progressView.setProgress(progress, animated: false)
+        
+    }
+}

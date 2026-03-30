@@ -15,7 +15,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = ViewController()
+        window.rootViewController = MainController()
         window.makeKeyAndVisible()
         
         self.window = window
@@ -41,6 +41,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneWillEnterForeground(_ scene: UIScene) {
         // Called as the scene transitions from the background to the foreground.
         // Use this method to undo the changes made on entering the background.
+        guard let vc = window?.rootViewController as? MainController else { return }
+        vc.timerViewModel.enterForeGround()
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            let timerIdentifiers = requests
+                .filter { $0.identifier.hasPrefix("timer") }
+                .map { $0.identifier }
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: timerIdentifiers)
+        }
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
@@ -49,7 +57,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
 
         // Save changes in the application's managed object context when the application transitions to the background.
-        (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
+        
+        guard let vc = window?.rootViewController as? MainController else { return }
+        vc.coreDataManager.saveContext()
+        vc.timerViewModel.backgroundEnterTime = Date()
+        vc.timerViewModel.cycleNotification()
     }
 
 

@@ -24,4 +24,76 @@ extension LabelConfiguration {
         color: .label,
         lines: 0
     )
+    
+    static let title = LabelConfiguration(
+        font: .systemFont(ofSize: 26, weight: .heavy),
+        color: .mainLabel,
+        lines: 1
+    )
+    
+    static let subTitle = LabelConfiguration(
+        font: .systemFont(ofSize: 14, weight: .medium),
+        color: .subLabel,
+        lines: 1
+    )
+    
 }
+
+extension LabelConfiguration {
+    static let homeViewHeader = LabelConfiguration(
+        font: .systemFont(ofSize: 20, weight: .bold),
+        color: .mainLabel,
+        lines: 1
+    )
+  
+    static let missionTime = LabelConfiguration(
+        font: .systemFont(ofSize: 36, weight: .thin),
+        color: .mainLabel,
+        lines: 1
+    )
+  
+    static let missionLabel = LabelConfiguration(
+        font: .systemFont(ofSize: 16, weight: .medium),
+        color: .mainLabel,
+        lines: 1
+    )
+}
+
+extension LabelConfiguration {
+    static let sub12 = LabelConfiguration(
+        font: .systemFont(ofSize: 12, weight: .medium),
+        color: .subLabel,
+        lines: 1
+    )
+    
+    static let sub14 = LabelConfiguration(
+        font: .systemFont(ofSize: 14, weight: .medium),
+        color: .subLabel,
+        lines: 1
+    )
+    
+    static let sub16 = LabelConfiguration(
+        font: .systemFont(ofSize: 16, weight: .medium),
+        color: .subLabel,
+        lines: 1
+    )
+
+    static let main24 = LabelConfiguration(
+        font: .systemFont(ofSize: 24, weight: .medium),
+        color: .mainLabel,
+        lines: 1
+    )
+    
+    static let main30 = LabelConfiguration(
+        font: .systemFont(ofSize: 30, weight: .medium),
+        color: .mainLabel,
+        lines: 1
+    )
+
+    static let main24Bold = LabelConfiguration(
+        font: .systemFont(ofSize: 24, weight: .bold),
+        color: .mainLabel,
+        lines: 1
+    )
+}
+
