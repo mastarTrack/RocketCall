@@ -21,7 +21,7 @@ final class DetailCollectionView: UICollectionView {
         case sum(HomeViewModel.SumResult)
         case chart([Int: Int])
         case progress(HomeViewModel.ProgressStatus)
-        case result(MissionResultPayload)
+        case result(HomeViewModel.MissionResultList)
         
         func hash(into hasher: inout Hasher) {
             switch self {

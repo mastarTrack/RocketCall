@@ -93,13 +93,11 @@ extension ResultListCell {
 }
 
 extension ResultListCell {
-    func configure(with result: MissionResultPayload) {
+    func configure(with result: HomeViewModel.MissionResultList) {
         titleLabel.text = result.title
         timeLabel.text = "\(result.studyTime / 60)h \(result.studyTime % 60)m"
         
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "M월 dd일 (E)"
-        dateLabel.text = dateFormatter.string(from: result.start)
+        dateLabel.text = result.date
         
         configureStateLabel(isCompleted: result.isCompleted)
     }

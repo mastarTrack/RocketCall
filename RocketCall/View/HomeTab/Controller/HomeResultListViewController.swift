@@ -48,7 +48,7 @@ extension HomeResultListViewController {
         //MARK: Output
         let output = viewModel.transform(input)
         
-        output.missionResults
+        output.missionResultList
             .subscribe(onNext: { [weak self] result in
                 guard let self else { return }
                 switch result {
@@ -56,7 +56,7 @@ extension HomeResultListViewController {
                     let items = self.converToItem(results)
                     listView.setSnapshot(with: items)
                 case .failure(let error):
-                    print(error)
+                    self.showAlert(error: error)
                 }
             })
             .disposed(by: disposeBag)
@@ -77,9 +77,17 @@ extension HomeResultListViewController {
             .disposed(by: disposeBag)
     }
     
-    private func converToItem(_ results: [MissionResultPayload]) -> [DetailCollectionView.Item] {
+    private func converToItem(_ results: [HomeViewModel.MissionResultList]) -> [DetailCollectionView.Item] {
         results.map {
             DetailCollectionView.Item.result($0)
         }
+    }
+}
+
+extension HomeResultListViewController {
+    private func showAlert(error: Error) {
+        let alert = UIAlertController(title: "오류", message: "\(error.localizedDescription)", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: nil))
+        present(alert, animated: true)
     }
 }

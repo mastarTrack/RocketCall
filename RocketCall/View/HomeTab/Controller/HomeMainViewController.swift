@@ -60,26 +60,26 @@ extension HomeMainViewController {
         // 알람 카드뷰 업데이트
         output.alarm
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [cardView = homeMainView.alarmCardView] result in
+            .subscribe(onNext: { [weak self, cardView = homeMainView.alarmCardView] result in
                 switch result {
                 case .success(let alarm):
                     cardView.configure(alarm: alarm)
                     
                 case .failure(let error):
-                    print(error) // 추후 처리 필요
+                    self?.showAlert(error: error) // 추후 처리 필요
                 }
             })
             .disposed(by: disposeBag)
         
         // 통계 카드 업데이트
         output.sum
-            .subscribe(onNext: { [homeMainView] result in
+            .subscribe(onNext: { [weak self, homeMainView] result in
                 switch result {
                 case .success(let results):
                     homeMainView.totalTimeCardView.configure(results[TotalCardView.CardCategory.totalTime.rawValue])
                     homeMainView.missionCardView.configure(results[TotalCardView.CardCategory.totalCount.rawValue])
                 case .failure(let error):
-                    print(error)
+                    self?.showAlert(error: error)
                 }
             })
             .disposed(by: disposeBag)
@@ -91,7 +91,7 @@ extension HomeMainViewController {
                 case .success(_):
                     break
                 case .failure(let error):
-                    print(error)
+                    self?.showAlert(error: error)
                 }
             })
             .disposed(by: disposeBag)
@@ -130,5 +130,13 @@ extension HomeMainViewController {
                 self.navigationController?.pushViewController(HomeDetailViewController(viewModel: self.viewModel), animated: true)
             })
             .disposed(by: disposeBag)
+    }
+}
+
+extension HomeMainViewController {
+    private func showAlert(error: Error) {
+        let alert = UIAlertController(title: "오류", message: "\(error.localizedDescription)", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: nil))
+        present(alert, animated: true)
     }
 }
