@@ -15,16 +15,6 @@ class MissionResultViewController: UIViewController {
     
     let missionResultView = MissionResultView()
     
-    // UI 확인을 위한 mock 데이터
-    private let samplePayload = MissionResultPayload(
-        id: UUID(),
-        title: "CS 공부",
-        start: Date(timeIntervalSince1970: 1773995228),
-        end: Date(timeIntervalSince1970: 1773999428),
-        studyTime: 45,
-        isCompleted: false
-    )
-    
     // 코어데이터와 아이디를 받아서 뷰를 그림
     init(coreDataManager: CoreDataManager, resultId: UUID? = nil) {
         self.coreDataManager = coreDataManager
@@ -47,17 +37,17 @@ class MissionResultViewController: UIViewController {
         }
         missionResultView.homeButton.addTarget(self, action: #selector(handleHomeButtonTap), for: .touchUpInside)
         
-        // 여기서 데이터 넣어줌(사용시 샘플 데이터 로직 부분 삭제하시면 됩니다)
         if let resultId {
             do {
                 let payload = try coreDataManager.fetchMissionResult(of: resultId)
                 missionResultView.configure(with: payload)
+            } catch let error as CoreDataManager.CoreDataError {
+                showErrorAlert(for: error)
             } catch {
-                // TODO: 오류 처리 로직 구현
-                missionResultView.configure(with: samplePayload)
+                showErrorAlert(for: .loadFailed)
             }
         } else {
-            missionResultView.configure(with: samplePayload)
+            showErrorAlert(for: .empty)
         }
     }
     
@@ -69,5 +59,26 @@ class MissionResultViewController: UIViewController {
         }
         
         dismiss(animated: true)
+    }
+    
+    private func showErrorAlert(for error: CoreDataManager.CoreDataError) {
+        let message: String
+        
+        switch error {
+        case .empty:
+            message = "결과 데이터를 찾을 수 없습니다."
+        case .loadFailed:
+            message = "결과 데이터를 불러오지 못했습니다."
+        case .descriptionLoadFailed:
+            message = "데이터 불러오는 중 문제가 발생했습니다."
+        case .saveFailed:
+            message = "데이터 저장 중 문제가 발생했습니다."
+        }
+        
+        let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: { [weak self] _ in
+            self?.handleHomeButtonTap()
+        }))
+        present(alert, animated: true)
     }
 }
