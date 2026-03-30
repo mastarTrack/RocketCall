@@ -114,7 +114,7 @@ extension HomeDetailViewController {
             .share()
         
         // Result Section Item
-        let results = output.missionResults
+        let results = output.missionResultList
             .map {
                 switch $0 {
                 case .success(let results):

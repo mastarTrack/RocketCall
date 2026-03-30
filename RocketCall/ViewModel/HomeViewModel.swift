@@ -9,6 +9,7 @@ import RxSwift
 import RxCocoa
 import Foundation
 import UserNotifications
+import Then
 
 final class HomeViewModel: ViewModelProtocol {
     struct Input {
@@ -17,7 +18,7 @@ final class HomeViewModel: ViewModelProtocol {
     
     struct Output {
         let alarm: Observable<Result<Alarm?, Error>> // (alarm: 알람, isExist: 존재 여부)
-        let missionResults: Observable<Result<[MissionResultPayload], Error>> // 미션 결과 목록
+        let missionResultList: Observable<Result<[MissionResultList], Error>> // 미션 결과 목록
         let sum: Observable<Result<[SumResult], Error>> // 미션 결과 통계
         let chartRawData: Observable<Result<[Int: Int], Error>> // 차트뷰 업데이트를 위한 dataSource
         let progressStatus: Observable<Result<ProgressStatus, Error>> // ProgressView 데이터
@@ -28,7 +29,12 @@ final class HomeViewModel: ViewModelProtocol {
     let coreDataManager: CoreDataManager
     let notificationManager: NotificationManager
     let disposeBag = DisposeBag()
+    
     let center = UNUserNotificationCenter.current()
+    let dateFormatter = DateFormatter().then {
+        $0.locale = Locale(identifier: "ko_KR")
+        $0.dateFormat = "M월 dd일 (E)"
+    }
     private(set) var weeklyData: WeeklyData // ChartView 바인딩용
     
     struct TotalResultValue {
@@ -74,6 +80,12 @@ final class HomeViewModel: ViewModelProtocol {
             }
             .share()
         
+        let missionResultList: Observable<Result<[MissionResultList], Error>> = missionResults
+            .withUnretained(self)
+            .flatMap { `self`, results in
+                self.mapToMissionResultList(results)
+            }
+        
         // 결과 통계
         let sum: Observable<Result<[SumResult], Error>> = missionResults
             .withUnretained(self)
@@ -97,7 +109,7 @@ final class HomeViewModel: ViewModelProtocol {
         
         return Output(
             alarm: alarm,
-            missionResults: missionResults,
+            missionResultList: missionResultList,
             sum: sum,
             chartRawData: chartRawData,
             progressStatus: progress
@@ -433,5 +445,43 @@ extension HomeViewModel {
         Planet.allCases.filter {
             totalMinute < ($0.targetTime * 60)
         }.first
+    }
+}
+
+extension HomeViewModel {
+    struct MissionResultList: Hashable {
+        let id: UUID
+        let title: String
+        let date: String
+        let studyTime: Int // 공부 시간 - 분단위
+        let isCompleted: Bool // 달성 여부
+    }
+    
+    private func mapToMissionResultList(_ results: Result<[MissionResultPayload], Error>) -> Observable<Result<[MissionResultList], Error>> {
+        Observable.create { observer in
+            switch results {
+            case .success(let results):
+                let list = results.map { [weak self] in
+                    let time = $0.studyTime / 60
+                    let date = self?.dateFormatter.string(from: $0.start) ?? ""
+                    
+                    return MissionResultList(
+                    id: $0.id,
+                    title: $0.title,
+                    date: date,
+                    studyTime: time,
+                    isCompleted: $0.isCompleted
+                    )
+                }
+                
+                observer.onNext(.success(list))
+                observer.onCompleted()
+            case .failure(let error):
+                observer.onNext(.failure(error))
+                observer.onCompleted()
+        }
+            return Disposables.create()
+        }
+        
     }
 }

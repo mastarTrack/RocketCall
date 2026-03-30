@@ -48,7 +48,7 @@ extension HomeResultListViewController {
         //MARK: Output
         let output = viewModel.transform(input)
         
-        output.missionResults
+        output.missionResultList
             .subscribe(onNext: { [weak self] result in
                 guard let self else { return }
                 switch result {
@@ -77,7 +77,7 @@ extension HomeResultListViewController {
             .disposed(by: disposeBag)
     }
     
-    private func converToItem(_ results: [MissionResultPayload]) -> [DetailCollectionView.Item] {
+    private func converToItem(_ results: [HomeViewModel.MissionResultList]) -> [DetailCollectionView.Item] {
         results.map {
             DetailCollectionView.Item.result($0)
         }
