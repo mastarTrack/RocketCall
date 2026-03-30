@@ -280,5 +280,5 @@ RocketCall은 MVVM 아키텍처를 기반으로 구현했습니다.
 
 ## 🔗 Links
 
-GitHub: https://github.com/mastarTrack/RocketCall
-Figma: https://www.figma.com/design/ANioKmtZXqKMIYPgXVLUmH/제목-없음
+- GitHub: https://github.com/mastarTrack/RocketCall
+- Figma: https://www.figma.com/design/ANioKmtZXqKMIYPgXVLUmH/제목-없음
