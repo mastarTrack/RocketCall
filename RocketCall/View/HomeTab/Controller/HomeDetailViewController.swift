@@ -53,12 +53,12 @@ extension HomeDetailViewController {
         //MARK: set collectionView snapSHot
         // Sum Section Item
         let sum: Observable<[HomeViewModel.SumResult]> = output.sum
-            .map {
-                switch $0 {
+            .map { [weak self] result in
+                switch result {
                 case .success(let results):
                     return results
                 case .failure(let error):
-                    print(error)
+                    self?.showAlert(error: error)
                     return []
                 }
             }
@@ -77,12 +77,12 @@ extension HomeDetailViewController {
 
         // Chart Section Item
         let chartData = output.chartRawData
-            .map {
-                switch $0 {
+            .map { [weak self] result in
+                switch result {
                 case .success(let data):
                     return data
                 case .failure(let error):
-                    print(error)
+                    self?.showAlert(error: error)
                     return [:]
                 }
             }
@@ -96,12 +96,12 @@ extension HomeDetailViewController {
         
         // Progress Section Item
         let progress = output.progressStatus
-            .map {
-                switch $0 {
+            .map { [weak self] result in
+                switch result {
                 case .success(let status):
                     return status
                 case .failure(let error):
-                    print(error)
+                    self?.showAlert(error: error)
                     return HomeViewModel.ProgressStatus(current: .earth, target: .moon, progress: 0)
                 }
             }
@@ -115,12 +115,12 @@ extension HomeDetailViewController {
         
         // Result Section Item
         let results = output.missionResultList
-            .map {
-                switch $0 {
+            .map { [weak self] result in
+                switch result {
                 case .success(let results):
                     return results
                 case .failure(let error):
-                    print(error)
+                    self?.showAlert(error: error)
                     return []
                 }
             }
@@ -173,5 +173,13 @@ extension HomeDetailViewController {
                 self.navigationController?.pushViewController(vc, animated: true)
             })
             .disposed(by: disposeBag)
+    }
+}
+
+extension HomeDetailViewController {
+    private func showAlert(error: Error) {
+        let alert = UIAlertController(title: "오류", message: "\(error.localizedDescription)", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default, handler: nil))
+        present(alert, animated: true)
     }
 }
